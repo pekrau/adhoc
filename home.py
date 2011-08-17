@@ -12,7 +12,7 @@ class Home(WebResource):
     def GET(self, request, response):
         from .task import get_tasks
         html = HtmlRepresentation(self, 'Adhoc')
-        html.abstract = P('Web interface to various bioinformatics tools.')
+        html.abstract = P('Task-oriented web interface to various bioinformatics tools.')
         url = configuration.get_url('tasks', self.user['name'])
         html.append_markdown('''Currently, the suite of BLAST programs are
 available.
