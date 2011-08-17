@@ -108,14 +108,17 @@ class HtmlRepresentation(object):
 
     def set_footer(self):
         self.footer = TABLE(TR(TD("adhoc %s" % configuration.VERSION,
-                                  style='width:33%;'),
+                                  style='width:25%;'),
+                               TD(A('SciLifeLab tools',
+                                    href='http://tools.scilifelab.se/'),
+                                  style='width:25%; text-align:center;'),
                                TD(A('SciLifeLab',
                                     href='http://www.scilifelab.se/'),
-                                  style='width:33%; text-align:center;'),
+                                  style='width:25%; text-align:center;'),
                                TD("Per Kraulis (%s)" %
                                   A('per.kraulis@scilifelab.se',
                                     href='mailto:per.kraulis@scilifelab.se'),
-                                  style='width:34%;text-align:right;')),
+                                  style='width:25%;text-align:right;')),
                             width='100%')
 
     def write(self, response):

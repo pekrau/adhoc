@@ -47,7 +47,7 @@ ADHOC_FILE = os.path.join(DATA_DIR, 'adhoc.sqlite3')
 DB_DIR = os.path.join(DATA_DIR, 'db')
 TASK_DIR = os.path.join(DATA_DIR, 'task')
 
-TEAMS = set(['admin', 'kluyveromyces'])
+TEAMS = set(['admin', 'kluyveromyces', 'C.tentans']) # No blanks allowed!
 
 
 TOOLS = []

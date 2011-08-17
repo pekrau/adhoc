@@ -7,12 +7,12 @@ import logging
 import mimetypes
 import sqlite3
 
-from toolbox import mimeutils
 from wireframe.response import *
 from wireframe import basic_authenticate
 from wireframe.dispatcher import BaseDispatcher
 
 from . import configuration
+from . import mimeutils
 from .html_representation import *
 
 

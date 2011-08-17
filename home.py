@@ -12,11 +12,14 @@ class Home(WebResource):
     def GET(self, request, response):
         from .task import get_tasks
         html = HtmlRepresentation(self, 'Adhoc')
-        html.abstract = P('Web interface to various tools for'
-                          ' analysis of different data sets.')
-        url = configuration.get_url('tasks')
+        html.abstract = P('Web interface to various bioinformatics tools.')
+        url = configuration.get_url('tasks', self.user['name'])
         html.append_markdown('''Currently, the suite of BLAST programs are
-available, with a few standard databases.
+available.
+
+The available databases include some public standard data sets,
+and possibly some private data sets depending on the teams that
+your account is a member of.
 
 To view your current list of tasks, click [here](%s),
 or on the item **My tasks** in the menu at the left.''' % url)

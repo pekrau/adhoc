@@ -11,9 +11,10 @@ import json
 import sqlite3
 import resource
 
-from toolbox.daemonize import daemonize
-
 from adhoc import configuration
+from adhoc.daemonize import daemonize
+
+# Set up tools lookup
 import adhoc.blast
 
 
