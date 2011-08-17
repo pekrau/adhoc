@@ -1,0 +1,95 @@
+* {font-family: Arial, Helvetica, sans-serif;
+   font-size: small; }
+
+body {background-color: white; }
+
+input {background-color: lightgrey; }
+textarea {background-color: lightgrey;
+          font-family: monospace; }
+
+h1 {font-size: x-large;
+    padding-left: 1em;
+    margin-left: 2em; }
+
+h2 {font-size: medium;
+    padding-left: 1em;
+    margin-left: 1em;  }
+
+h3 {font-size: small;
+    padding-left: 0.5em;
+    margin-left: 0.5em;  }
+
+img {border-width: 0;
+     padding: 0;
+     margin: 0; }
+
+a {text-decoration: none;
+   font-weight: bold; }
+
+pre {font-family: monospace; }
+
+code {font-family: monospace; }
+
+form {padding: 0;
+      margin: 0; }
+
+table.body tr th {vertical-align: top; }
+table.body tr td {vertical-align: top; }
+
+table.input tr th {vertical-align: top;
+                   text-align: right; }
+table.input tr td {vertical-align: top; }
+
+table.output tr th {vertical-align: top;
+                   text-align: right; }
+table.output tr td {vertical-align: top;
+                    border-style: solid;
+                    border-width: 1px;
+		    padding: 2px 4px; }
+
+table.data {border-style: solid;
+            border-width: 2px 0 0 2px; }
+table.data tr th {vertical-align: top;
+                  text-align: left;
+                  border-style: solid;
+                  border-width: 0 1px 1px 0; }
+table.data tr td {vertical-align: top;
+                  border-style: solid;
+                  border-width: 0 1px 1px 0; }
+
+table.list tr th {vertical-align: top;
+                  text-align: left;
+                  border-style: solid;
+                  border-width: 2px 0; }
+table.list tr td {vertical-align: top;
+                  border-style: solid;
+                  border-width: 0 0 1px 0; }
+table.list tr td.number {vertical-align: top;
+			 text-align: right;
+			 border-style: solid;
+			 border-width: 0 0 1px 0; }
+table.list tr td.clean {border-width: 0; }
+
+table.navigation {padding: 0;
+		  margin: 0; }
+
+table.packed {padding: 0;
+	      margin: 0;
+	      border-width: 0;}
+table.packed tr th {padding: 0;
+		    margin: 0;
+		    border-width: 0; }
+table.packed tr td {padding: 0;
+		    margin: 0;
+		    border-width: 0; }
+
+table.meta {border-style: solid;
+            border-color: lightgray;
+            border-width: 2px 0 0 2px; }
+table.meta tr th {vertical-align: top;
+                  text-align: left; }
+table.meta tr td {vertical-align: top; }
+
+.right {text-align: right; }
+
+.status_icon {vertical-align: middle; }
