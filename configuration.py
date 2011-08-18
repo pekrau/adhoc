@@ -49,6 +49,8 @@ ADHOC_FILE = os.path.join(DATA_DIR, 'adhoc.sqlite3')
 DB_DIR = os.path.join(DATA_DIR, 'db')
 TASK_DIR = os.path.join(DATA_DIR, 'task')
 
+HTTP_TIMEOUT = 5.0
+
 TOOLS = []
 TOOLS_LOOKUP = dict()
 

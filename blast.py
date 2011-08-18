@@ -281,18 +281,16 @@ class BlastCreate(WebResource):
         self.preferences['db_gencode'] = gencode
 
     def set_query(self, type):
-        try:
-            query_file = self.request.cgi_fields['query_file'].file
-            if not query_file: raise KeyError
-            query = query_file.read().strip()
-            if not query: raise KeyError
-        except KeyError:
-            query = self.get_cgi_value('query', required=True)
+        query = self.get_cgi_file_content('query_file')
         if not query:
-            raise HTTP_BAD_REQUEST('query is empty')
-        # Add FASTA header line if not present
-        if query[0] != '>':
-            query = '>query\n' + query
+            query = self.get_cgi_value('query', required=True)
+        if query and query[0] != '>':
+            parts = []
+            for url in query.strip().split('\n'):
+                parts.append(self.get_url_content(url).strip())
+            query = '\n'.join(parts)
+        if not query:
+            raise HTTP_BAD_REQUEST('no query file, and query field is empty')
         if configuration.to_bool(self.get_cgi_value('query_check')):
             characters = set()
             for line in query.split('\n'):

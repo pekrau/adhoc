@@ -7,6 +7,8 @@ import logging
 import mimetypes
 import sqlite3
 import json
+import urlparse
+import httplib
 
 from wireframe.response import *
 from wireframe import basic_authenticate
@@ -100,6 +102,38 @@ class WebResource(BaseDispatcher):
                 return None
         else:
             return value
+
+    def get_cgi_file_content(self, name):
+        "Return the content of the named file field. None if no such file."
+        try:
+            infile = self.request.cgi_fields[name].file
+            if not infile: raise KeyError
+            return infile.read()
+        except KeyError:
+            return None
+
+    def get_url_content(self, url):
+        "Return the content of the given HTTP URLs."
+        try:
+            parts = urlparse.urlsplit(url)
+            if parts.scheme != 'http':
+                raise ValueError('not HTTP')
+            if not parts.netloc:
+                raise ValueError('invalid URL')
+            cnx = httplib.HTTPConnection(parts.netloc,
+                                         parts.port or 80,
+                                         timeout=configuration.HTTP_TIMEOUT)
+            cnx.request('GET', parts.path)
+            response = cnx.getresponse()
+            if response.status != 200:
+                raise ValueError("response %s %s" %
+                                 (response.status, response.reason))
+            content = response.read()
+            if not content:
+                raise ValueError('no content')
+            return content
+        except Exception, msg:
+            raise HTTP_BAD_REQUEST("%s : URL %s" % (msg, url))
 
     def execute(self, sql, *values):
         cursor = self.cnx.cursor()
