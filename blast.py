@@ -74,6 +74,16 @@ class BlastCreate(WebResource):
     tool = None
     description = None
 
+    def prepare(self, request, response):
+        super(BlastCreate, self).prepare(request, response)
+        self.preferences = dict()
+
+    def get_preference(self, key, default=None):
+        try:
+            return self.user['preferences'][self.tool][key]
+        except KeyError:
+            return default
+
     def row_execute(self):
         return TR(TH(),
                   TD(INPUT(type='submit', value='Execute task'), colspan=2))
@@ -84,10 +94,12 @@ class BlastCreate(WebResource):
     def row_title(self):
         return TR(TH('Title'),
                   TD(),
-                  TD(INPUT(type='text', name='title')))
+                  TD(INPUT(type='text', name='title',
+                           value=self.get_preference('title', ''))))
 
     def row_db(self, type):
-        rows = [TR(TH('Include'),
+        preference = set(self.get_preference('db', []))
+        rows = [TR(TH('Use'),
                    TH('Title'),
                    TH('File'),
                    TH('# seqs'),
@@ -96,7 +108,8 @@ class BlastCreate(WebResource):
         for db in get_databases(type, self.user['teams']):
             rows.append(TR(TD(INPUT(type='checkbox',
                                     name='db',
-                                    value=db['filename']),
+                                    value=db['filename'],
+                                    checked=db['filename'] in preference),
                               klass='clean'),
                            TD(db['title']),
                            TD(db['filename']),
@@ -108,11 +121,16 @@ class BlastCreate(WebResource):
                   TD(TABLE(klass='list', *rows)))
 
     def row_db_gencode(self):
+        preference = self.get_preference('db_gencode')
+        options = []
+        for code, name in GENETIC_CODES:
+            if code == preference:
+                options.append(OPTION(name, value=code, selected=True))
+            else:
+                options.append(OPTION(name, value=code))
         return TR(TH('Database genetic code'),
                   TD(),
-                  TD(SELECT(name='db_gencode',
-                            *[OPTION(r[1], value=r[0])
-                              for r in GENETIC_CODES])))
+                  TD(SELECT(name='db_gencode', *options)))
 
     def row_query(self, type):
         return TR(TH('Query'),
@@ -124,55 +142,95 @@ class BlastCreate(WebResource):
                               TD(INPUT(type='file', name='query_file'))),
                            TR(TD(INPUT(type='checkbox', checked=True,
                                        name='query_check', value='true'),
-                                 ' Check query content.')))))
+                                 ' Check query content for validity.')))))
 
     def row_task_type(self, task_types):
+        preference = self.get_preference('task_type')
+        options = []
+        for t in task_types:
+            if t == preference:
+                options.append(OPTION(t, selected=True))
+            else:
+                options.append(OPTION(t))
         return TR(TH('Task type'),
                   TD(REQUIRED),
-                  TD(SELECT(name='task_type',
-                            *[OPTION(t) for t in task_types])))
+                  TD(SELECT(name='task_type', * options)))
 
     def row_query_gencode(self):
+        preference = self.get_preference('query_gencode')
+        options = []
+        for code, name in GENETIC_CODES:
+            if code == preference:
+                options.append(OPTION(name, value=code, selected=True))
+            else:
+                options.append(OPTION(name, value=code))
         return TR(TH('Query genetic code'),
                   TD(),
-                  TD(SELECT(name='query_gencode',
-                            *[OPTION(r[1], value=r[0])
-                              for r in GENETIC_CODES])))
+                  TD(SELECT(name='query_gencode', *options)))
 
     def row_evalue(self):
         return TR(TH('E-value'),
                   TD(),
-                  TD(INPUT(type='text', name='evalue', value='10')))
+                  TD(INPUT(type='text', name='evalue',
+                           value=self.get_preference('evalue', '10'))))
 
     def row_dust(self, default=None):
+        preference = self.get_preference('dust')
+        if preference is None:
+            preference = default
+        options = []
+        for d in DUST_VALUES:
+            if d == preference:
+                options.append(OPTION(d, selected=True))
+            else:
+                options.append(OPTION(d))
         return TR(TH('DUST filter'),
                   TD(),
-                  TD(SELECT(name='dust', 
-                            *[OPTION(d, selected=(d==default) or None)
-                              for d in DUST_VALUES])))
+                  TD(SELECT(name='dust', *options)))
 
     def row_seg(self, default=None):
+        preference = self.get_preference('seg')
+        if preference is None:
+            preference = default
+        options = []
+        for s in SEG_VALUES:
+            if s == preference:
+                options.append(OPTION(s, selected=True))
+            else:
+                options.append(OPTION(s))
         return TR(TH('SEG filter'),
                   TD(),
-                  TD(SELECT(name='seg',
-                            *[OPTION(d, selected=(d==default) or None)
-                              for d in SEG_VALUES])))
+                  TD(SELECT(name='seg', *options)))
 
     def row_output_format(self):
+        preference = self.get_preference('outfmt')
+        options = []
+        for code, title, mimetype in OUTPUT_FORMATS:
+            if code == preference:
+                options.append(OPTION(title, value=code, selected=True))
+            else:
+                options.append(OPTION(title, value=code))
         return TR(TH('Output format'),
                   TD(),
-                  TD(SELECT(name='outfmt', *[OPTION(f[1], value=f[0])
-                                             for f in OUTPUT_FORMATS])))
+                  TD(SELECT(name='outfmt', *options)))
 
     def row_num_descriptions(self):
         return TR(TH('# db seq descriptions'),
                   TD(),
-                  TD(INPUT(type='text', name='num_descriptions', value='500')))
+                  TD(INPUT(type='text', name='num_descriptions',
+                           value=self.get_preference('num_descriptions','500'))))
 
     def row_num_alignments(self):
         return TR(TH('# alignments'),
                   TD(),
-                  TD(INPUT(type='text', name='num_alignments', value='250')))
+                  TD(INPUT(type='text', name='num_alignments',
+                           value=self.get_preference('num_alignments', '250'))))
+
+    def row_preferences(self):
+        return TR(TH('Preferences'),
+                  TD(),
+                  TD(INPUT(type='checkbox', name='preferences', value='true'),
+                     ' Set your preferences for this tool to the above values.'))
 
     def output(self, rows, response):
         html = HtmlRepresentation(self, self.tool)
@@ -189,6 +247,7 @@ class BlastCreate(WebResource):
         self.task = Task(self.cnx)
         self.task.tool = self.tool
         self.task.title = self.get_cgi_value('title')
+        self.preferences['title'] = self.task.title
         self.task.data['parameters'] = dict()
 
     @property
@@ -208,6 +267,7 @@ class BlastCreate(WebResource):
         if not result:
             raise HTTP_BAD_REQUEST("no 'db' value specified")
         self.parameters['-db'] = ' '.join(result)
+        self.preferences['db'] = result
 
     def set_db_gencode(self):
         gencode = self.get_cgi_value('db_gencode')
@@ -218,6 +278,7 @@ class BlastCreate(WebResource):
         else:
             raise HTTP_BAD_REQUEST("invalid 'db_gencode' value")
         self.parameters['-db_gencode'] = gencode
+        self.preferences['db_gencode'] = gencode
 
     def set_query(self, type):
         try:
@@ -255,6 +316,7 @@ class BlastCreate(WebResource):
         else:
             raise HTTP_BAD_REQUEST("invalid 'query_gencode' value")
         self.parameters['-query_gencode'] = gencode
+        self.preferences['query_gencode'] = gencode
 
     def set_task_type(self, task_types):
         task_type = self.get_cgi_value('task_type', required=True)
@@ -264,6 +326,7 @@ class BlastCreate(WebResource):
         else:
             raise HTTP_BAD_REQUEST("invalid 'task_type' value")
         self.parameters['-task'] = task_type
+        self.preferences['task_type'] = task_type
 
     def set_evalue(self):
         evalue = self.get_cgi_value('evalue')
@@ -274,6 +337,7 @@ class BlastCreate(WebResource):
         except (TypeError, ValueError):
             raise HTTP_BAD_REQUEST("invalid 'evalue' value")
         self.parameters['-evalue'] = evalue
+        self.preferences['evalue'] = str(evalue)
 
     def set_dust(self):
         dust = self.get_cgi_value('dust')
@@ -281,6 +345,7 @@ class BlastCreate(WebResource):
         if not dust in DUST_VALUES:
             raise HTTP_BAD_REQUEST("invalid 'dust' value")
         self.parameters['-dust'] = dust
+        self.preferences['dust'] = dust
 
     def set_seg(self):
         seg = self.get_cgi_value('seg')
@@ -288,6 +353,7 @@ class BlastCreate(WebResource):
         if not seg in SEG_VALUES:
             raise HTTP_BAD_REQUEST("invalid 'seg' value")
         self.parameters['-seg'] = seg
+        self.preferences['seg'] = seg
 
     def set_outfmt(self):
         outfmt = self.get_cgi_value('outfmt')
@@ -297,6 +363,7 @@ class BlastCreate(WebResource):
         else:
             outfmt = '0'
         self.parameters['-outfmt'] = outfmt
+        self.preferences['outfmt'] = outfmt
 
     def set_num_descriptions(self):
         num = self.get_cgi_value('num_descriptions')
@@ -307,6 +374,7 @@ class BlastCreate(WebResource):
         except (TypeError, ValueError):
             raise HTTP_BAD_REQUEST("invalid 'num_descriptions' value")
         self.parameters['-num_descriptions'] = num
+        self.preferences['num_descriptions'] = str(num)
 
     def set_num_alignments(self):
         num = self.get_cgi_value('num_alignments')
@@ -317,6 +385,11 @@ class BlastCreate(WebResource):
         except (TypeError, ValueError):
             raise HTTP_BAD_REQUEST("invalid 'num_alignments' value")
         self.parameters['-num_alignments'] = num
+        self.preferences['num_alignments'] = str(num)
+
+    def update_preferences(self):
+        if configuration.to_bool(self.get_cgi_value('preferences')):
+            self.update_user_preferences(self.tool, self.preferences)
 
     def execute_task(self):
         self.task.create(self.user['id'])
@@ -349,6 +422,7 @@ For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/b
                 self.row_output_format(),
                 self.row_num_descriptions(),
                 self.row_num_alignments(),
+                self.row_preferences(),
                 self.row_spacer(),
                 self.row_execute()]
         self.output(rows, response)
@@ -364,6 +438,7 @@ For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/b
         self.set_outfmt()
         self.set_num_descriptions()
         self.set_num_alignments()
+        self.update_preferences()
         self.execute_task()
 
 
@@ -389,6 +464,7 @@ For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/b
                 self.row_output_format(),
                 self.row_num_descriptions(),
                 self.row_num_alignments(),
+                self.row_preferences(),
                 self.row_spacer(),
                 self.row_execute()]
         self.output(rows, response)
@@ -404,6 +480,7 @@ For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/b
         self.set_outfmt()
         self.set_num_descriptions()
         self.set_num_alignments()
+        self.update_preferences()
         self.execute_task()
 
 
@@ -429,6 +506,7 @@ For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/b
                 self.row_output_format(),
                 self.row_num_descriptions(),
                 self.row_num_alignments(),
+                self.row_preferences(),
                 self.row_spacer(),
                 self.row_execute()]
         self.output(rows, response)
@@ -444,6 +522,7 @@ For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/b
         self.set_outfmt()
         self.set_num_descriptions()
         self.set_num_alignments()
+        self.update_preferences()
         self.execute_task()
 
 
@@ -469,6 +548,7 @@ For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/b
                 self.row_output_format(),
                 self.row_num_descriptions(),
                 self.row_num_alignments(),
+                self.row_preferences(),
                 self.row_spacer(),
                 self.row_execute()]
         self.output(rows, response)
@@ -484,6 +564,7 @@ For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/b
         self.set_outfmt()
         self.set_num_descriptions()
         self.set_num_alignments()
+        self.update_preferences()
         self.execute_task()
 
 
@@ -510,6 +591,7 @@ For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/b
                 self.row_output_format(),
                 self.row_num_descriptions(),
                 self.row_num_alignments(),
+                self.row_preferences(),
                 self.row_spacer(),
                 self.row_execute()]
         self.output(rows, response)
@@ -526,6 +608,7 @@ For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/b
         self.set_outfmt()
         self.set_num_descriptions()
         self.set_num_alignments()
+        self.update_preferences()
         self.execute_task()
 
 

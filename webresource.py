@@ -6,6 +6,7 @@ WebResource: Base HTTP request dispatcher class.
 import logging
 import mimetypes
 import sqlite3
+import json
 
 from wireframe.response import *
 from wireframe import basic_authenticate
@@ -25,7 +26,6 @@ class WebResource(BaseDispatcher):
         2) Authenticate user account and get information.
         3) Get user agent information.
         4) Get the explicit accept types for content negotiation.
-        5) Get the task, if an IUI was given.
         """
         self.request = request
         self.cnx = sqlite3.connect(configuration.ADHOC_FILE)
@@ -60,6 +60,13 @@ class WebResource(BaseDispatcher):
                     email=record[3],
                     preferences=preferences,
                     description=record[5])
+
+    def update_user_preferences(self, tool, preferences):
+        self.user['preferences'][tool] = preferences
+        self.execute('UPDATE account SET preferences=? WHERE name=?',
+                     json.dumps(self.user['preferences']),
+                     self.user['name'])
+        self.commit()
 
     def is_admin(self):
         "Is user admin?"

@@ -10,6 +10,7 @@ import socket
 import urllib
 import hashlib
 import time
+import json
 
 VERSION = '1.0'
 
@@ -22,6 +23,11 @@ DATETIME_ISO_FORMAT = "%sT%sZ" % (DATE_ISO_FORMAT, TIME_ISO_FORMAT)
 
 HOSTNAME = socket.gethostname()
 
+# The site module must define the following global variables:
+# SALT        password encryption salt
+# URL_ROOT    root of URL for web site
+# DATA_DIR    directory for adhoc data
+# PYTHON      path to python interpreter
 MODULENAME = "adhoc.site_%s" % HOSTNAME
 try:
     __import__(MODULENAME)
@@ -32,10 +38,6 @@ else:
     for key in dir(module):
         if key.startswith('_'): continue
         globals()[key] = getattr(module, key)
-    ## SALT = site.SALT
-    ## URL_ROOT = site.URL_ROOT
-    ## DATA_DIR = site.DATA_DIR
-    ## PYTHON = site.PYTHON
 
 URL_BASE = "http://%s" % URL_ROOT
 
@@ -47,9 +49,6 @@ ADHOC_FILE = os.path.join(DATA_DIR, 'adhoc.sqlite3')
 DB_DIR = os.path.join(DATA_DIR, 'db')
 TASK_DIR = os.path.join(DATA_DIR, 'task')
 
-TEAMS = set(['admin', 'kluyveromyces', 'C.tentans']) # No blanks allowed!
-
-
 TOOLS = []
 TOOLS_LOOKUP = dict()
 
@@ -60,6 +59,14 @@ def add_tool(name, function, description, version):
                       version=version))
     TOOLS_LOOKUP[name] = function
 
+def get_teams():
+    """Return the set of teams.
+    NOTE: a team name must *not* contain any blanks!"""
+    infile = open('/var/local/adhoc/teams.json')
+    try:
+        return set(json.load(infile))
+    finally:
+        infile.close()
 
 def get_url(*parts, **params):
     "Return the absolute URL given the path parts."

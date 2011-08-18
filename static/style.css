@@ -75,7 +75,8 @@ table.navigation {padding: 0;
 
 table.packed {padding: 0;
 	      margin: 0;
-	      border-width: 0;}
+	      border-width: 0;
+              border-collapse: collapse; }
 table.packed tr th {padding: 0;
 		    margin: 0;
 		    border-width: 0; }

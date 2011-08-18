@@ -98,9 +98,11 @@ class HtmlRepresentation(object):
             rows.append(TR(TD(A('Accounts', href=url))))
         url = configuration.get_url('account', self.webresource.user['name'])
         rows.append(TR(TD(A('My account', href=url))))
+        trows = []
         for tool in configuration.TOOLS:
             url = configuration.get_url(tool['name'])
-            rows.append(TR(TD(A(tool['name'], href=url))))
+            trows.append(TR(TD(A(tool['name'], href=url))))
+        rows.append(TR(TD(TABLE(klass='packed', *trows))))
         self.navigation = TABLE(klass='navigation', *rows)
 
     def set_metadata(self):

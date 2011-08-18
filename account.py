@@ -124,7 +124,7 @@ class AccountEdit(Account):
                            TD(*[DIV(INPUT(type='checkbox', name='team', value=t,
                                           checked=(t in self.teams)),
                                     t)
-                                for t in sorted(configuration.TEAMS)])))
+                                for t in sorted(configuration.get_teams())])))
         else:
             rows.append(TR(TH('Teams'),
                            TD(),
@@ -196,7 +196,7 @@ class AccountCreate(WebResource):
                 TR(TH('Teams'),
                    TD(*[DIV(INPUT(type='checkbox', name='team', value=team),
                             team)
-                        for team in sorted(configuration.TEAMS)])),
+                        for team in sorted(configuration.get_teams())])),
                 TR(TH('Email'),
                    TD(),
                    TD(INPUT(type='text', name='email')),
