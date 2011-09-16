@@ -284,16 +284,20 @@ class BlastCreate(WebResource):
         query = self.get_cgi_file_content('query_file')
         if not query:
             query = self.get_cgi_value('query', required=True)
-        if query and query[0] != '>':
+        if query.startswith('http:'):
             parts = []
             for url in query.strip().split('\n'):
                 parts.append(self.get_url_content(url).strip())
             query = '\n'.join(parts)
+        elif query and query[0] != '>':
+            query = ">query\n%s" % query
         if not query:
             raise HTTP_BAD_REQUEST('no query file, and query field is empty')
         if configuration.to_bool(self.get_cgi_value('query_check')):
             characters = set()
             for line in query.split('\n'):
+                line = line.strip()
+                if not line: continue
                 if line[0] == '>': continue
                 for c in line.strip():
                     characters.add(c.upper())

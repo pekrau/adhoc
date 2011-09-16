@@ -1,4 +1,3 @@
-site_kraulis.py
-site_maggie.py
+site_*.py
 *.pyc
 *.py~

@@ -14,7 +14,7 @@ import json
 
 VERSION = '1.0'
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 DATE_ISO_FORMAT = "%Y-%m-%d"
