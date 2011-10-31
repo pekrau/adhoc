@@ -13,7 +13,7 @@ import urllib
 import urlparse
 import time
 
-configuration = dict(NETLOC = 'tools.scilifelab.se',
+configuration = dict(NETLOC = 'localhost',
                      ROOT = '/adhoc',
                      ACCOUNT = 'test',
                      PASSWORD = 'abc123')

@@ -352,7 +352,7 @@ class POST_AccountEdit(POST_Mixin, POST):
             updates.pop('teams', None)
             updates.pop('max_tasks', None)
         updates['description'] = updates.pop('descr', None)
-        logging.debug("adhoc2: edit account: %s", updates)
+        logging.debug("adhoc: edit account: %s", updates)
         terms = ["%s=?" % key for key in updates.keys()]
         sql = "UPDATE account SET %s WHERE name=?" % ','.join(terms)
         values = updates.values()

@@ -8,12 +8,12 @@ import sys
 import resource
 import sqlite3
 
-from adhoc2 import configuration
-from adhoc2.task import Task
-from adhoc2.daemonize import daemonize
+from adhoc import configuration
+from adhoc.task import Task
+from adhoc.daemonize import daemonize
 
 # Set up tools lookup
-import adhoc2.blast
+import adhoc.blast
 
 
 def execute():

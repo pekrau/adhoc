@@ -29,7 +29,7 @@ class BaseMixin(object):
 
     def execute(self, sql, *values):
         cursor = self.cnx.cursor()
-        logging.debug("adhoc2: SQL '%s', values %s", sql, values)
+        logging.debug("adhoc: SQL '%s', values %s", sql, values)
         cursor.execute(sql, values)
         return cursor
 

@@ -23,7 +23,7 @@ DEBUG = False                           # May be changed by site module
 # DATA_DIR    directory for adhoc data
 # PYTHON      path to python interpreter
 HOSTNAME = socket.gethostname()
-MODULENAME = "adhoc2.site_%s" % HOSTNAME
+MODULENAME = "adhoc.site_%s" % HOSTNAME
 try:
     __import__(MODULENAME)
 except ImportError:

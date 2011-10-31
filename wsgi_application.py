@@ -7,10 +7,10 @@ import wrapid.application
 from wrapid.get_documentation import GET_Documentation
 from wrapid.get_static import GET_Static
 
-from adhoc2 import configuration
-from adhoc2.home import *
-from adhoc2.account import *
-from adhoc2.task import *
+from adhoc import configuration
+from adhoc.home import *
+from adhoc.account import *
+from adhoc.task import *
 
 application = wrapid.application.Application(name=configuration.NAME,
                                              version=configuration.VERSION,
@@ -52,8 +52,8 @@ application.append(Resource('/task/{iui}/output', name='Task output',
                             GET=GET_TaskOutput(),
                             descr='Task output content.'))
 
-import adhoc2.blast
-adhoc2.blast.setup(application)
+import adhoc.blast
+adhoc.blast.setup(application)
 
 application.append(Resource('/static/{filename}', name='Static file',
                             GET=GET_Static(configuration.STATIC_DIR,
