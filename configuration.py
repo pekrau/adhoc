@@ -1,4 +1,4 @@
-""" Adhoc web resource.
+""" Adhoc web resource: simple bioinformatics tasks.
 
 Configuration settings.
 """
@@ -12,23 +12,18 @@ import hashlib
 import time
 import json
 
-VERSION = '1.0'
+NAME = 'Adhoc'
+VERSION = '2.0'
 
-logging.basicConfig(level=logging.INFO)
+DEBUG = False                           # May be changed by site module
 
-
-DATE_ISO_FORMAT = "%Y-%m-%d"
-TIME_ISO_FORMAT = "%H:%M:%S"
-DATETIME_ISO_FORMAT = "%sT%sZ" % (DATE_ISO_FORMAT, TIME_ISO_FORMAT)
-
-HOSTNAME = socket.gethostname()
-
-# The site module must define the following global variables:
+# The site module must define paths to tool executables,
+# and define the following global variables:
 # SALT        password encryption salt
-# URL_ROOT    root of URL for web site
 # DATA_DIR    directory for adhoc data
 # PYTHON      path to python interpreter
-MODULENAME = "adhoc.site_%s" % HOSTNAME
+HOSTNAME = socket.gethostname()
+MODULENAME = "adhoc2.site_%s" % HOSTNAME
 try:
     __import__(MODULENAME)
 except ImportError:
@@ -39,43 +34,65 @@ else:
         if key.startswith('_'): continue
         globals()[key] = getattr(module, key)
 
-URL_BASE = "http://%s" % URL_ROOT
+if DEBUG:
+    logging.basicConfig(level=logging.DEBUG)
+else:
+    logging.basicConfig(level=logging.INFO)
+
+DATE_ISO_FORMAT = "%Y-%m-%d"
+TIME_ISO_FORMAT = "%H:%M:%S"
+DATETIME_ISO_FORMAT = "%sT%sZ" % (DATE_ISO_FORMAT, TIME_ISO_FORMAT)
+
+CREATED = 'created'
+WAITING = 'waiting'
+EXECUTING = 'executing'
+FINISHED = 'finished'
+FAILED = 'failed'
+KILLED = 'killed'
+STATUSES = set([CREATED, WAITING, EXECUTING, FINISHED, FAILED, KILLED])
+DYNAMIC_STATUSES = set([CREATED, WAITING, EXECUTING])
+STATIC_STATUSES = set([FINISHED, FAILED, KILLED])
+
+REALM = 'adhoc'
+HTTP_TIMEOUT = 5.0
+CSS_HREF = '/static/wrapid-doc.css'
+REFRESH_FACTOR = 2.0
+MAX_REFRESH = 65.0
 
 SOURCE_DIR = os.path.dirname(__file__)
 STATIC_DIR = os.path.join(SOURCE_DIR, 'static')
-TASK_SCRIPT = os.path.join(SOURCE_DIR, 'task.py')
+EXECUTE_SCRIPT = os.path.join(SOURCE_DIR, 'execute.py')
 
-ADHOC_FILE = os.path.join(DATA_DIR, 'adhoc.sqlite3')
+ADHOC_DBFILE = os.path.join(DATA_DIR, 'adhoc.sqlite3')
 DB_DIR = os.path.join(DATA_DIR, 'db')
 TASK_DIR = os.path.join(DATA_DIR, 'task')
 
-HTTP_TIMEOUT = 5.0
+DEFAULT_MAX_TASKS = 200
 
-TOOLS = []
+TOOLS = []                              # List of lists; first item is section
 TOOLS_LOOKUP = dict()
 
-def add_tool(name, function, description, version):
-    TOOLS.append(dict(name=name,
-                      function=function,
-                      description=description,
-                      version=version))
+
+def add_tool(family, name, function):
+    if name in TOOLS_LOOKUP:
+        raise ValueError("tool '%s' already added" % name)
+    for tools in TOOLS:
+        if tools[0] == family:
+            tools.append(dict(family=family, name=name, function=function))
+            break
+    else:
+        tools = [family, dict(family=family, name=name, function=function)]
+        TOOLS.append(tools)
     TOOLS_LOOKUP[name] = function
 
 def get_teams():
-    """Return the set of teams.
+    """Return the list of teams.
     NOTE: a team name must *not* contain any blanks!"""
-    infile = open('/var/local/adhoc/teams.json')
+    infile = open(os.path.join(DATA_DIR, 'teams.json'))
     try:
-        return set(json.load(infile))
+        return [str(t) for t in json.load(infile)]
     finally:
         infile.close()
-
-def get_url(*parts, **params):
-    "Return the absolute URL given the path parts."
-    url = '/'.join([URL_BASE] + list(parts))
-    if params:
-        url += '?' + urllib.urlencode(params)
-    return url
 
 def get_password_hexdigest(password):
     md5 = hashlib.md5()
@@ -104,3 +121,19 @@ def to_bool(value):
         return False
     else:
         raise ValueError("invalid literal '%s' for boolean" % value)
+
+def nstr(value):
+    "Return str of unicode value, else same, recursively."
+    if value is None:
+        return None
+    elif isinstance(value, unicode):
+        return str(value)
+    elif isinstance(value, list):
+        return map(nstr, value)
+    elif isinstance(value, set):
+        return set(map(nstr, value))
+    elif isinstance(value, dict):
+        return dict([(nstr(key), nstr(value))
+                     for key, value in value.iteritems()])
+    else:
+        return value

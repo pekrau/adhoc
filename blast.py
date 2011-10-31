@@ -6,15 +6,23 @@ BLAST web resources and tools.
 import os
 import json
 import subprocess
+import logging
 
-from .webresource import *
+from wrapid.resource import *
+from wrapid.fields import *
+
+from . import configuration
+from .method_mixin import *
+from .json_representation import JsonRepresentation
+from .text_representation import TextRepresentation
+from .html_representation import *
 
 
 BLASTDB = os.path.join(configuration.DB_DIR, 'blast')
 os.environ['BLASTDB'] = BLASTDB
 
 
-def get_databases(type, userteams):
+def get_databases(type, account_teams):
     infile = open(os.path.join(BLASTDB, "%s_databases.json" % type))
     databases = json.load(infile)
     infile.close()
@@ -25,604 +33,720 @@ def get_databases(type, userteams):
         except KeyError:                # No database teams means public
             pass
         else:
-            if not teams.intersection(userteams): continue
+            if not teams.intersection(account_teams): continue
         result.append(db)
-    return result
-
-BLASTN_TASK_TYPES = ['blastn', 'blastn-short', 'megablast', 'dc-megablast']
-BLASTP_TASK_TYPES = ['blastp', 'blastp-short']
-
-DUST_VALUES = ['yes', 'no', '20 64 1']
-SEG_VALUES = ['yes', 'no', '12 2.2 2.5']
-
-OUTPUT_FORMATS = [('0', 'Pairwise', 'text/plain'),
-                  ('1', 'Query-anchored showing identities', 'text/plain'),
-                  ('2', 'Query-anchored no identities', 'text/plain'),
-                  ('3', 'Flat query-anchored, show identities', 'text/plain'),
-                  ('4', 'Flat query-anchored, no identities', 'text/plain'),
-                  ('5', 'XML Blast output', 'application/xml'),
-                  ('6', 'Tab-separated values', 'text/tab-separated-values'),
-                  ('7', 'Tab-separated values with comment lines',
-                   'text/tab-separated-values'),
-                  ('8', 'Text ASN.1', 'text/plain'),
-                  ('10', 'Comma-separated values', 'text/csv'),
-                  ('11', 'BLAST archive format (ASN.1)', 'text/plain')]
-
-# 2011-07-14: http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi
-GENETIC_CODES = [('1', 'Standard'),
-                 ('2', 'Vertebrate Mitochondrial'),
-                 ('3', 'Yeast Mitochondrial'),
-                 ('4', 'Mold Mitochondrial; Protozoan Mitochondrial; Coelenterate Mitochondrial; Mycoplasma; Spiroplasma'),
-                 ('5', 'Invertebrate Mitochondrial'),
-                 ('6', 'Ciliate Nuclear; Dasycladacean Nuclear; Hexamita Nuclear'),
-                 ('9', 'Echinoderm Mitochondrial; Flatworm Mitochondrial'),
-                 ('10', 'Euplotid Nuclear'),
-                 ('11', 'Bacterial and Plant Plastid'),
-                 ('12', 'Alternative Yeast Nuclear'),
-                 ('13', 'Ascidian Mitochondrial'),
-                 ('14', 'Alternative Flatworm Mitochondrial'),
-                 ('15', 'Blepharisma Macronuclear'),
-                 ('16', 'Chlorophycean Mitochondrial'),
-                 ('21', 'Trematode Mitochondrial'),
-                 ('22', 'Scenedesmus obliquus Mitochondrial'),
-                 ('23', 'Thraustochytrium Mitochondrial')]
+    return configuration.nstr(result)
 
 
-class BlastCreate(WebResource):
-    "Generic BLAST search task creator."
+OUTPUT_FORMATS = [dict(value='0',
+                       title='Pairwise',
+                       mimetype='text/plain'),
+                  dict(value='1',
+                       title='Query-anchored showing identities',
+                       mimetype='text/plain'),
+                  dict(value='2',
+                       title='Query-anchored no identities',
+                       mimetype='text/plain'),
+                  dict(value='3',
+                       title='Flat query-anchored, show identities',
+                       mimetype='text/plain'),
+                  dict(value='4',
+                       title='Flat query-anchored, no identities',
+                       mimetype='text/plain'),
+                  dict(value='5',
+                       title='XML Blast output',
+                       mimetype='application/xml'),
+                  dict(value='6',
+                       title='Tab-separated values',
+                       mimetype='text/tab-separated-values'),
+                  dict(value='7',
+                       title='Tab-separated values with comment lines',
+                       mimetype='text/tab-separated-values'),
+                  dict(value='8',
+                       title='Text ASN.1',
+                       mimetype='text/plain'),
+                  dict(value='10',
+                       title='Comma-separated values',
+                       mimetype='text/csv'),
+                  dict(value='11',
+                       title='BLAST archive format (ASN.1)',
+                       mimetype='text/plain')]
+
+# 2011-07-14 from http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi
+GENETIC_CODES = [dict(value='1', title='Standard'),
+                 dict(value='2', title='Vertebrate Mitochondrial'),
+                 dict(value='3', title='Yeast Mitochondrial'),
+                 dict(value='4', title='Mold Mitochondrial; Protozoan Mitochondrial; Coelenterate Mitochondrial; Mycoplasma; Spiroplasma'),
+                 dict(value='5', title='Invertebrate Mitochondrial'),
+                 dict(value='6', title='Ciliate Nuclear; Dasycladacean Nuclear; Hexamita Nuclear'),
+                 dict(value='9', title='Echinoderm Mitochondrial; Flatworm Mitochondrial'),
+                 dict(value='10', title='Euplotid Nuclear'),
+                 dict(value='11', title='Bacterial and Plant Plastid'),
+                 dict(value='12', title='Alternative Yeast Nuclear'),
+                 dict(value='13', title='Ascidian Mitochondrial'),
+                 dict(value='14', title='Alternative Flatworm Mitochondrial'),
+                 dict(value='15', title='Blepharisma Macronuclear'),
+                 dict(value='16', title='Chlorophycean Mitochondrial'),
+                 dict(value='21', title='Trematode Mitochondrial'),
+                 dict(value='22', title='Scenedesmus obliquus Mitochondrial'),
+                 dict(value='23', title='Thraustochytrium Mitochondrial')]
+
+
+class BlastHtmlRepresentation(HtmlRepresentation):
+    "Common HTML representation of the BLAST task create page."
+
+    def get_content(self):
+        return self.get_form(funcs=dict(db=self.get_db_multiselect),
+                             submit='Create and execute task')
+
+    def get_db_multiselect(self, field, current=None):
+        "Custom HTML for the 'db' multiselect field."
+        if not current: current = []
+        rows = [TR(TH('Search'),
+                   TH('Database'),
+                   TH('# sequences'),
+                   TH('Total size'),
+                   TH('Updated'))]
+        for option in field['options']:
+            rows.append(TR(TD(INPUT(type='checkbox',
+                                    name=field['name'],
+                                    value=option['value'],
+                                    checked=option['value'] in current)),
+                           TD(option['title']),
+                           TD(option['number'], klass='number'),
+                           TD(option['size'], klass='number'),
+                           TD(option['updated'])))
+        return TABLE(klass='list', *rows)
+
+
+class GET_BlastCreate(GET_Mixin, GET):
+    "Return the page for creating a BLAST task."
 
     tool = None
-    description = None
+    database_type = None
+    fields = None
 
-    def prepare(self, request, response):
-        super(BlastCreate, self).prepare(request, response)
-        self.preferences = dict()
+    def __init__(self):
+        super(GET_BlastCreate, self).__init__(
+            outreprs=[JsonRepresentation(),
+                      TextRepresentation(),
+                      BlastHtmlRepresentation()])
 
-    def get_preference(self, key, default=None):
-        try:
-            return self.user['preferences'][self.tool][key]
-        except KeyError:
-            return default
+    def descr(self):
+        raise NotImplementedError
 
-    def row_execute(self):
-        return TR(TH(),
-                  TD(INPUT(type='submit', value='Execute task'), colspan=2))
+    def add_data(self, data, resource, request, application):
+        self.allow_access()
+        if self.login.max_tasks >= 0:
+            count, size = self.get_tasks_stats(self.login.name)
+            if count >= self.login.max_tasks:
+                raise HTTP_CONFLICT('max number of tasks reached')
+        data['entity'] = 'tool'
+        data['title'] = "%s task creation" % self.tool
+        data['descr'] = self.descr()
+        databases = []
+        for db in get_databases(self.database_type, self.login.teams):
+            db.pop('teams', None)
+            db['value'] = db.pop('filename')
+            databases.append(db)
+        fill = dict(db=dict(options=databases))
+        default = self.login.preferences.get(self.tool, dict())
+        data['tool'] = dict(name=self.tool,
+                            fields=self.fields.get_data(default=default,
+                                                        fill=fill),
+                            title='Enter query and select parameters',
+                            href=resource.get_url(),
+                            cancel=application.get_url())
 
-    def row_spacer(self):
-        return TR(TH(style='height:1em;'))
 
-    def row_title(self):
-        return TR(TH('Title'),
-                  TD(),
-                  TD(INPUT(type='text', name='title',
-                           value=self.get_preference('title', ''))))
+class POST_TaskCreate(POST_Mixin, POST):
+    "Actually create a BLAST task."
 
-    def row_db(self, type):
-        preference = set(self.get_preference('db', []))
-        rows = [TR(TH('Use'),
-                   TH('Title'),
-                   TH('File'),
-                   TH('# seqs'),
-                   TH('Size'),
-                   TH('Updated'))]
-        for db in get_databases(type, self.user['teams']):
-            rows.append(TR(TD(INPUT(type='checkbox',
-                                    name='db',
-                                    value=db['filename'],
-                                    checked=db['filename'] in preference),
-                              klass='clean'),
-                           TD(db['title']),
-                           TD(db['filename']),
-                           TD(db['number'], klass='number'),
-                           TD(db['size'], klass='number'),
-                           TD(db['updated'])))
-        return TR(TH('Database'),
-                  TD(REQUIRED),
-                  TD(TABLE(klass='list', *rows)))
+    tool = None
 
-    def row_db_gencode(self):
-        preference = self.get_preference('db_gencode')
-        options = []
-        for code, name in GENETIC_CODES:
-            if code == preference:
-                options.append(OPTION(name, value=code, selected=True))
-            else:
-                options.append(OPTION(name, value=code))
-        return TR(TH('Database genetic code'),
-                  TD(),
-                  TD(SELECT(name='db_gencode', *options)))
-
-    def row_query(self, type):
-        return TR(TH('Query'),
-                  TD(REQUIRED),
-                  TD(TABLE(TR(TD(I("Paste %s sequence in FASTA format:" %type)),
-                              TD(I('Or upload FASTA file:'))),
-                           TR(TD(TEXTAREA(name='query', cols=60, rows=8),
-                                 rowspan=2),
-                              TD(INPUT(type='file', name='query_file'))),
-                           TR(TD(INPUT(type='checkbox', checked=True,
-                                       name='query_check', value='true'),
-                                 ' Check query content for validity.')))))
-
-    def row_task_type(self, task_types):
-        preference = self.get_preference('task_type')
-        options = []
-        for t in task_types:
-            if t == preference:
-                options.append(OPTION(t, selected=True))
-            else:
-                options.append(OPTION(t))
-        return TR(TH('Task type'),
-                  TD(REQUIRED),
-                  TD(SELECT(name='task_type', * options)))
-
-    def row_query_gencode(self):
-        preference = self.get_preference('query_gencode')
-        options = []
-        for code, name in GENETIC_CODES:
-            if code == preference:
-                options.append(OPTION(name, value=code, selected=True))
-            else:
-                options.append(OPTION(name, value=code))
-        return TR(TH('Query genetic code'),
-                  TD(),
-                  TD(SELECT(name='query_gencode', *options)))
-
-    def row_evalue(self):
-        return TR(TH('E-value'),
-                  TD(),
-                  TD(INPUT(type='text', name='evalue',
-                           value=self.get_preference('evalue', '10'))))
-
-    def row_dust(self, default=None):
-        preference = self.get_preference('dust')
-        if preference is None:
-            preference = default
-        options = []
-        for d in DUST_VALUES:
-            if d == preference:
-                options.append(OPTION(d, selected=True))
-            else:
-                options.append(OPTION(d))
-        return TR(TH('DUST filter'),
-                  TD(),
-                  TD(SELECT(name='dust', *options)))
-
-    def row_seg(self, default=None):
-        preference = self.get_preference('seg')
-        if preference is None:
-            preference = default
-        options = []
-        for s in SEG_VALUES:
-            if s == preference:
-                options.append(OPTION(s, selected=True))
-            else:
-                options.append(OPTION(s))
-        return TR(TH('SEG filter'),
-                  TD(),
-                  TD(SELECT(name='seg', *options)))
-
-    def row_output_format(self):
-        preference = self.get_preference('outfmt')
-        options = []
-        for code, title, mimetype in OUTPUT_FORMATS:
-            if code == preference:
-                options.append(OPTION(title, value=code, selected=True))
-            else:
-                options.append(OPTION(title, value=code))
-        return TR(TH('Output format'),
-                  TD(),
-                  TD(SELECT(name='outfmt', *options)))
-
-    def row_num_descriptions(self):
-        return TR(TH('# db seq descriptions'),
-                  TD(),
-                  TD(INPUT(type='text', name='num_descriptions',
-                           value=self.get_preference('num_descriptions','500'))))
-
-    def row_num_alignments(self):
-        return TR(TH('# alignments'),
-                  TD(),
-                  TD(INPUT(type='text', name='num_alignments',
-                           value=self.get_preference('num_alignments', '250'))))
-
-    def row_preferences(self):
-        return TR(TH('Preferences'),
-                  TD(),
-                  TD(INPUT(type='checkbox', name='preferences', value='true'),
-                     ' Set your preferences for this tool to the above values.'))
-
-    def output(self, rows, response):
-        html = HtmlRepresentation(self, self.tool)
-        html.abstract = markdown.markdown(self.description,
-                                          output_format='html4')
-        html.append(FORM(TABLE(klass='input', *rows),
-                         enctype='multipart/form-data',
-                         method='POST',
-                         action=configuration.get_url(self.tool)))
-        html.write(response)
-
-    def create_task(self):
+    def action(self, resource, request, application):
+        "Handle the request and return a response instance."
+        self.allow_access()
+        if self.login.max_tasks >= 0:
+            count, size = self.get_tasks_stats(self.login.name)
+            if count >= self.login.max_tasks:
+                raise HTTP_CONFLICT('max number of tasks reached')
+        self.inputs = self.infields.parse(request)
         from .task import Task
         self.task = Task(self.cnx)
+        self.task.href = application.get_url('task', self.task.iui)
         self.task.tool = self.tool
-        self.task.title = self.get_cgi_value('title')
-        self.preferences['title'] = self.task.title
+        self.new_preferences = dict()
+        self.task.title = self.inputs.get('title')
+        self.new_preferences['title'] = self.task.title
         self.task.data['parameters'] = dict()
+        self.set_data()
+        self.execute_task()
+        self.update_account_preferences()
+        ## url = "%s?refresh=1.0" % self.task.href
+        raise HTTP_SEE_OTHER(Location=self.task.href)
 
-    @property
-    def parameters(self):
-        return self.task.data['parameters']
+    def set_data(self):
+        raise NotImplementedError
 
-    def set_db(self, type):
-        databases = get_databases(type, self.user['teams'])
-        result = []
-        for filename in self.request.cgi_fields.getlist('db'):
-            for db in databases:
-                if filename == db['filename']:
-                    break
-            else:
-                raise HTTP_BAD_REQUEST("invalid 'db' value '%s'" % filename)
-            result.append(filename)
-        if not result:
-            raise HTTP_BAD_REQUEST("no 'db' value specified")
-        self.parameters['-db'] = ' '.join(result)
-        self.preferences['db'] = result
+    def set_db(self):
+        db = self.inputs['db']
+        self.task.data['parameters']['-db'] = ' '.join(db)
+        self.new_preferences['db'] = db
 
-    def set_db_gencode(self):
-        gencode = self.get_cgi_value('db_gencode')
-        if not gencode: return
-        for code, descr in GENETIC_CODES:
-            if code == gencode:
-                break
+    def set_query(self, query_type):
+        query = self.inputs['query_file']
+        if not query:
+            query = self.inputs['query_content']
+        if query is None:
+            raise HTTP_BAD_REQUEST('no query specified')
+        if query:
+            if query[0] != '>':   # Add FASTA header line
+                query = ">query\n%s" % query
         else:
-            raise HTTP_BAD_REQUEST("invalid 'db_gencode' value")
-        self.parameters['-db_gencode'] = gencode
-        self.preferences['db_gencode'] = gencode
-
-    def set_query(self, type):
-        query = self.get_cgi_file_content('query_file')
-        if not query:
-            query = self.get_cgi_value('query', required=True)
-        if query.startswith('http:'):
-            parts = []
-            for url in query.strip().split('\n'):
-                parts.append(self.get_url_content(url).strip())
-            query = '\n'.join(parts)
-        elif query and query[0] != '>':
-            query = ">query\n%s" % query
-        if not query:
-            raise HTTP_BAD_REQUEST('no query file, and query field is empty')
-        if configuration.to_bool(self.get_cgi_value('query_check')):
-            characters = set()
-            for line in query.split('\n'):
-                line = line.strip()
-                if not line: continue
-                if line[0] == '>': continue
-                for c in line.strip():
-                    characters.add(c.upper())
-            if type == 'protein':
-                if not characters.difference('ACTG'):
-                    raise HTTP_BAD_REQUEST('query appears to be nucleotide')
-            elif type == 'nucleotide':
-                if characters.difference('ACTGX'):
-                    raise HTTP_BAD_REQUEST('query appears to be protein')
+            raise HTTP_BAD_REQUEST('no content in query file nor in field')
+        characters = set()
+        for line in query.split('\n'):
+            line = line.strip()
+            if not line: continue
+            if line[0] == '>': continue # FASTA header line
+            characters.update(line.upper())
+        if query_type == 'protein':
+            if not characters.difference('ACTG'):
+                raise HTTP_BAD_REQUEST('query appears to be nucleotide')
+        elif query_type == 'nucleotide':
+            if characters.difference('ACTGX'):
+                raise HTTP_BAD_REQUEST('query appears to be protein')
+        else:
+            raise ValueError('invalid query_type')
         self.task.data['query'] = query
 
-    def set_query_gencode(self):
-        gencode = self.get_cgi_value('query_gencode')
-        if not gencode: return
-        for code, descr in GENETIC_CODES:
-            if code == gencode:
-                break
-        else:
-            raise HTTP_BAD_REQUEST("invalid 'query_gencode' value")
-        self.parameters['-query_gencode'] = gencode
-        self.preferences['query_gencode'] = gencode
-
-    def set_task_type(self, task_types):
-        task_type = self.get_cgi_value('task_type', required=True)
-        for tt in task_types:
-            if tt == task_type:
-                break
-        else:
-            raise HTTP_BAD_REQUEST("invalid 'task_type' value")
-        self.parameters['-task'] = task_type
-        self.preferences['task_type'] = task_type
-
-    def set_evalue(self):
-        evalue = self.get_cgi_value('evalue')
-        if not evalue: return
+    def set_db_gencode(self):
         try:
-            evalue = float(evalue)
-            if evalue <= 0.0: raise ValueError
-        except (TypeError, ValueError):
-            raise HTTP_BAD_REQUEST("invalid 'evalue' value")
-        self.parameters['-evalue'] = evalue
-        self.preferences['evalue'] = str(evalue)
+            db_gencode = self.inputs['db_gencode']
+            self.task.data['parameters']['-db_gencode'] = db_gencode
+            self.new_preferences['db_gencode'] = db_gencode
+        except KeyError:
+            pass
+
+    def set_query_gencode(self):
+        try:
+            query_gencode = self.inputs['query_gencode']
+            self.task.data['parameters']['-query_gencode'] = query_gencode
+            self.new_preferences['query_gencode'] = query_gencode
+        except KeyError:
+            pass
 
     def set_dust(self):
-        dust = self.get_cgi_value('dust')
-        if not dust: return
-        if not dust in DUST_VALUES:
-            raise HTTP_BAD_REQUEST("invalid 'dust' value")
-        self.parameters['-dust'] = dust
-        self.preferences['dust'] = dust
+        try:
+            dust = self.inputs['dust']
+            self.task.data['parameters']['-dust'] = dust
+            self.new_preferences['dust'] = dust
+        except KeyError:
+            pass
 
     def set_seg(self):
-        seg = self.get_cgi_value('seg')
-        if not seg: return
-        if not seg in SEG_VALUES:
-            raise HTTP_BAD_REQUEST("invalid 'seg' value")
-        self.parameters['-seg'] = seg
-        self.preferences['seg'] = seg
+        try:
+            seg = self.inputs['seg']
+            self.task.data['parameters']['-seg'] = seg
+            self.new_preferences['seg'] = seg
+        except KeyError:
+            pass
 
-    def set_outfmt(self):
-        outfmt = self.get_cgi_value('outfmt')
-        if outfmt:
-            if not outfmt in set([f[0] for f in OUTPUT_FORMATS]):
-                raise HTTP_BAD_REQUEST("invalid 'outfmt' value")
-        else:
-            outfmt = '0'
-        self.parameters['-outfmt'] = outfmt
-        self.preferences['outfmt'] = outfmt
+    def set_task_type(self):
+        try:
+            task_type = self.inputs['task_type']
+            self.task.data['parameters']['-task'] = task_type
+            self.new_preferences['task_type'] = task_type
+        except KeyError:
+            pass
+
+    def set_evalue(self):
+        try:
+            evalue = self.inputs['evalue']
+            if evalue <= 0.0:
+                raise HTTP_BAD_REQUEST('invalid E-value')
+            self.task.data['parameters']['-evalue'] = evalue
+            self.new_preferences['evalue'] = evalue
+        except KeyError:
+            pass
+
+    def set_output_format(self):
+        try:
+            outfmt = self.inputs['outfmt']
+            self.task.data['parameters']['-outfmt'] = outfmt
+            self.new_preferences['outfmt'] = outfmt
+        except KeyError:
+            pass
 
     def set_num_descriptions(self):
-        num = self.get_cgi_value('num_descriptions')
-        if not num: return
         try:
-            num = int(num)
-            if num < 0: raise ValueError
-        except (TypeError, ValueError):
-            raise HTTP_BAD_REQUEST("invalid 'num_descriptions' value")
-        self.parameters['-num_descriptions'] = num
-        self.preferences['num_descriptions'] = str(num)
+            number = self.inputs['num_descriptions']
+            if number < 0:
+                raise HTTP_BAD_REQUEST('invalid # seq descriptions')
+            self.task.data['parameters']['-num_descriptions'] = number
+            self.new_preferences['num_descriptions'] = number
+        except KeyError:
+            pass
 
     def set_num_alignments(self):
-        num = self.get_cgi_value('num_alignments')
-        if not num: return
         try:
-            num = int(num)
-            if num < 0: raise ValueError
-        except (TypeError, ValueError):
-            raise HTTP_BAD_REQUEST("invalid 'num_alignments' value")
-        self.parameters['-num_alignments'] = num
-        self.preferences['num_alignments'] = str(num)
-
-    def update_preferences(self):
-        if configuration.to_bool(self.get_cgi_value('preferences')):
-            self.update_user_preferences(self.tool, self.preferences)
+            number = self.inputs['num_alignments']
+            if number < 0:
+                raise HTTP_BAD_REQUEST('invalid # seq alignments')
+            self.task.data['parameters']['-num_alignments'] = number
+            self.new_preferences['num_alignments'] = number
+        except KeyError:
+            pass
 
     def execute_task(self):
-        self.task.create(self.user['id'])
+        self.task.create(self.login.id)
         process = subprocess.Popen([configuration.PYTHON,
-                                    configuration.TASK_SCRIPT,
+                                    configuration.EXECUTE_SCRIPT,
                                     self.task.iui])
-        process.wait()
-        raise HTTP_SEE_OTHER(Location=self.task.get_url())
+        process.wait()                  # Only waits for daemonize to finish
 
 
-class BlastnCreate(BlastCreate):
-    "Create a blastn search task."
+BLASTN_FIELDS = Fields(StringField('title', title='Title', length=30,
+                              descr='Descriptive title for the task.'),
+                       MultiSelectField('db', title='Database',
+                                        required=True, check=False,
+                                        descr='Check the nucleotide database(s)'
+                                              ' to search.'),
+                       FileField('query_file', title='Query file',
+                                 descr='Upload file containing query nucleotide'
+                                 ' sequence(s) in FASTA format.'),
+                       TextField('query_content', title='Query',
+                                 descr='Query nucleotide sequence(s) in FASTA'
+                                 ' format. This data is used only if no file'
+                                 ' is specified in the field above.'),
+                       SelectField('dust', title='DUST filter',
+                                   options=['yes', 'no', '20 64 1'],
+                                   required=True, default='no', check=True,
+                                   descr='Filter out low-complexity regions'
+                                   ' from the query sequence.'),
+                       SelectField('task_type', title='Task type',
+                                   required=True, default='blastn',
+                                   options=
+                                   [dict(value='blastn',
+                                         title='blastn: traditional, requiring'
+                                          ' an exact match of 11'),
+                                    dict(value='blastn-short',
+                                         title='blastn-short: optimized for'
+                                         ' sequences shorter than 50 bases'),
+                                    dict(value='megablast',
+                                         title='megablast: to find very similar'
+                                         ' sequences'),
+                                    dict(value='dc-megablast',
+                                         title='dc-megablast: discontiguous'
+                                         ' megablast to find more distant'
+                                         ' sequences')],
+                                   descr='Variant of blastn task.'),
+                       FloatField('evalue', title='E-value',
+                                  required=True, default=10.0,
+                                  descr='Expectation value threshold.'),
+                       SelectField('outfmt', title='Output format',
+                                   options=OUTPUT_FORMATS,
+                                   required=True, default='0', check=True,
+                                   descr='Format of search results.'),
+                       IntegerField('num_descriptions',
+                                    title='# seq descriptions',
+                                    default=500,
+                                    descr='Number of one-line descriptions'
+                                    ' to show in the output.'),
+                       IntegerField('num_alignments',
+                                    title='# alignments',
+                                    default=250,
+                                    descr='Number of alignments to show in'
+                                    ' the output.'),
+                       CheckboxField('set_preferences', title='Set preferences',
+                                     default=False,
+                                     text='Set the above values to become your'
+                                     ' defaults for this tool.'))
+
+
+class GET_BlastnCreate(GET_BlastCreate):
+    "Return the page for creating a 'blastn' task."
 
     tool = 'blastn'
-    description = \
-'''Search in a **nucleotide database** using a **nucleotide query**. Version %s.
+    database_type = 'nucleotide'
+    fields = BLASTN_FIELDS
 
-For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).
-''' % configuration.BLAST_VERSION
+    def descr(self):
+        return '''BLAST search in a **nucleotide database** using a **nucleotide query**. Executable version %s.
 
-    def GET(self, request, response):
-        rows = [self.row_execute(),
-                self.row_spacer(),
-                self.row_title(),
-                self.row_db('nucleotide'),
-                self.row_query('nucleotide'),
-                self.row_task_type(BLASTN_TASK_TYPES),
-                self.row_evalue(),
-                self.row_dust(default='20 64 1'),
-                self.row_output_format(),
-                self.row_num_descriptions(),
-                self.row_num_alignments(),
-                self.row_preferences(),
-                self.row_spacer(),
-                self.row_execute()]
-        self.output(rows, response)
+For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' % configuration.BLAST_VERSION
 
-    def POST(self, request, response):
-        self.check_write()
-        self.create_task()
-        self.set_db('nucleotide')
+
+class POST_BlastnCreate(POST_TaskCreate):
+    """Create and execute a 'blastn' task.
+    The response is a HTTP 303 'See Other' redirection to the URL of the task.
+    """
+
+    tool = 'blastn'
+
+    def __init__(self):
+        super(POST_BlastnCreate, self).__init__(infields=BLASTN_FIELDS,
+                                                descr=self.__doc__)
+
+    def set_data(self):
+        self.set_db()
         self.set_query('nucleotide')
-        self.set_task_type(BLASTN_TASK_TYPES)
-        self.set_evalue()
         self.set_dust()
-        self.set_outfmt()
+        self.set_task_type()
+        self.set_evalue()
+        self.set_output_format()
         self.set_num_descriptions()
         self.set_num_alignments()
-        self.update_preferences()
-        self.execute_task()
 
 
-class BlastpCreate(BlastCreate):
-    "Create a blastp search task."
+BLASTP_FIELDS = Fields(StringField('title', title='Title', length=30,
+                              descr='Descriptive title for the task.'),
+                       MultiSelectField('db', title='Database',
+                                        required=True, check=False,
+                                        descr='Check the protein database(s)'
+                                              ' to search.'),
+                       FileField('query_file', title='Query file',
+                                 descr='Upload file containing query protein'
+                                 ' sequence(s) in FASTA format.'),
+                       TextField('query_content', title='Query',
+                                 descr='Query protein sequence(s) in FASTA'
+                                 ' format. This data is used only if no file'
+                                 ' is specified in the field above.'),
+                       SelectField('seg', title='SEG filter',
+                                   options=['yes', 'no', '12 2.2 2.5'],
+                                   default='no', check=True,
+                                   descr='Filter out low-complexity regions'
+                                   ' from the query sequence.'),
+                       SelectField('task_type', title='Task type',
+                                   required=True, default='blastp',
+                                   options=
+                                   [dict(value='blastp',
+                                         title='blastp: traditional, to'
+                                          ' compare proteins'),
+                                    dict(value='blastp-short',
+                                         title='blastp-short: optimized for'
+                                         ' sequences shorter than 30 residues')],
+                                   descr='Variant of blastp task.'),
+                       FloatField('evalue', title='E-value',
+                                  required=True, default=10.0,
+                                  descr='Expectation value threshold.'),
+                       SelectField('outfmt', title='Output format',
+                                   options=OUTPUT_FORMATS,
+                                   required=True, default='0', check=True,
+                                   descr='Format of search results.'),
+                       IntegerField('num_descriptions',
+                                    title='# seq descriptions',
+                                    default=500,
+                                    descr='Number of one-line descriptions'
+                                    ' to show in the output.'),
+                       IntegerField('num_alignments',
+                                    title='# alignments',
+                                    default=250,
+                                    descr='Number of alignments to show in'
+                                    ' the output.'),
+                       CheckboxField('set_preferences', title='Set preferences',
+                                     default=False,
+                                     text='Set the above values to become your'
+                                     ' defaults for this tool.'))
+                       
+
+class GET_BlastpCreate(GET_BlastCreate):
+    "Return the page for creating a 'blastp' task."
 
     tool = 'blastp'
-    description = \
-'''Search in a **protein database** using a **protein query**. Version %s.
+    database_type = 'protein'
+    fields = BLASTP_FIELDS
 
-For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).
-''' % configuration.BLAST_VERSION
+    def descr(self):
+        return '''BLAST search in a **protein database** using a **protein query**. Executable version %s.
 
-    def GET(self, request, response):
-        rows = [self.row_execute(),
-                self.row_spacer(),
-                self.row_title(),
-                self.row_db('protein'),
-                self.row_query('protein'),
-                self.row_task_type(BLASTP_TASK_TYPES),
-                self.row_evalue(),
-                self.row_seg(),
-                self.row_output_format(),
-                self.row_num_descriptions(),
-                self.row_num_alignments(),
-                self.row_preferences(),
-                self.row_spacer(),
-                self.row_execute()]
-        self.output(rows, response)
+For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' % configuration.BLAST_VERSION
 
-    def POST(self, request, response):
-        self.check_write()
-        self.create_task()
-        self.set_db('protein')
+
+class POST_BlastpCreate(POST_TaskCreate):
+    """Create and execute a 'blastp' task.
+    The response is a HTTP 303 'See Other' redirection to the URL of the task.
+    """
+
+    tool = 'blastp'
+
+    def __init__(self):
+        super(POST_BlastpCreate, self).__init__(infields=BLASTP_FIELDS,
+                                                descr=self.__doc__)
+
+    def set_data(self):
+        self.set_db()
         self.set_query('protein')
-        self.set_task_type(BLASTP_TASK_TYPES)
-        self.set_evalue()
+        self.set_task_type()
         self.set_seg()
-        self.set_outfmt()
+        self.set_evalue()
+        self.set_output_format()
         self.set_num_descriptions()
         self.set_num_alignments()
-        self.update_preferences()
-        self.execute_task()
 
 
-class BlastxCreate(BlastCreate):
-    "Create a blastx search task."
+BLASTX_FIELDS = Fields(StringField('title', title='Title', length=30,
+                              descr='Descriptive title for the task.'),
+                       MultiSelectField('db', title='Database',
+                                        required=True, check=False,
+                                        descr='Check the protein database(s)'
+                                              ' to search.'),
+                       FileField('query_file', title='Query file',
+                                 descr='Upload file containing query nucleotide'
+                                 ' sequence(s) in FASTA format.'),
+                       TextField('query_content', title='Query',
+                                 descr='Query nucleotide sequence(s) in FASTA'
+                                 ' format. This data is used only if no file'
+                                 ' is specified in the field above.'),
+                       SelectField('query_gencode', title='Query genetic code',
+                                   options=GENETIC_CODES,
+                                   default='1',
+                                   descr='Genetic code to use for translating'
+                                   ' the nucleotide query into protein.'),
+                       SelectField('seg', title='SEG filter',
+                                   options=['yes', 'no', '12 2.2 2.5'],
+                                   required=True, default='12 2.2 2.5',
+                                   check=True,
+                                   descr='Filter out low-complexity regions'
+                                   ' from the query sequence.'),
+                       FloatField('evalue', title='E-value',
+                                  required=True, default=10.0,
+                                  descr='Expectation value threshold.'),
+                       SelectField('outfmt', title='Output format',
+                                   options=OUTPUT_FORMATS,
+                                   required=True, default='0', check=True,
+                                   descr='Format of search results.'),
+                       IntegerField('num_descriptions',
+                                    title='# seq descriptions',
+                                    default=500,
+                                    descr='Number of one-line descriptions'
+                                    ' to show in the output.'),
+                       IntegerField('num_alignments',
+                                    title='# alignments',
+                                    default=250,
+                                    descr='Number of alignments to show in'
+                                    ' the output.'),
+                       CheckboxField('set_preferences', title='Set preferences',
+                                     default=False,
+                                     text='Set the above values to become your'
+                                     ' defaults for this tool.'))
+                       
+
+class GET_BlastxCreate(GET_BlastCreate):
+    "Return the page for creating a 'blastx' task."
 
     tool = 'blastx'
-    description = \
-'''Search in a **protein database** using a **translated nucleotide query**. Version %s.
+    database_type = 'protein'
+    fields = BLASTX_FIELDS
 
-For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).
-''' % configuration.BLAST_VERSION
+    def descr(self):
+        return '''BLAST search in a **protein database** using a **translated nucleotide query**. Executable version %s.
 
-    def GET(self, request, response):
-        rows = [self.row_execute(),
-                self.row_spacer(),
-                self.row_title(),
-                self.row_db('protein'),
-                self.row_query('nucleotide'),
-                self.row_query_gencode(),
-                self.row_evalue(),
-                self.row_seg(default='12 2.2 2.5'),
-                self.row_output_format(),
-                self.row_num_descriptions(),
-                self.row_num_alignments(),
-                self.row_preferences(),
-                self.row_spacer(),
-                self.row_execute()]
-        self.output(rows, response)
+For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' % configuration.BLAST_VERSION
 
-    def POST(self, request, response):
-        self.check_write()
-        self.create_task()
-        self.set_db('protein')
+
+class POST_BlastxCreate(POST_TaskCreate):
+    """Create and execute a 'blastx' task.
+    The response is a HTTP 303 'See Other' redirection to the URL of the task.
+    """
+
+    tool = 'blastx'
+
+    def __init__(self):
+        super(POST_BlastxCreate, self).__init__(infields=BLASTX_FIELDS,
+                                                descr=self.__doc__)
+
+    def set_data(self):
+        self.set_db()
         self.set_query('nucleotide')
         self.set_query_gencode()
-        self.set_evalue()
         self.set_seg()
-        self.set_outfmt()
+        self.set_evalue()
+        self.set_output_format()
         self.set_num_descriptions()
         self.set_num_alignments()
-        self.update_preferences()
-        self.execute_task()
 
 
-class TblastnCreate(BlastCreate):
-    "Create a tblastn search task."
+TBLASTN_FIELDS = Fields(StringField('title', title='Title', length=30,
+                              descr='Descriptive title for the task.'),
+                       MultiSelectField('db', title='Database',
+                                        required=True, check=False,
+                                        descr='Check the nucleotide database(s)'
+                                              ' to search.'),
+                       SelectField('db_gencode', title='Database genetic code',
+                                   options=GENETIC_CODES,
+                                   default='1',
+                                   descr='Genetic code to use for translating'
+                                   ' the nucleotide database into protein.'),
+                       FileField('query_file', title='Query file',
+                                 descr='Upload file containing query protein'
+                                 ' sequence(s) in FASTA format.'),
+                       TextField('query_content', title='Query',
+                                 descr='Query protein sequence(s) in FASTA'
+                                 ' format. This data is used only if no file'
+                                 ' is specified in the field above.'),
+                       SelectField('seg', title='SEG filter',
+                                   options=['yes', 'no', '12 2.2 2.5'],
+                                   required=True, default='12 2.2 2.5',
+                                   check=True,
+                                   descr='Filter out low-complexity regions'
+                                   ' from the query sequence.'),
+                       FloatField('evalue', title='E-value',
+                                  required=True, default=10.0,
+                                  descr='Expectation value threshold.'),
+                       SelectField('outfmt', title='Output format',
+                                   options=OUTPUT_FORMATS,
+                                   required=True, default='0', check=True,
+                                   descr='Format of search results.'),
+                       IntegerField('num_descriptions',
+                                    title='# seq descriptions',
+                                    default=500,
+                                    descr='Number of one-line descriptions'
+                                    ' to show in the output.'),
+                       IntegerField('num_alignments',
+                                    title='# alignments',
+                                    default=250,
+                                    descr='Number of alignments to show in'
+                                    ' the output.'),
+                       CheckboxField('set_preferences', title='Set preferences',
+                                     default=False,
+                                     text='Set the above values to become your'
+                                     ' defaults for this tool.'))
+                       
+
+class GET_TblastnCreate(GET_BlastCreate):
+    "Return the page for creating a 'tblastn' task."
 
     tool = 'tblastn'
-    description = \
-'''Search in a **translated nucleotide database** using a **protein query**. Version %s.
+    database_type = 'nucleotide'
+    fields = TBLASTN_FIELDS
 
-For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).
-''' % configuration.BLAST_VERSION
+    def descr(self):
+        return '''BLAST search in a **translated nucleotide database** using a **protein query**. Executable version %s.
 
-    def GET(self, request, response):
-        rows = [self.row_execute(),
-                self.row_spacer(),
-                self.row_title(),
-                self.row_db('nucleotide'),
-                self.row_db_gencode(),
-                self.row_query('protein'),
-                self.row_evalue(),
-                self.row_seg(default='12 2.2 2.5'),
-                self.row_output_format(),
-                self.row_num_descriptions(),
-                self.row_num_alignments(),
-                self.row_preferences(),
-                self.row_spacer(),
-                self.row_execute()]
-        self.output(rows, response)
+For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' % configuration.BLAST_VERSION
 
-    def POST(self, request, response):
-        self.check_write()
-        self.create_task()
-        self.set_db('nucleotide')
+
+class POST_TblastnCreate(POST_TaskCreate):
+    """Create and execute a 'tblastn' task.
+    The response is a HTTP 303 'See Other' redirection to the URL of the task.
+    """
+
+    tool = 'tblastn'
+
+    def __init__(self):
+        super(POST_TblastnCreate, self).__init__(infields=TBLASTN_FIELDS,
+                                                descr=self.__doc__)
+
+    def set_data(self):
+        self.set_db()
         self.set_db_gencode()
         self.set_query('protein')
-        self.set_evalue()
         self.set_seg()
-        self.set_outfmt()
+        self.set_evalue()
+        self.set_output_format()
         self.set_num_descriptions()
         self.set_num_alignments()
-        self.update_preferences()
-        self.execute_task()
 
 
-class TblastxCreate(BlastCreate):
-    "Create a tblastx search task."
+TBLASTX_FIELDS = Fields(StringField('title', title='Title', length=30,
+                              descr='Descriptive title for the task.'),
+                       MultiSelectField('db', title='Database',
+                                        required=True, check=False,
+                                        descr='Check the nucleotide database(s)'
+                                              ' to search.'),
+                       SelectField('db_gencode', title='Database genetic code',
+                                   options=GENETIC_CODES,
+                                   default='1',
+                                   descr='Genetic code to use for translating'
+                                   ' the nucleotide database into protein.'),
+                       FileField('query_file', title='Query file',
+                                 descr='Upload file containing query nucleotide'
+                                 ' sequence(s) in FASTA format.'),
+                       TextField('query_content', title='Query',
+                                 descr='Query nucleotide sequence(s) in FASTA'
+                                 ' format. This data is used only if no file'
+                                 ' is specified in the field above.'),
+                       SelectField('query_gencode', title='Query genetic code',
+                                   options=GENETIC_CODES,
+                                   default='1',
+                                   descr='Genetic code to use for translating'
+                                   ' the nucleotide query into protein.'),
+                       SelectField('seg', title='SEG filter',
+                                   options=['yes', 'no', '12 2.2 2.5'],
+                                   required=True, default='12 2.2 2.5',
+                                   check=True,
+                                   descr='Filter out low-complexity regions'
+                                   ' from the query sequence.'),
+                       FloatField('evalue', title='E-value',
+                                  required=True, default=10.0,
+                                  descr='Expectation value threshold.'),
+                       SelectField('outfmt', title='Output format',
+                                   options=OUTPUT_FORMATS,
+                                   required=True, default='0', check=True,
+                                   descr='Format of search results.'),
+                       IntegerField('num_descriptions',
+                                    title='# seq descriptions',
+                                    default=500,
+                                    descr='Number of one-line descriptions'
+                                    ' to show in the output.'),
+                       IntegerField('num_alignments',
+                                    title='# alignments',
+                                    default=250,
+                                    descr='Number of alignments to show in'
+                                    ' the output.'),
+                       CheckboxField('set_preferences', title='Set preferences',
+                                     default=False,
+                                     text='Set the above values to become your'
+                                     ' defaults for this tool.'))
+                       
+
+class GET_TblastxCreate(GET_BlastCreate):
+    "Return the page for creating a 'tblastx' task."
 
     tool = 'tblastx'
-    description = \
-'''Search in a **translated nucleotide database** using a **translated nucleotide query**. Version %s.
+    database_type = 'nucleotide'
+    fields = TBLASTX_FIELDS
 
-For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).
-''' % configuration.BLAST_VERSION
+    def descr(self):
+        return '''BLAST search in a **translated nucleotide database** using a **translated nucleotide query**. Executable version %s.
 
-    def GET(self, request, response):
-        rows = [self.row_execute(),
-                self.row_spacer(),
-                self.row_title(),
-                self.row_db('nucleotide'),
-                self.row_db_gencode(),
-                self.row_query('nucleotide'),
-                self.row_query_gencode(),
-                self.row_evalue(),
-                self.row_seg(default='12 2.2 2.5'),
-                self.row_output_format(),
-                self.row_num_descriptions(),
-                self.row_num_alignments(),
-                self.row_preferences(),
-                self.row_spacer(),
-                self.row_execute()]
-        self.output(rows, response)
+For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' % configuration.BLAST_VERSION
 
-    def POST(self, request, response):
-        self.check_write()
-        self.create_task()
-        self.set_db('nucleotide')
+
+class POST_TblastxCreate(POST_TaskCreate):
+    """Create and execute a 'tblastx' task.
+    The response is a HTTP 303 'See Other' redirection to the URL of the task.
+    """
+
+    tool = 'tblastx'
+
+    def __init__(self):
+        super(POST_TblastxCreate, self).__init__(infields=TBLASTX_FIELDS,
+                                                descr=self.__doc__)
+
+    def set_data(self):
+        self.set_db()
         self.set_db_gencode()
         self.set_query('nucleotide')
         self.set_query_gencode()
-        self.set_evalue()
         self.set_seg()
-        self.set_outfmt()
+        self.set_evalue()
+        self.set_output_format()
         self.set_num_descriptions()
         self.set_num_alignments()
-        self.update_preferences()
-        self.execute_task()
 
 
 class BlastTool(object):
-    "General BLAST tool."
+    "General BLAST tool; actually execute the task."
 
     def __init__(self, tool):
         self.tool = tool
 
     def __call__(self, task):
         assert task.tool == self.tool
-        assert task.status == 'executing'
+        assert task.status == configuration.EXECUTING
         args = [os.path.join(configuration.BLAST_PATH, self.tool)]
         for key, value in task.data['parameters'].items():
             args.append(key)
@@ -643,47 +767,53 @@ class BlastTool(object):
         stdout, stderr = process.communicate(input=task.data['query'])
         task.data['output'] = stdout
         outfmt = task.data['parameters'].get('-outfmt')
-        for code, descr, mimetype in OUTPUT_FORMATS:
-            if code == outfmt:
-                task.data['output_content_type'] = mimetype
+        for item in OUTPUT_FORMATS:
+            if item['value'] == outfmt:
+                task.data['output_content_type'] = item['mimetype']
                 break
         else:
             task.data['output_content_type'] = 'text/plain'
         task.data['error'] = stderr
         if process.returncode > 0:
-            task.status = 'failed'
+            task.status = configuration.FAILED
         elif process.returncode < 0:
-            task.status = 'killed'
+            task.status = configuration.KILLED
         else:
-            task.status = 'finished'
+            task.status = configuration.FINISHED
+
+
+configuration.add_tool('BLAST', 'blastn', BlastTool('blastn'))
+configuration.add_tool('BLAST', 'blastp', BlastTool('blastp'))
+configuration.add_tool('BLAST', 'blastx', BlastTool('blastx'))
+configuration.add_tool('BLAST', 'tblastn', BlastTool('tblastn'))
+configuration.add_tool('BLAST', 'tblastx', BlastTool('tblastx'))
 
 
 def setup(application):
     "Setup the web application interface."
-    application.add_dispatcher('template:/blastn', BlastnCreate)
-    application.add_dispatcher('template:/blastp', BlastpCreate)
-    application.add_dispatcher('template:/blastx', BlastxCreate)
-    application.add_dispatcher('template:/tblastn', TblastnCreate)
-    application.add_dispatcher('template:/tblastx', TblastxCreate)
-
-# Add the above tools to the configuration.
-configuration.add_tool(name='blastn',
-                       function=BlastTool('blastn'),
-                       description=BlastnCreate.description,
-                       version=configuration.BLAST_VERSION)
-configuration.add_tool(name='blastp',
-                       function=BlastTool('blastp'),
-                       description=BlastpCreate.description,
-                       version=configuration.BLAST_VERSION)
-configuration.add_tool(name='blastx',
-                       function=BlastTool('blastx'),
-                       description=BlastxCreate.description,
-                       version=configuration.BLAST_VERSION)
-configuration.add_tool(name='tblastn',
-                       function=BlastTool('tblastn'),
-                       description=TblastnCreate.description,
-                       version=configuration.BLAST_VERSION)
-configuration.add_tool(name='tblastx',
-                       function=BlastTool('tblastx'),
-                       description=TblastxCreate.description,
-                       version=configuration.BLAST_VERSION)
+    application.append(Resource('/blastn', name='blastn',
+                                GET=GET_BlastnCreate(),
+                                POST=POST_BlastnCreate(),
+                                descr='Blastn task: nucleotide query'
+                                ' against a nucleotide database.'))
+    application.append(Resource('/blastp', name='blastp',
+                                GET=GET_BlastpCreate(),
+                                POST=POST_BlastpCreate(),
+                                descr='Blastp task: protein query'
+                                ' against a protein database.'))
+    application.append(Resource('/blastx', name='blastx',
+                                GET=GET_BlastxCreate(),
+                                POST=POST_BlastxCreate(),
+                                descr='Blastp task: translated nucleotide'
+                                ' query against a protein database.'))
+    application.append(Resource('/tblastn', name='tblastn',
+                                GET=GET_TblastnCreate(),
+                                POST=POST_TblastnCreate(),
+                                descr='Tblastn task: protein query against'
+                                ' a translated nucleotide database.'))
+    application.append(Resource('/tblastx', name='tblastx',
+                                GET=GET_TblastxCreate(),
+                                POST=POST_TblastxCreate(),
+                                descr='Tblastx task: translated nucleotide'
+                                ' query against a translated nucleotide'
+                                ' database.'))

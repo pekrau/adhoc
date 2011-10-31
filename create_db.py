@@ -11,27 +11,30 @@ from adhoc import configuration
 
 
 def create_db(admin_password):
-    assert not os.path.exists(configuration.ADHOC_FILE)
-    cnx = sqlite3.connect(configuration.ADHOC_FILE)
+    assert not os.path.exists(configuration.ADHOC_DBFILE)
+    cnx = sqlite3.connect(configuration.ADHOC_DBFILE)
     cursor = cnx.cursor()
     cursor.execute('CREATE TABLE account'
                    '(id INTEGER PRIMARY KEY,'
                    ' name TEXT UNIQUE NOT NULL,'
                    ' password TEXT,'
                    ' teams TEXT,'
+                   ' max_tasks INTEGER,'
                    ' email TEXT,'
                    ' preferences TEXT,'
                    ' description TEXT)')
-    cursor.execute('INSERT INTO account(name,password,teams,email,description)'
-                   ' VALUES(?, ?, ?, ?, ?)',
+    cursor.execute('INSERT INTO account(name,password,teams,max_tasks,email,description)'
+                   ' VALUES(?, ?, ?, ?, ?, ?)',
                    ('admin',
                     configuration.get_password_hexdigest(admin_password),
                     'admin',
+                    -1,
                     None,
                     'Site administrator.'))
     cursor.execute('CREATE TABLE task'
                    '(id INTEGER PRIMARY KEY,'
                    ' iui TEXT UNIQUE NOT NULL,'
+                   ' href TEXT UNIQUE NOT NULL,',
                    ' tool TEXT NOT NULL,'
                    ' title TEXT,'
                    ' status TEXT NOT NULL,'
@@ -44,7 +47,7 @@ def create_db(admin_password):
 
 if __name__ == '__main__':
     import getpass
-    if os.path.exists(configuration.ADHOC_FILE):
+    if os.path.exists(configuration.ADHOC_DBFILE):
         print 'Error: database already exists!'
         sys.exit(1)
     password = getpass.getpass("Give the password for the 'admin' account > ")

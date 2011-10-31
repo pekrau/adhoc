@@ -1,26 +1,47 @@
-""" Adhoc web resource.
+""" Adhoc web resource: simple bioinformatics tasks.
 
-Home page: listing of current tasks for logged-in user.
+Home page.
 """
 
-from .webresource import *
+from wrapid.resource import *
+
+from . import configuration
+from .method_mixin import *
+from .json_representation import JsonRepresentation
+from .text_representation import TextRepresentation
+from .html_representation import HtmlRepresentation
 
 
-class Home(WebResource):
-    "Home page."
+class GET_Home(GET_Mixin, GET):
+    "Return the Adhoc home page."
 
-    def GET(self, request, response):
-        from .task import get_tasks
-        html = HtmlRepresentation(self, 'Adhoc')
-        html.abstract = P('Task-oriented web interface to various bioinformatics tools.')
-        url = configuration.get_url('tasks', self.user['name'])
-        html.append_markdown('''Currently, the suite of BLAST programs are
-available.
+    def __init__(self):
+        super(GET_Home, self).__init__(
+            outreprs=[JsonRepresentation(),
+                      TextRepresentation(),
+                      HtmlRepresentation()],
+            descr=self.__doc__)
 
-The available databases include some public standard data sets,
-and possibly some private data sets depending on the teams that
-your account is a member of.
+    def add_data(self, data, resource, request, application):
+        data['title'] = "%s %s" % (application.name, application.version)
+        data['descr'] = '''
+Updated 27 Oct 2011 !
+---------------------
 
-To view your current list of tasks, click [here](%s),
-or on the item **My tasks** in the menu at the left.''' % url)
-        html.write(response)
+**If you experience any problems, contact Per Kraulis with the details,
+such as exact error message, attempted operation, etc.**
+
+Various bioinformatics tools exposed as a task-oriented web resource
+with a RESTful interface.
+
+To create a new task, use one of the tool links in the left-hand side menu.
+Enter the required data into the tool form and submit to create and execute
+the task.
+
+To view your current list of tasks, use the link **My tasks**
+in the left-hand side menu.
+
+Currently, the suite of BLAST programs are available. The list of BLAST
+databases include some public standard data sets. Depending on the teams
+that your account is a member of, some private databases may also be available.
+'''

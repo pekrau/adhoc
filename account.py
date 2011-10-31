@@ -1,238 +1,384 @@
-""" Adhoc web resource.
+""" Adhoc web resource: simple bioinformatics tasks.
 
-Account web resources.
+Account resources.
 """
 
-from .webresource import *
+import logging
+import json
+import string
+
+from wrapid.resource import *
+from wrapid.fields import *
+
+from . import configuration
+from .method_mixin import *
+from .json_representation import JsonRepresentation
+from .text_representation import TextRepresentation
+from .html_representation import *
 
 
-def get_tasks_stats(cnx, id):
-    "Return number of tasks and total tasks size."
-    cursor = cnx.cursor()
-    cursor.execute('SELECT COUNT(*) FROM task WHERE account=?', (id,))
-    number = cursor.fetchone()[0]
-    cursor.execute('SELECT SUM(size) FROM task WHERE account=?', (id,))
-    size = cursor.fetchone()[0] or 0
-    return number, size
+class GET_Accounts(GET_Mixin, GET):
+    "Return the accounts list."
+
+    def __init__(self):
+        super(GET_Accounts, self).__init__(
+            outreprs=[JsonRepresentation(),
+                      TextRepresentation(),
+                      AccountsHtmlRepresentation()],
+            descr=self.__doc__)
+
+    def is_access(self):
+        return self.is_admin()
+
+    def add_data(self, data, resource, request, application):
+        self.allow_admin()
+        data['entity'] = 'accounts'
+        data['title'] = 'Accounts'
+        data['accounts'] = []
+        cursor = self.execute('SELECT name FROM account ORDER BY name')
+        for name in [r[0] for r in cursor.fetchall()]:
+            account = Account(self.cnx, name).get_data()
+            account['href'] = application.get_url('account', name)
+            count, size = self.get_tasks_stats(name)
+            account['tasks'] = dict(href=application.get_url('tasks', name),
+                                    total_count=count,
+                                    total_size=size)
+            data['accounts'].append(account)
+        data['operations'] = [dict(title='Create account',
+                                   href=application.get_url('account'))]
 
 
-class Accounts(WebResource):
-    "Handle accounts."
+class AccountsHtmlRepresentation(HtmlRepresentation):
+    "HTML representation of the accounts list."
 
-    def GET(self, request, response):
-        self.check_admin()
-        html = HtmlRepresentation(self, 'Accounts')
+    def get_content(self):
         rows = [TR(TH('Name'),
                    TH('Teams'),
-                   TH('Email'),
                    TH('# tasks'),
-                   TH('Total task size'))]
-        cursor = self.execute('SELECT id,name,teams,email'
-                              ' FROM account ORDER BY name')
-        for record in cursor:
-            id, name, teams, email = record
-            number, size = get_tasks_stats(self.cnx, id)
-            rows.append(TR(TD(A(name,
-                                href=configuration.get_url('account', name))),
-                           TD(teams or NONE),
-                           TD(email or NONE),
-                           TD(A(str(number),
-                                href=configuration.get_url('tasks', name)),
+                   TH('Max # tasks'),
+                   TH('Total task size'),
+                   TH('Email'))]
+        for account in self.data['accounts']:
+            max_tasks = account.get('max_tasks', -1)
+            error = ''
+            if max_tasks >= 0:
+                if account['tasks']['total_count'] >= max_tasks:
+                    error = self.get_icon('error', 'Max number reached!')
+            rows.append(TR(TD(A(account['name'], href=account['href'])),
+                           TD(account['teams']),
+                           TD(A(str(account['tasks']['total_count']),
+                                href=account['tasks']['href']),
+                              error,
                               klass='number'),
-                           TD(str(size), klass='number')))
-        html.append(TABLE(klass='list', *rows))
-        html.add_operation('Create account', 'account')
-        html.write(response)
+                           TD(account['max_tasks'], klass='number'),
+                           TD(str(account['tasks']['total_size']),
+                              klass='number'),
+                           TD(account.get('email') or '')))
+        return TABLE(klass='list', *rows)
 
 
-class Account(WebResource):
-    "Display account data."
+class GET_Account(GET_Mixin, GET):
+    "Return the account data."
 
-    def prepare(self, request, response):
-        super(Account, self).prepare(request, response)
-        self.name = request.path_named_values['name']
-        cursor = self.execute('SELECT id,password,teams,email,description'
-                              ' FROM account WHERE name=?', self.name)
-        record = cursor.fetchone()
-        if not record:
+    def __init__(self):
+        super(GET_Account, self).__init__(
+            outreprs=[JsonRepresentation(),
+                      TextRepresentation(),
+                      AccountHtmlRepresentation()],
+            descr=self.__doc__)
+
+    def is_access(self):
+        return self.is_admin() or self.login.name == self.account.name
+
+    def add_data(self, data, resource, request, application):
+        self.account = get_account_legacy(self.cnx, resource.variables)
+        if not self.account:
             raise HTTP_NOT_FOUND
-        self.account_id, self.password, teams, self.email, self.description = \
-            record
-        self.teams = set(teams.split())
+        self.allow_access()
+        data['entity'] = 'account'
+        data['title'] = "Account %s" % self.account.name
+        data['account'] = self.account.get_data()
+        count, size = self.get_tasks_stats(self.account.name)
+        data['account']['tasks'] = dict(
+            href=application.get_url('tasks', self.account.name),
+            total_count=count,
+            total_size=size)
+        data['operations'] = [
+            dict(title='Edit account',
+                 href=application.get_url('account', self.account.name,'edit'))]
 
-    def GET(self, request, response):
-        self.check_read()
-        html = HtmlRepresentation(self, "Account %s" % self.name)
+
+class AccountHtmlRepresentation(HtmlRepresentation):
+    "HTML representation of the account data."
+
+    def get_content(self):
+        account = self.data['account']
         rows = []
-        rows.append(TR(TH('Teams'),
-                       TD(' '.join(self.teams) or NONE)))
-        if self.email:
-            email = A(self.email, href="mailto:%s" % self.email)
-        else:
-            email = NONE
-        rows.append(TR(TH('Email'),
-                       TD(email)))
-        if self.description:
-            description = markdown.markdown(self.description,
-                                            output_format='html4')
-        else:
-            description = NONE
-        rows.append(TR(TH('Description'),
-                       TD(description)))
-        number, size = get_tasks_stats(self.cnx, self.account_id)
+        # Teams can be edited only when user is admin
+        try:
+            rows.append(TR(TH('Teams'),
+                           TD(account['teams'])))
+        except KeyError:
+            pass
+        line = str(A(str(account['tasks']['total_count']),
+                     href=account['tasks']['href']))
+        max_tasks = account.get('max_tasks', -1)
+        if max_tasks >= 0:
+            if account['tasks']['total_count'] >= max_tasks:
+                line += " %s" % self.get_icon('error', 'Max number reached!')
         rows.append(TR(TH('# tasks'),
-                       TD(A(str(number),
-                            href=configuration.get_url('tasks', self.name)))))
+                       TD(line)))
+        # Max number of tasks can be edited only when user is admin
+        try:
+            rows.append(TR(TH('Max # tasks'),
+                           TD(account['max_tasks'])))
+        except KeyError:
+            pass
         rows.append(TR(TH('Total tasks size'),
-                       TD(str(size))))
-        html.append(TABLE(klass='input', *rows))
-        html.add_operation('Edit account', 'account', self.name, 'edit')
-        html.write(response)
-
-    def check_read(self):
-        "Raise HTTP FORBIDDEN if user does not have read privilege."
-        if self.is_admin(): return
-        if self.user['name'] != self.name: raise HTTP_FORBIDDEN
-
-
-class AccountEdit(Account):
-    "Edit account data."
-
-    def check_write(self):
-        "Raise HTTP FORBIDDEN if user does not have write privilege."
-        if self.is_admin(): return
-        if self.user['name'] != self.name: raise HTTP_FORBIDDEN
-
-    def GET(self, request, response):
-        self.check_read()
-        html = HtmlRepresentation(self, "Edit account %s" % self.name)
-        url = configuration.get_url('account', self.name, 'edit')
-        rows = []
-        if not self.is_admin():
-            rows.append(TR(TH('Current password'),
-                           TD(REQUIRED),
-                           TD(INPUT(type='password', name='current_password'))))
-        rows.append(TR(TH('New password'),
-                       TD(REQUIRED),
-                       TD(INPUT(type='password', name='new_password'))))
-        rows.append(TR(TH('Confirm password'),
-                       TD(REQUIRED),
-                       TD(INPUT(type='password', name='confirm_password'))))
-        if self.is_admin():
-            rows.append(TR(TH('Teams'),
-                           TD(),
-                           TD(*[DIV(INPUT(type='checkbox', name='team', value=t,
-                                          checked=(t in self.teams)),
-                                    t)
-                                for t in sorted(configuration.get_teams())])))
-        else:
-            rows.append(TR(TH('Teams'),
-                           TD(),
-                           TD(I('[only admin may change your teams]'))))
+                       TD(str(account['tasks']['total_size']))))
         rows.append(TR(TH('Email'),
-                       TD(),
-                       TD(INPUT(type='text', size=40,
-                                name='email', value=self.email or ''))))
-        rows.append(TR(TH('Description'),
-                       TD(),
-                       TD(TEXTAREA(self.description or '',
-                                   cols=60, rows=6, name='description'))))
-        html.append(FORM(TABLE(klass='input', *rows),
-                         P(INPUT(type='submit', value='Update')),
-                         method='POST',
-                         action=url))
-        html.append(P(FORM(INPUT(type='submit', value='Cancel'),
-                           method='GET',
-                           action=configuration.get_url('account', self.name))))
-        html.write(response)
-
-    def POST(self, request, response):
-        self.check_write()
-        if not self.is_admin():
-            current_password = self.get_cgi_value('current_password')
-            if current_password:
-                current_password = configuration.get_password_hexdigest(current_password)
-                if self.password != current_password:
-                    raise HTTP_BAD_REQUEST("invalid 'current_password' value")
-        new_password = self.get_cgi_value('new_password')
-        if new_password:
-            confirm_password = self.get_cgi_value('confirm_password', required=True)
-            if new_password != confirm_password:
-                raise HTTP_BAD_REQUEST("invalid 'confirm_password' value")
-            self.execute('UPDATE account SET password=? WHERE name=?',
-                         configuration.get_password_hexdigest(new_password),
-                         self.name)
-        if self.is_admin():
-            teams = ' '.join(request.cgi_fields.getlist('team'))
+                       TD(account.get('email') or '')))
+        descr = account.get('descr')
+        if descr:
+            descr = markdown.markdown(descr, output_format='html4')
         else:
-            teams = ' '.join(self.teams)
-        email = self.get_cgi_value('email')
-        description = self.get_cgi_value('description', cleanup=True)
-        self.execute('UPDATE account SET teams=?, email=?, description=?'
-                     ' WHERE name=?', teams, email, description, self.name)
-        self.commit()
-        url = configuration.get_url('account', self.name)
-        raise HTTP_SEE_OTHER(Location=url)
+            descr = ''
+        rows.append(TR(TH('Description'),
+                       TD(descr, style='white-space: pre;')))
+        return TABLE(klass='input', *rows)
 
 
-class AccountCreate(WebResource):
-    "Handle creation of an account."
+CREATE_FIELDS = Fields(StringField('name', title='Name',
+                                   required=True,
+                                   descr='Account name, which must be unique.'
+                                   ' May contain alphanumerical characters,'
+                                   ' dash (-) and underscore (_)'),
+                       PasswordField('password', title='Password',
+                                     required=True,
+                                     descr='At least 6 characters.'),
+                       PasswordField('confirm_password',
+                                     title='Confirm password',
+                                     required=True),
+                       MultiSelectField('teams', title='Teams',
+                                        options=configuration.get_teams()),
+                       IntegerField('max_tasks', title='Max number of tasks',
+                                    required=True,
+                                    default=configuration.DEFAULT_MAX_TASKS,
+                                    descr='Maximum number of stored tasks.'
+                                    ' Use -1 to denote no limit.'),
+                       StringField('email', title='Email'),
+                       TextField('descr', title='Description'))
 
-    def GET(self, request, response):
-        self.check_admin()
-        html = HtmlRepresentation(self, 'Create account')
-        rows = [TR(TH('Name'),
-                   TD(REQUIRED),
-                   TD(INPUT(type='text', name='name')),
-                   TD(I('Must be unique'))),
-                TR(TH('Password'),
-                   TD(REQUIRED),
-                   TD(INPUT(type='password', name='password')),
-                   TD()),
-                TR(TH('Confirm password'),
-                   TD(REQUIRED),
-                   TD(INPUT(type='password', name='confirm_password')),
-                   TD()),
-                TR(TH('Teams'),
-                   TD(*[DIV(INPUT(type='checkbox', name='team', value=team),
-                            team)
-                        for team in sorted(configuration.get_teams())])),
-                TR(TH('Email'),
-                   TD(),
-                   TD(INPUT(type='text', name='email')),
-                   TD()),
-                TR(TH('Description'),
-                   TD(),
-                   TD(TEXTAREA(cols=60, rows=6, name='description')),
-                   TD())]
-        html.append(FORM(TABLE(klass='input', *rows),
-                         P(INPUT(type='submit', value='Create')),
-                         method='POST',
-                         action=configuration.get_url('account')))
-        html.append(FORM(P(INPUT(type='submit', value='Cancel')),
-                         method='GET',
-                         action=configuration.get_url('accounts')))
-        html.write(response)
 
-    def POST(self, request, response):
-        self.check_admin()
-        name = self.get_cgi_value('name', required=True)
-        cursor = self.execute('SELECT COUNT(*) FROM account WHERE name=?', name)
+class GET_AccountCreate(GET_Mixin, GET):
+    "Return the create form for a new account."
+
+    def __init__(self):
+        super(GET_AccountCreate, self).__init__(
+            outreprs=[JsonRepresentation(),
+                      TextRepresentation(),
+                      AccountCreateHtmlRepresentation()],
+            descr=self.__doc__)
+
+    def is_access(self):
+        return self.is_admin()
+
+    def add_data(self, data, resource, request, application):
+        data['title'] = 'Create account'
+        data['form'] = dict(fields=CREATE_FIELDS.get_data(),
+                            title='Enter data for new account',
+                            href=resource.get_url(),
+                            cancel=application.get_url('accounts'))
+        
+
+class POST_AccountCreate(POST_Mixin, POST):
+    """Perform the account creation. The response consists of a
+    HTTP 303 'See Other' redirection to the URL /account{account}.
+    There is no output representation for this resource and method.
+    """
+
+    def __init__(self):
+        super(POST_AccountCreate, self).__init__(infields=CREATE_FIELDS,
+                                                 descr=self.__doc__)
+
+    def is_access(self):
+        return self.is_admin()
+
+    def action(self, resource, request, application):
+        "Handle the request and return a response instance."
+        self.allow_access()
+        inserts = self.infields.parse(request)
+        inserts['name'] = inserts['name'].strip()
+        if len(inserts['name']) <= 3:
+            raise HTTP_BAD_REQUEST('account name is too short')
+        allowed = string.letters + string.digits + '-_'
+        if set(inserts['name']).difference(allowed):
+            raise HTTP_BAD_REQUEST('account name contains disallowed characters')
+        cursor = self.execute('SELECT COUNT(*) FROM account WHERE name=?',
+                              inserts['name'])
         if cursor.fetchone()[0] != 0:
-            raise HTTP_BAD_REQUEST("account '%s' already exists" % name)
-        password = self.get_cgi_value('password', required=True)
-        confirm_password = self.get_cgi_value('confirm_password', required=True)
-        if password != confirm_password:
-            raise HTTP_BAD_REQUEST('password and confirm password not the same')
-        teams = ' '.join(request.cgi_fields.getlist('team'))
-        email = self.get_cgi_value('email')
-        description = self.get_cgi_value('description', cleanup=True)
-        self.execute('INSERT INTO account(name,password,teams,email,description)'
-                     ' VALUES(?,?,?,?,?)',
-                     name,
-                     configuration.get_password_hexdigest(password),
-                     teams,
-                     email,
-                     description)
+            raise HTTP_BAD_REQUEST("account name '%s' already in use" %
+                                   inserts['name'])
+        if len(inserts['password']) < 6:
+            raise HTTP_BAD_REQUEST('password must contain at least 6 characters')
+        if inserts['password'] != inserts.pop('confirm_password'):
+                raise HTTP_BAD_REQUEST('passwords not equal')
+        inserts['password'] = configuration.get_password_hexdigest(inserts['password'])
+        try:
+            inserts['teams'] = ' '.join(inserts['teams'])
+        except KeyError:
+            pass
+        inserts['description'] = inserts.pop('descr', None)
+        keys = inserts.keys()
+        sql = "INSERT INTO account(%s) VALUES(%s)" % (','.join(keys),
+                                                      ','.join(['?']*len(keys)))
+        self.execute(sql, *inserts.values())
         self.commit()
-        raise HTTP_SEE_OTHER(Location=configuration.get_url('account', name))
+        raise HTTP_SEE_OTHER(Location=application.get_url('account',
+                                                          inserts['name']))
+        
+
+
+class AccountCreateHtmlRepresentation(HtmlRepresentation):
+    "HTML representation of the account create form page."
+
+    def get_content(self):
+        return self.get_form()
+
+
+EDIT_FIELDS = Fields(PasswordField('new_password', title='New password',
+                                   descr='If blank, then password will'
+                                         ' not be changed. If given, must be'
+                                         ' at least 6 characters.'),
+                     PasswordField('confirm_new_password',
+                                   title='Confirm new password',
+                                   descr='Must be given if a new password'
+                                         ' is specified above.'),
+                     MultiSelectField('teams', title='Teams',
+                                      options=configuration.get_teams()),
+                     IntegerField('max_tasks', title='Max number of tasks',
+                                  required=True, default=100,
+                                  descr='Maximum number of stored tasks.'
+                                  ' Use -1 to denote no limit.'),
+                     StringField('email', title='Email', length=30),
+                     TextField('descr', title='Description'))
+
+
+class GET_AccountEdit(GET_Mixin, GET):
+    "Return the edit form for an account."
+
+    def __init__(self):
+        super(GET_AccountEdit, self).__init__(
+            outreprs=[JsonRepresentation(),
+                      TextRepresentation(),
+                      AccountEditHtmlRepresentation()],
+            descr=self.__doc__)
+
+    def is_access(self):
+        return self.is_admin() or self.login.name == self.account.name
+
+    def add_data(self, data, resource, request, application):
+        self.account = get_account_legacy(self.cnx, resource.variables)
+        if not self.account:
+            raise HTTP_NOT_FOUND
+        self.allow_access()
+        data['title'] = "Edit account %s" % self.account.name
+        values = dict(name=self.account.name,
+                      email=self.account.email,
+                      descr=self.account.description)
+        # Only admin users are not allowed to edit teams and max_tasks
+        fields_data = EDIT_FIELDS.get_data()
+        if self.is_admin():
+            values['teams'] = self.account.teams
+            values['max_tasks'] = self.account.max_tasks
+        else:
+            for pos, field in enumerate(fields_data):
+                if field['name'] == 'teams':
+                    fields_data.pop(pos)
+                    break
+            for pos, field in enumerate(fields_data): # Must be a new loop!
+                if field['name'] == 'max_tasks':
+                    fields_data.pop(pos)
+                    break
+        data['form'] = dict(fields=fields_data,
+                            values=values,
+                            title='Modify account data',
+                            href=resource.get_url(),
+                            cancel=application.get_url('account',
+                                                       self.account.name))
+
+
+class AccountEditHtmlRepresentation(HtmlRepresentation):
+    "HTML representation of the account edit form page."
+
+    def get_content(self):
+        return self.get_form()
+
+
+class POST_AccountEdit(POST_Mixin, POST):
+    """Perform the edit on an account. The response consists of a
+    HTTP 303 'See Other' redirection to the URL /account{account}.
+    There is no output representation for this resource and method.
+    """
+
+    def __init__(self):
+        super(POST_AccountEdit, self).__init__(infields=EDIT_FIELDS,
+                                               descr=self.__doc__)
+
+    def is_access(self):
+        return self.is_admin() or self.login.name == self.account.name
+
+    def action(self, resource, request, application):
+        "Handle the request and return a response instance."
+        self.account = get_account_legacy(self.cnx, resource.variables)
+        if not self.account:
+            raise HTTP_NOT_FOUND
+        self.allow_access()
+        updates = self.infields.parse(request)
+        new_password = updates.pop('new_password')
+        confirm_new_password = updates.pop('confirm_new_password')
+        if new_password:
+            if len(new_password) < 6:
+                raise HTTP_BAD_REQUEST('password must contain at least 6 characters')
+            if new_password != confirm_new_password:
+                raise HTTP_BAD_REQUEST('new passwords not equal')
+            updates['password'] = configuration.get_password_hexdigest(new_password)
+        if self.is_admin():
+            try:
+                updates['teams'] = ' '.join(updates['teams'])
+            except KeyError:
+                pass
+        else:
+            updates.pop('teams', None)
+            updates.pop('max_tasks', None)
+        updates['description'] = updates.pop('descr', None)
+        logging.debug("adhoc2: edit account: %s", updates)
+        terms = ["%s=?" % key for key in updates.keys()]
+        sql = "UPDATE account SET %s WHERE name=?" % ','.join(terms)
+        values = updates.values()
+        values.append(self.account.name)
+        self.execute(sql, *values)
+        self.commit()
+        raise HTTP_SEE_OTHER(Location=application.get_url('account',
+                                                          self.account.name))
+
+def get_account_legacy(cnx, variables):
+    """Get the account instance according to the variables data.
+    Special case handler for a legacy issue:
+    Previously, account names containing a dot were allowed.
+    When the last name was short (<=4 chars), this clashed with the
+    specification of format of a resource.
+    """
+    try:
+        return Account(cnx, variables['account'])
+    except KeyError:
+        return None
+    except ValueError:
+        if variables.get('FORMAT'):
+            variables['account'] += variables['FORMAT']
+            variables['FORMAT'] = None
+            try:
+                return Account(cnx, variables['account'])
+            except ValueError:
+                pass
+    return None
