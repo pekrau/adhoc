@@ -5,6 +5,7 @@ Create the database from scratch, and the 'admin' account.
 
 import sys
 import os.path
+import getpass
 import sqlite3
 
 from adhoc import configuration
@@ -34,7 +35,7 @@ def create_db(admin_password):
     cursor.execute('CREATE TABLE task'
                    '(id INTEGER PRIMARY KEY,'
                    ' iui TEXT UNIQUE NOT NULL,'
-                   ' href TEXT UNIQUE NOT NULL,',
+                   ' href TEXT UNIQUE NOT NULL,'
                    ' tool TEXT NOT NULL,'
                    ' title TEXT,'
                    ' status TEXT NOT NULL,'
@@ -42,11 +43,23 @@ def create_db(admin_password):
                    ' size INTEGER,'
                    ' modified TEXT NOT NULL,'
                    ' account INTEGER REFERENCES account(id) ON DELETE RESTRICT)')
+    try:
+        from adhoc.tests import configuration as test_conf
+        cursor.execute('INSERT INTO account(name,password,teams,max_tasks,email,description)'
+                       ' VALUES(?, ?, ?, ?, ?, ?)',
+                       (test_conf['ACCOUNT'],
+                        configuration.get_password_hexdigest(test_conf['PASSWORD']),
+                        '',
+                        4,
+                        None,
+                        'Test account.'))
+    except (ImportError, KeyError):
+        pass
     cnx.commit()
     cnx.close()
 
+
 if __name__ == '__main__':
-    import getpass
     if os.path.exists(configuration.ADHOC_DBFILE):
         print 'Error: database already exists!'
         sys.exit(1)

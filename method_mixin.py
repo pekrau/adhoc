@@ -19,10 +19,11 @@ class BaseMixin(object):
 
     def connect(self, resource, request, application):
         "Connect to the database, and set the data for the authenticated user."
+        from .account import Account
         self.cnx = sqlite3.connect(configuration.ADHOC_DBFILE)
-        loginname, password = basic_authentication(request, configuration.REALM)
         try:
-            self.login = Account(self.cnx, loginname)
+            name, password = basic_authentication(request, configuration.REALM)
+            self.login = Account(self.cnx, name)
             self.login.check_password(password)
         except ValueError:
             raise HTTP_UNAUTHORIZED_BASIC_CHALLENGE(realm=configuration.REALM)
@@ -66,43 +67,6 @@ class BaseMixin(object):
                               ' WHERE t.account=a.id AND a.name=?', account)
         size = cursor.fetchone()[0] or 0
         return count, size
-
-
-class Account(object):
-    "Container for account data."
-
-    def __init__(self, cnx, name):
-        self.name = configuration.nstr(name)
-        cursor = cnx.cursor()
-        cursor.execute('SELECT id,password,teams,max_tasks,email,description,'
-                       'preferences FROM account WHERE name=?',
-                       (name,))
-        record = cursor.fetchone()
-        if not record: raise ValueError
-        self.id = record[0]
-        self.password = record[1]
-        self.teams = set(map(str, record[2].split()))
-        self.max_tasks = record[3]
-        self.email = configuration.nstr(record[4])
-        self.description = configuration.nstr(record[5])
-        preferences = record[6]
-        if preferences:
-            self.preferences = configuration.nstr(json.loads(preferences))
-        else:
-            self.preferences = dict()
-
-    def check_password(self, password):
-        if self.password != configuration.get_password_hexdigest(password):
-            raise ValueError
-
-    def get_data(self):
-        "Return the account data in a dictionary."
-        return dict(name=self.name,
-                    teams=' '.join(self.teams),
-                    max_tasks=self.max_tasks,
-                    email=self.email,
-                    preferences=self.preferences,
-                    descr=self.description)
 
 
 class GET_Mixin(BaseMixin):

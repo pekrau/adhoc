@@ -55,15 +55,15 @@ STATIC_STATUSES = set([FINISHED, FAILED, KILLED])
 
 REALM = 'adhoc'
 HTTP_TIMEOUT = 5.0
-CSS_HREF = '/static/wrapid-doc.css'
 REFRESH_FACTOR = 2.0
 MAX_REFRESH = 65.0
+DOC_CSS_HREF = '/static/wrapid-doc.css'
 
 SOURCE_DIR = os.path.dirname(__file__)
 STATIC_DIR = os.path.join(SOURCE_DIR, 'static')
 EXECUTE_SCRIPT = os.path.join(SOURCE_DIR, 'execute.py')
 
-ADHOC_DBFILE = os.path.join(DATA_DIR, 'adhoc.sqlite3')
+ADHOC_DBFILE = os.path.join(DATA_DIR, 'adhoc.sql3')
 DB_DIR = os.path.join(DATA_DIR, 'db')
 TASK_DIR = os.path.join(DATA_DIR, 'task')
 
@@ -122,18 +122,18 @@ def to_bool(value):
     else:
         raise ValueError("invalid literal '%s' for boolean" % value)
 
-def nstr(value):
+def rstr(value):
     "Return str of unicode value, else same, recursively."
     if value is None:
         return None
     elif isinstance(value, unicode):
         return str(value)
     elif isinstance(value, list):
-        return map(nstr, value)
+        return map(rstr, value)
     elif isinstance(value, set):
-        return set(map(nstr, value))
+        return set(map(rstr, value))
     elif isinstance(value, dict):
-        return dict([(nstr(key), nstr(value))
+        return dict([(rstr(key), rstr(value))
                      for key, value in value.iteritems()])
     else:
         return value

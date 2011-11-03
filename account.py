@@ -9,12 +9,49 @@ import string
 
 from wrapid.resource import *
 from wrapid.fields import *
+from wrapid.json_representation import JsonRepresentation
+from wrapid.text_representation import TextRepresentation
 
 from . import configuration
 from .method_mixin import *
-from .json_representation import JsonRepresentation
-from .text_representation import TextRepresentation
 from .html_representation import *
+
+
+class Account(object):
+    "Container for account data."
+
+    def __init__(self, cnx, name):
+        self.name = configuration.rstr(name)
+        cursor = cnx.cursor()
+        cursor.execute('SELECT id,password,teams,max_tasks,email,description,'
+                       'preferences FROM account WHERE name=?',
+                       (name,))
+        record = cursor.fetchone()
+        if not record: raise ValueError
+        self.id = record[0]
+        self.password = record[1]
+        self.teams = set(map(str, record[2].split()))
+        self.max_tasks = record[3]
+        self.email = configuration.rstr(record[4])
+        self.description = configuration.rstr(record[5])
+        preferences = record[6]
+        if preferences:
+            self.preferences = configuration.rstr(json.loads(preferences))
+        else:
+            self.preferences = dict()
+
+    def check_password(self, password):
+        if self.password != configuration.get_password_hexdigest(password):
+            raise ValueError
+
+    def get_data(self):
+        "Return the account data in a dictionary."
+        return dict(name=self.name,
+                    teams=' '.join(self.teams),
+                    max_tasks=self.max_tasks,
+                    email=self.email,
+                    preferences=self.preferences,
+                    descr=self.description)
 
 
 class GET_Accounts(GET_Mixin, GET):
@@ -152,7 +189,7 @@ CREATE_FIELDS = Fields(StringField('name', title='Name',
                                    required=True,
                                    descr='Account name, which must be unique.'
                                    ' May contain alphanumerical characters,'
-                                   ' dash (-) and underscore (_)'),
+                                   ' dash (-), underscore (_) and dot (.)'),
                        PasswordField('password', title='Password',
                                      required=True,
                                      descr='At least 6 characters.'),
@@ -211,7 +248,7 @@ class POST_AccountCreate(POST_Mixin, POST):
         inserts['name'] = inserts['name'].strip()
         if len(inserts['name']) <= 3:
             raise HTTP_BAD_REQUEST('account name is too short')
-        allowed = string.letters + string.digits + '-_'
+        allowed = string.letters + string.digits + '-_.'
         if set(inserts['name']).difference(allowed):
             raise HTTP_BAD_REQUEST('account name contains disallowed characters')
         cursor = self.execute('SELECT COUNT(*) FROM account WHERE name=?',
@@ -243,7 +280,7 @@ class AccountCreateHtmlRepresentation(HtmlRepresentation):
     "HTML representation of the account create form page."
 
     def get_content(self):
-        return self.get_form()
+        return self.get_form_panel()
 
 
 EDIT_FIELDS = Fields(PasswordField('new_password', title='New password',
@@ -312,7 +349,7 @@ class AccountEditHtmlRepresentation(HtmlRepresentation):
     "HTML representation of the account edit form page."
 
     def get_content(self):
-        return self.get_form()
+        return self.get_form_panel()
 
 
 class POST_AccountEdit(POST_Mixin, POST):

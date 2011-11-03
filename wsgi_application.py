@@ -61,6 +61,6 @@ application.append(Resource('/static/{filename}', name='Static file',
                             descr='Access to static files in a predetermined'
                             ' directory on the server.'))
 application.append(Resource('/doc', name='API doc',
-                            GET=GET_Documentation(css_href=configuration.CSS_HREF),
+                            GET=GET_Documentation(css_href=configuration.DOC_CSS_HREF),
                             descr='Produce this documentation of the web'
                             ' API by introspection of the source code.'))

@@ -10,11 +10,11 @@ import logging
 
 from wrapid.resource import *
 from wrapid.fields import *
+from wrapid.json_representation import JsonRepresentation
+from wrapid.text_representation import TextRepresentation
 
 from . import configuration
 from .method_mixin import *
-from .json_representation import JsonRepresentation
-from .text_representation import TextRepresentation
 from .html_representation import *
 
 
@@ -35,7 +35,7 @@ def get_databases(type, account_teams):
         else:
             if not teams.intersection(account_teams): continue
         result.append(db)
-    return configuration.nstr(result)
+    return configuration.rstr(result)
 
 
 OUTPUT_FORMATS = [dict(value='0',
@@ -96,8 +96,8 @@ class BlastHtmlRepresentation(HtmlRepresentation):
     "Common HTML representation of the BLAST task create page."
 
     def get_content(self):
-        return self.get_form(funcs=dict(db=self.get_db_multiselect),
-                             submit='Create and execute task')
+        return self.get_form_panel(funcs=dict(db=self.get_db_multiselect),
+                                   submit='Create and execute task')
 
     def get_db_multiselect(self, field, current=None):
         "Custom HTML for the 'db' multiselect field."

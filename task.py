@@ -9,12 +9,12 @@ import json
 
 from wrapid.resource import *
 from wrapid.fields import *
+from wrapid.json_representation import JsonRepresentation
+from wrapid.text_representation import TextRepresentation
 
 from . import configuration
 from . import usage
 from .method_mixin import *
-from .json_representation import JsonRepresentation
-from .text_representation import TextRepresentation
 from .html_representation import *
 
 
@@ -54,7 +54,7 @@ class GET_Tasks(GET_Mixin, GET):
         tasks = []
         for task in self.get_tasks(self.accountname):
             tasks.append(dict(iui=str(task.iui),
-                              title=configuration.nstr(task.title),
+                              title=configuration.rstr(task.title),
                               account=task.account,
                               tool=str(task.tool),
                               status=str(task.status),
@@ -132,7 +132,7 @@ class GET_Task(GET_Mixin, GET):
         self.allow_access()
         data['entity'] = 'task'
         data['title'] = self.task.title or None
-        data['task'] = configuration.nstr(self.task.get_data(resource.get_url))
+        data['task'] = configuration.rstr(self.task.get_data(resource.get_url))
         if not data['task'].has_key('cpu_time') and self.task.pid:
             try:
                 process = usage.Usage(pid=self.task.pid,
@@ -417,7 +417,7 @@ class Task(object):
         self.id = record[0]
         self.href = str(record[1])
         self.tool = str(record[2])
-        self.title = configuration.nstr(record[3])
+        self.title = configuration.rstr(record[3])
         self.status = str(record[4])
         self.pid = record[5]
         self.size = record[6]

@@ -4,11 +4,11 @@ Home page.
 """
 
 from wrapid.resource import *
+from wrapid.json_representation import JsonRepresentation
+from wrapid.text_representation import TextRepresentation
 
 from . import configuration
 from .method_mixin import *
-from .json_representation import JsonRepresentation
-from .text_representation import TextRepresentation
 from .html_representation import HtmlRepresentation
 
 
