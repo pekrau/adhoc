@@ -57,7 +57,6 @@ REALM = 'adhoc'
 HTTP_TIMEOUT = 5.0
 REFRESH_FACTOR = 2.0
 MAX_REFRESH = 65.0
-DOC_CSS_HREF = '/static/wrapid-doc.css'
 
 SOURCE_DIR = os.path.dirname(__file__)
 STATIC_DIR = os.path.join(SOURCE_DIR, 'static')
