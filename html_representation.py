@@ -5,10 +5,8 @@ Base class for HTML representation of data.
 
 import urllib
 
-from HyperText.HTML40 import *
-
 from wrapid.resource import *
-from wrapid.html_representation import HtmlRepresentation as BaseHtmlRepresentation
+from wrapid.html_representation import *
 
 from . import configuration
 
