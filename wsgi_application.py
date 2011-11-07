@@ -9,6 +9,7 @@ from wrapid.get_static import GET_Static
 
 from adhoc import configuration
 from adhoc.home import *
+from adhoc.login import *
 from adhoc.account import *
 from adhoc.task import *
 
@@ -64,3 +65,6 @@ application.append(Resource('/doc', name='API doc',
                             GET=GET_Documentation(),
                             descr='Produce this documentation of the web'
                             ' API by introspection of the source code.'))
+application.append(Resource('/login',
+                            GET=GET_Login(),
+                            descr='Force the client to give authentication.'))

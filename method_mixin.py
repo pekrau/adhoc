@@ -20,13 +20,21 @@ class BaseMixin(object):
     def connect(self, resource, request, application):
         "Connect to the database, and set the data for the authenticated user."
         from .account import Account
-        self.cnx = sqlite3.connect(configuration.ADHOC_DBFILE)
+        self.cnx = sqlite3.connect(configuration.MASTER_DBFILE)
         try:
-            name, password = basic_authentication(request, configuration.REALM)
+            name, password = basic_authentication(request,
+                                                  configuration.REALM,
+                                                  require=False)
             self.login = Account(self.cnx, name)
             self.login.check_password(password)
-        except ValueError:
-            raise HTTP_UNAUTHORIZED_BASIC_CHALLENGE(realm=configuration.REALM)
+        except (KeyError, ValueError):
+            # The following remedies an apparent deficiency of several
+            # human browsers: For some pages in the site (notably
+            # the root '/'), the authentication data does not seem to be
+            # sent voluntarily by the browser.
+            if request.cookie.has_key("%s-login" % configuration.NAME):
+                raise HTTP_UNAUTHORIZED_BASIC_CHALLENGE(realm=configuration.REALM)
+            self.login = Account(self.cnx, 'anonymous')
 
     def execute(self, sql, *values):
         cursor = self.cnx.cursor()
@@ -54,9 +62,43 @@ class BaseMixin(object):
         return True
 
     def allow_access(self):
-        "Raise HTTP FORBIDDEN if login user is not allowed to read this."
+        """Raise HTTP FORBIDDEN if login user is not allowed to read this.
+        Raise HTTP_UNAUTHORIZED if anonymous user.
+        """
         if not self.is_access():
-            raise HTTP_FORBIDDEN('access disallowed for login account')
+            if self.is_anonymous():
+                raise HTTP_UNAUTHORIZED_BASIC_CHALLENGE(realm=configuration.REALM)
+            else:
+                raise HTTP_FORBIDDEN("disallowed for login '%s'", self.login)
+
+    def is_anonymous(self):
+        "Is the login user 'anonymous'?"
+        return self.login.name == 'anonymous'
+
+    def get_account(self, variables):
+        """Get the account instance according to the variables data.
+        Handle the case where an account name containing a dot and
+        a short (<=4 chars) last name, which will be confused for
+        a format specification.
+        Returns None if no account could be identified.
+        """
+        from .account import Account
+        try:
+            return Account(self.cnx, variables['account'])
+        except KeyError:
+            return None
+        except ValueError:
+            if variables.get('FORMAT'):
+                name = variables['account'] + variables['FORMAT']
+                try:
+                    result = Account(self.cnx, name)
+                except ValueError:
+                    return None
+                else:
+                    variables['account'] += variables['FORMAT']
+                    variables['FORMAT'] = None
+                    return result
+        return None
 
     def get_tasks_stats(self, account):
         "Return count of tasks and total tasks size for the account name."

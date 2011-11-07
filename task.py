@@ -35,10 +35,7 @@ class GET_Tasks(GET_Mixin, GET):
             return self.is_admin()
 
     def add_data(self, data, resource, request, application):
-        # Legacy issue: older account names may contain dot,
-        # which screws up format handling.
-        from .account import get_account_legacy
-        account = get_account_legacy(self.cnx, resource.variables)
+        account = self.get_account(resource.variables)
         if account:
             self.accountname = account.name
         else:
@@ -369,7 +366,7 @@ class Task(object):
             self.modified = None
             self.data = dict()
         else:
-            self.load(iui)
+            self.fetch(iui)
 
     def __str__(self):
         return "%s task: %s" % (self.tool, self.title or '[no title]')
@@ -405,12 +402,12 @@ class Task(object):
         cursor.execute(sql, values)
         return cursor
 
-    def load(self, iui):
+    def fetch(self, iui):
         self.iui = iui
         cursor = self.execute('SELECT t.id,t.href,t.tool,t.title,t.status,'
                               ' t.pid,t.size,a.name,t.modified'
                               ' FROM task AS t, account AS a'
-                              ' WHERE iui=? and t.account=a.id', self.iui)
+                              ' WHERE t.iui=? and t.account=a.id', self.iui)
         record = cursor.fetchone()
         if not record:
             raise ValueError("no such task %s" % self.iui)

@@ -21,7 +21,7 @@ def execute():
         sys.exit('no task IUI given')
     iui = sys.argv[1]
     try:
-        cnx = sqlite3.connect(configuration.ADHOC_DBFILE)
+        cnx = sqlite3.connect(configuration.MASTER_DBFILE)
         task = Task(cnx, iui)
         if task.status != configuration.CREATED:
             raise ValueError("task status is not '%s'" % configuration.CREATED)
@@ -34,7 +34,7 @@ def execute():
     daemonize(stdout=os.path.join(configuration.TASK_DIR, "%s.out" % iui),
               stderr=os.path.join(configuration.TASK_DIR, "%s.err" % iui))
     
-    cnx = sqlite3.connect(configuration.ADHOC_DBFILE) # Open after daemonizing
+    cnx = sqlite3.connect(configuration.MASTER_DBFILE) # Open after daemonizing
     try:
         task = Task(cnx, iui)
         task.set_pid(os.getpid())

@@ -128,7 +128,7 @@ class GET_Account(GET_Mixin, GET):
         return self.is_admin() or self.login.name == self.account.name
 
     def add_data(self, data, resource, request, application):
-        self.account = get_account_legacy(self.cnx, resource.variables)
+        self.account = self.get_account(resource.variables)
         if not self.account:
             raise HTTP_NOT_FOUND
         self.allow_access()
@@ -315,7 +315,7 @@ class GET_AccountEdit(GET_Mixin, GET):
         return self.is_admin() or self.login.name == self.account.name
 
     def add_data(self, data, resource, request, application):
-        self.account = get_account_legacy(self.cnx, resource.variables)
+        self.account = self.get_account(resource.variables)
         if not self.account:
             raise HTTP_NOT_FOUND
         self.allow_access()
@@ -367,7 +367,7 @@ class POST_AccountEdit(POST_Mixin, POST):
 
     def action(self, resource, request, application):
         "Handle the request and return a response instance."
-        self.account = get_account_legacy(self.cnx, resource.variables)
+        self.account = self.get_account(resource.variables)
         if not self.account:
             raise HTTP_NOT_FOUND
         self.allow_access()
@@ -398,24 +398,3 @@ class POST_AccountEdit(POST_Mixin, POST):
         self.commit()
         raise HTTP_SEE_OTHER(Location=application.get_url('account',
                                                           self.account.name))
-
-def get_account_legacy(cnx, variables):
-    """Get the account instance according to the variables data.
-    Special case handler for a legacy issue:
-    Previously, account names containing a dot were allowed.
-    When the last name was short (<=4 chars), this clashed with the
-    specification of format of a resource.
-    """
-    try:
-        return Account(cnx, variables['account'])
-    except KeyError:
-        return None
-    except ValueError:
-        if variables.get('FORMAT'):
-            variables['account'] += variables['FORMAT']
-            variables['FORMAT'] = None
-            try:
-                return Account(cnx, variables['account'])
-            except ValueError:
-                pass
-    return None

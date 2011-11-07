@@ -13,15 +13,27 @@ import time
 import json
 
 NAME = 'Adhoc'
-VERSION = '2.0'
+VERSION = '2.1'
+REALM = 'adhoc'
 
 DEBUG = False                           # May be changed by site module
 
-# The site module must define paths to tool executables,
-# and define the following global variables:
-# SALT        password encryption salt
-# DATA_DIR    directory for adhoc data
-# PYTHON      path to python interpreter
+DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+
+REFRESH_FACTOR = 2.0
+MAX_REFRESH = 65.0
+DEFAULT_MAX_TASKS = 200
+
+PYTHON = '/usr/bin/python'
+
+DATA_DIR = '/var/local/adhoc'
+SALT = 'default123'
+
+#----------------------------------------------------------------------
+# Do not change anything below this section.
+#----------------------------------------------------------------------
+# The 'site_XXX' module must define paths to tool executables.
+# It may redefine any of the above global variables.
 HOSTNAME = socket.gethostname()
 MODULENAME = "adhoc.site_%s" % HOSTNAME
 try:
@@ -33,15 +45,14 @@ else:
     for key in dir(module):
         if key.startswith('_'): continue
         globals()[key] = getattr(module, key)
+#----------------------------------------------------------------------
+
 
 if DEBUG:
     logging.basicConfig(level=logging.DEBUG)
 else:
     logging.basicConfig(level=logging.INFO)
 
-DATE_ISO_FORMAT = "%Y-%m-%d"
-TIME_ISO_FORMAT = "%H:%M:%S"
-DATETIME_ISO_FORMAT = "%sT%sZ" % (DATE_ISO_FORMAT, TIME_ISO_FORMAT)
 
 CREATED = 'created'
 WAITING = 'waiting'
@@ -53,20 +64,13 @@ STATUSES = set([CREATED, WAITING, EXECUTING, FINISHED, FAILED, KILLED])
 DYNAMIC_STATUSES = set([CREATED, WAITING, EXECUTING])
 STATIC_STATUSES = set([FINISHED, FAILED, KILLED])
 
-REALM = 'adhoc'
-HTTP_TIMEOUT = 5.0
-REFRESH_FACTOR = 2.0
-MAX_REFRESH = 65.0
-
 SOURCE_DIR = os.path.dirname(__file__)
 STATIC_DIR = os.path.join(SOURCE_DIR, 'static')
 EXECUTE_SCRIPT = os.path.join(SOURCE_DIR, 'execute.py')
 
-ADHOC_DBFILE = os.path.join(DATA_DIR, 'adhoc.sql3')
+MASTER_DBFILE = os.path.join(DATA_DIR, 'adhoc.sql3')
 DB_DIR = os.path.join(DATA_DIR, 'db')
 TASK_DIR = os.path.join(DATA_DIR, 'task')
-
-DEFAULT_MAX_TASKS = 200
 
 TOOLS = []                              # List of lists; first item is section
 TOOLS_LOOKUP = dict()
@@ -106,7 +110,7 @@ def get_static_path(filename):
     return path
 
 def now():
-    return time.strftime(DATETIME_ISO_FORMAT, time.gmtime())
+    return time.strftime(DATETIME_FORMAT, time.gmtime())
 
 def to_bool(value):
     """Convert the string value to boolean.
