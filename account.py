@@ -140,9 +140,11 @@ class GET_Account(GET_Mixin, GET):
             href=application.get_url('tasks', self.account.name),
             total_count=count,
             total_size=size)
-        data['operations'] = [
-            dict(title='Edit account',
-                 href=application.get_url('account', self.account.name,'edit'))]
+        if self.login.name != 'anonymous':
+            data['operations'] = [
+                dict(title='Edit account',
+                     href=application.get_url('account',
+                                              self.account.name,'edit'))]
 
 
 class AccountHtmlRepresentation(HtmlRepresentation):
@@ -312,7 +314,8 @@ class GET_AccountEdit(GET_Mixin, GET):
             descr=self.__doc__)
 
     def is_access(self):
-        return self.is_admin() or self.login.name == self.account.name
+        return self.is_admin() or (self.login.name != 'anonymous' and
+                                   self.login.name == self.account.name)
 
     def add_data(self, data, resource, request, application):
         self.account = self.get_account(resource.variables)
@@ -363,7 +366,8 @@ class POST_AccountEdit(POST_Mixin, POST):
                                                descr=self.__doc__)
 
     def is_access(self):
-        return self.is_admin() or self.login.name == self.account.name
+        return self.is_admin() or (self.login.name != 'anonymous' and
+                                   self.login.name == self.account.name)
 
     def action(self, resource, request, application):
         "Handle the request and return a response instance."

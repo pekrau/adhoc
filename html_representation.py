@@ -57,13 +57,6 @@ class HtmlRepresentation(BaseHtmlRepresentation):
                                     method='GET',
                                     action=self.get_url('login')))),
                          style='white-space: nowrap;')
-        ## if loginname:
-        ##     url = self.get_url('account', loginname)
-        ##     return DIV("Logged in as: %s" % A(loginname, href=url),
-        ##                style='white-space: nowrap;')
-        ## else:
-        ##     return I('not logged in',
-        ##                style='white-space: nowrap;')
 
     def get_form_panel(self, funcs=dict(), submit='Save'):
         try:
