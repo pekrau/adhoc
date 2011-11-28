@@ -38,6 +38,8 @@ form {padding: 0;
 body table tr th {vertical-align: top; }
 body table tr td {vertical-align: top; }
 
+td.body_left {width: 120px; }
+
 table.input tr th {vertical-align: top;
                    text-align: right;
 		   white-space: nowrap; }
@@ -81,12 +83,23 @@ table.navigation ul {margin: 0;
 		     padding-left: 1em;
 		     list-style-type: none; }
 
-table.meta {border-style: solid;
-            border-color: lightgray;
-            border-width: 2px 0 0 2px; }
 table.meta tr th {vertical-align: top;
-                  text-align: left; }
+                  text-align: left;
+		  border-style: solid;
+		  border-color: gray;
+		  border-width: 0 0 1px 0; }
 table.meta tr td {vertical-align: top; }
+
+table.representations {border-style: solid;
+		       border-color: lightgray;
+		       border-width: 2px 0 0 0;
+		       margin: 4px 0; }
+table.representations tr th {vertical-align: top;
+			     text-align: left;
+			     border-style: solid;
+			     border-color: lightgray;
+			     border-width: 0 0 1px 0; }
+table.representations tr td {vertical-align: top; }
 
 .right {text-align: right; }
 

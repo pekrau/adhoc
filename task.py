@@ -194,7 +194,7 @@ class TaskHtmlRepresentation(HtmlRepresentation):
         rows.append(TR(TH('Command'), TD(command)))
         error = taskdata.get('error')
         if error:
-            error = PRE(error)
+            error = PRE(self.escape_text(error))
         else:
             error = self.NONE
         rows.append(TR(TH('Error'), TD(error)))
@@ -209,7 +209,7 @@ class TaskHtmlRepresentation(HtmlRepresentation):
         if mimetype == 'text/plain':
             content = item.get('content')
             if content:
-                content = PRE(content)
+                content = PRE(self.escape_text(content))
             else:
                 content = self.NONE
         else:
@@ -328,8 +328,8 @@ class GET_TaskOutput(GET_TaskData):
 
 class DELETE_Task(BaseMixin, DELETE):
     """Delete the task.
-    The response is a HTTP 303 'See Other' redirection to the URL of the list
-    of tasks for the account of this task.
+    The response is a HTTP 303 'See Other' redirection to the URL
+    of the list of tasks for the account of this task.
     """
 
     def __call__(self, resource, request, application):
@@ -491,10 +491,10 @@ class Task(object):
         self.cnx.commit()
         os.remove(os.path.join(configuration.TASK_DIR, self.iui))
         try:
-            os.remove(os.path.join(configuration.TASK_DIR, "%s.out"%self.iui))
+            os.remove(os.path.join(configuration.TASK_DIR, "%s.out"% self.iui))
         except OSError:
             pass
         try:
-            os.remove(os.path.join(configuration.TASK_DIR, "%s.err"%self.iui))
+            os.remove(os.path.join(configuration.TASK_DIR, "%s.err"% self.iui))
         except OSError:
             pass

@@ -152,8 +152,8 @@ class GET_BlastCreate(GET_Mixin, GET):
         fill = dict(db=dict(options=databases))
         default = self.login.preferences.get(self.tool, dict())
         data['tool'] = dict(name=self.tool,
-                            fields=self.fields.get_data(default=default,
-                                                        fill=fill),
+                            fields=self.fields.get_data(fill=fill,
+                                                        default=default),
                             title='Enter query and select parameters',
                             href=resource.get_url(),
                             cancel=application.get_url())
@@ -183,7 +183,6 @@ class POST_TaskCreate(POST_Mixin, POST):
         self.set_data()
         self.execute_task()
         self.update_account_preferences()
-        ## url = "%s?refresh=1.0" % self.task.href
         raise HTTP_SEE_OTHER(Location=self.task.href)
 
     def set_data(self):
@@ -196,8 +195,10 @@ class POST_TaskCreate(POST_Mixin, POST):
 
     def set_query(self, query_type):
         query = self.inputs['query_file']
+        logging.debug("query_file %s", query)
         if not query:
             query = self.inputs['query_content']
+            logging.debug("query_content %s", query)
         if query is None:
             raise HTTP_BAD_REQUEST('no query specified')
         if query:

@@ -177,7 +177,7 @@ class TestBlastp(TestMixin, unittest.TestCase):
         outdata = dict(title='unittest',
                        db=dbs,
                        task_type='blastp-short',
-                       query_content='QEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHQYREQIKRVKDSDDVPMVLVGNKCDL',
+                       query_content='>test\nQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHQYREQIKRVKDSDDVPMVLVGNKCDL',
                        evalue=10.0,
                        outfmt=0)
         response = self.POST('/blastp', outdata=outdata)

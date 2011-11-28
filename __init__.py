@@ -4,6 +4,7 @@ To do:
 - when using WhoYou: preferences must be transferred one level down,
   under key 'Adhoc' (configuration.name)
 - fix tests.py same as in WhoYou
+- API tutorial pages
 
 - expand test suite
 - Last-Modified HTTP header, and its attendants

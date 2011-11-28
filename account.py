@@ -152,11 +152,11 @@ class AccountHtmlRepresentation(HtmlRepresentation):
 
     def get_content(self):
         account = self.data['account']
-        rows = []
+        table = TABLE(klass='input')
         # Teams can be edited only when user is admin
         try:
-            rows.append(TR(TH('Teams'),
-                           TD(account['teams'])))
+            table.append(TR(TH('Teams'),
+                            TD(account['teams'])))
         except KeyError:
             pass
         line = str(A(str(account['tasks']['total_count']),
@@ -165,26 +165,21 @@ class AccountHtmlRepresentation(HtmlRepresentation):
         if max_tasks >= 0:
             if account['tasks']['total_count'] >= max_tasks:
                 line += " %s" % self.get_icon('error', 'Max number reached!')
-        rows.append(TR(TH('# tasks'),
-                       TD(line)))
+        table.append(TR(TH('# tasks'),
+                        TD(line)))
         # Max number of tasks can be edited only when user is admin
         try:
-            rows.append(TR(TH('Max # tasks'),
-                           TD(account['max_tasks'])))
+            table.append(TR(TH('Max # tasks'),
+                            TD(account['max_tasks'])))
         except KeyError:
             pass
-        rows.append(TR(TH('Total tasks size'),
-                       TD(str(account['tasks']['total_size']))))
-        rows.append(TR(TH('Email'),
-                       TD(account.get('email') or '')))
-        descr = account.get('descr')
-        if descr:
-            descr = markdown.markdown(descr, output_format='html4')
-        else:
-            descr = ''
-        rows.append(TR(TH('Description'),
-                       TD(descr, style='white-space: pre;')))
-        return TABLE(klass='input', *rows)
+        table.append(TR(TH('Total tasks size'),
+                        TD(str(account['tasks']['total_size']))))
+        table.append(TR(TH('Email'),
+                        TD(account.get('email') or '')))
+        table.append(TR(TH('Description'),
+                        TD(markdown_to_html(account.get('descr')))))
+        return table
 
 
 CREATE_FIELDS = Fields(StringField('name', title='Name',
@@ -199,7 +194,7 @@ CREATE_FIELDS = Fields(StringField('name', title='Name',
                                      title='Confirm password',
                                      required=True),
                        MultiSelectField('teams', title='Teams',
-                                        options=configuration.get_teams()),
+                                        required=True, check=False),
                        IntegerField('max_tasks', title='Max number of tasks',
                                     required=True,
                                     default=configuration.DEFAULT_MAX_TASKS,
@@ -224,7 +219,8 @@ class GET_AccountCreate(GET_Mixin, GET):
 
     def add_data(self, data, resource, request, application):
         data['title'] = 'Create account'
-        data['form'] = dict(fields=CREATE_FIELDS.get_data(),
+        fill = dict(teams=dict(options=configuration.get_teams()))
+        data['form'] = dict(fields=CREATE_FIELDS.get_data(fill=fill),
                             title='Enter data for new account',
                             href=resource.get_url(),
                             cancel=application.get_url('accounts'))
@@ -327,7 +323,8 @@ class GET_AccountEdit(GET_Mixin, GET):
                       email=self.account.email,
                       descr=self.account.description)
         # Only admin users are not allowed to edit teams and max_tasks
-        fields_data = EDIT_FIELDS.get_data()
+        fill = dict(teams=dict(options=configuration.get_teams()))
+        fields_data = EDIT_FIELDS.get_data(fill=fill)
         if self.is_admin():
             values['teams'] = self.account.teams
             values['max_tasks'] = self.account.max_tasks
