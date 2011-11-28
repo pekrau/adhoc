@@ -201,6 +201,7 @@ class POST_TaskCreate(POST_Mixin, POST):
             logging.debug("query_content %s", query)
         if query is None:
             raise HTTP_BAD_REQUEST('no query specified')
+        query = str(query)        # Convert from 'buffer', since file content.
         if query:
             if query[0] != '>':   # Add FASTA header line
                 query = ">query\n%s" % query
