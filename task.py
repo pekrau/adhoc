@@ -125,7 +125,10 @@ class GET_Task(GET_Mixin, GET):
         return self.is_admin() or self.task.account == self.login.name
 
     def add_data(self, data, resource, request, application):
-        self.task = Task(self.cnx, resource.variables['iui'])
+        try:
+            self.task = Task(self.cnx, resource.variables['iui'])
+        except ValueError:
+            raise HTTP_NOT_FOUND
         self.allow_access()
         data['entity'] = 'task'
         data['title'] = self.task.title or None
@@ -260,6 +263,9 @@ class GET_TaskData(GET_Mixin, Method):
         self.connect(resource, request, application)
         try:
             self.task = Task(self.cnx, resource.variables['iui'])
+        except ValueError:
+            raise HTTP_NOT_FOUND
+        else:
             self.allow_access()
             return self.get_response()
         finally:
@@ -336,7 +342,10 @@ class DELETE_Task(BaseMixin, DELETE):
         self.connect(resource, request, application)
         try:
             self.task = Task(self.cnx, resource.variables['iui'])
-            account = self.task.account
+        except ValueError:
+            raise HTTP_NOT_FOUND
+        else:
+            account = self.task.account # Save for later
             self.allow_access()
             self.task.delete()
         finally:
