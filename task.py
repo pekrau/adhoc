@@ -197,7 +197,7 @@ class TaskHtmlRepresentation(HtmlRepresentation):
         rows.append(TR(TH('Command'), TD(command)))
         error = taskdata.get('error')
         if error:
-            error = PRE(self.escape_text(error))
+            error = PRE(self.safe_text(error))
         else:
             error = self.NONE
         rows.append(TR(TH('Error'), TD(error)))
@@ -212,7 +212,7 @@ class TaskHtmlRepresentation(HtmlRepresentation):
         if mimetype == 'text/plain':
             content = item.get('content')
             if content:
-                content = PRE(self.escape_text(content))
+                content = PRE(self.safe_text(content))
             else:
                 content = self.NONE
         else:
