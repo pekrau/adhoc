@@ -33,7 +33,7 @@ class BaseMixin(object):
             # the root '/'), the authentication data does not seem to be
             # sent voluntarily by the browser.
             if request.cookie.has_key("%s-login" % configuration.NAME):
-                logging.info("adhoc: not logged in, but cookie %s-login" % configuration.NAME)
+                logging.debug("adhoc: not logged in, but cookie %s-login" % configuration.NAME)
                 raise HTTP_UNAUTHORIZED_BASIC_CHALLENGE(realm=configuration.REALM)
             self.login = Account(self.cnx, 'anonymous')
 
