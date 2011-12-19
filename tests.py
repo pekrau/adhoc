@@ -172,10 +172,14 @@ class TestBlastp(TestMixin, unittest.TestCase):
         size = -1
         db = lookup.get('db')
         self.assert_(db is not None)
-        dbs = [c['value'] for c in db['options']]
-        self.assert_(len(dbs) > 0)
+        # Select the smallest database
+        smallest = db['options'][0]
+        for database in db['options'][1:]:
+            if database['size'] < smallest['size']:
+                smallest = database
+        self.assert_(smallest is not None)
         outdata = dict(title='unittest',
-                       db=dbs,
+                       db=smallest['value'],
                        task_type='blastp-short',
                        query_content='>test\nQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHQYREQIKRVKDSDDVPMVLVGNKCDL',
                        evalue=10.0,

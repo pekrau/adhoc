@@ -1,0 +1,1034 @@
+BLASTP 2.2.25+
+
+
+Reference: Stephen F. Altschul, Thomas L. Madden, Alejandro A.
+Schaffer, Jinghui Zhang, Zheng Zhang, Webb Miller, and David J.
+Lipman (1997), "Gapped BLAST and PSI-BLAST: a new generation of
+protein database search programs", Nucleic Acids Res. 25:3389-3402.
+
+
+
+Reference for composition-based statistics: Alejandro A. Schaffer,
+L. Aravind, Thomas L. Madden, Sergei Shavirin, John L. Spouge, Yuri
+I. Wolf, Eugene V. Koonin, and Stephen F. Altschul (2001),
+"Improving the accuracy of PSI-BLAST protein database searches with
+composition-based statistics and other refinements", Nucleic Acids
+Res. 29:2994-3005.
+
+
+
+Database: Homo sapiens Swiss-Prot
+           69,906 sequences; 32,382,908 total letters
+
+
+
+Query= query
+
+Length=36
+                                                                      Score     E
+Sequences producing significant alignments:                          (Bits)  Value
+
+  tr|Q9BR65|Q9BR65_HUMAN V-Ha-ras Harvey rat sarcoma viral oncoge...  79.1    8e-16
+  sp|P01112|RASH_HUMAN GTPase HRas OS=Homo sapiens GN=HRAS PE=1 SV=1  78.7    8e-16
+  sp|P01116-2|RASK_HUMAN Isoform 2B of GTPase KRas OS=Homo sapien...  78.7    9e-16
+  sp|P01116|RASK_HUMAN GTPase KRas OS=Homo sapiens GN=KRAS PE=1 SV=1  78.7    1e-15
+  tr|Q5U091|Q5U091_HUMAN Neuroblastoma RAS viral (V-ras) oncogene...  78.3    1e-15
+  sp|P01111|RASN_HUMAN GTPase NRas OS=Homo sapiens GN=NRAS PE=1 SV=1  78.3    1e-15
+  tr|Q71SP6|Q71SP6_HUMAN K-ras p21 protein (Fragment) OS=Homo sap...  77.4    2e-15
+  sp|Q7Z444|RASE_HUMAN GTPase ERas OS=Homo sapiens GN=ERAS PE=2 SV=1  76.6    4e-15
+  tr|B4DW94|B4DW94_HUMAN cDNA FLJ50714, moderately similar to Ras...  74.4    2e-14
+  sp|A6NIZ1|RP1BL_HUMAN Ras-related protein Rap-1b-like protein O...  68.1    2e-12
+  tr|Q5VY89|Q5VY89_HUMAN Ras-like without CAAX 1 OS=Homo sapiens ...  64.7    1e-11
+  sp|Q92963|RIT1_HUMAN GTP-binding protein Rit1 OS=Homo sapiens G...  64.3    2e-11
+  tr|Q5VY90|Q5VY90_HUMAN RIT1 protein OS=Homo sapiens GN=RIT1 PE=...  64.3    2e-11
+  sp|P61224|RAP1B_HUMAN Ras-related protein Rap-1b OS=Homo sapien...  59.2    7e-10
+  sp|P62834|RAP1A_HUMAN Ras-related protein Rap-1A OS=Homo sapien...  59.2    8e-10
+  tr|A8KAH9|A8KAH9_HUMAN RAP1A, member of RAS oncogene family OS=...  59.2    8e-10
+  tr|F5H7Y6|F5H7Y6_HUMAN Uncharacterized protein OS=Homo sapiens ...  58.7    8e-10
+  tr|E7ESV4|E7ESV4_HUMAN Uncharacterized protein OS=Homo sapiens ...  58.7    8e-10
+  tr|F5GYB5|F5GYB5_HUMAN Uncharacterized protein OS=Homo sapiens ...  58.7    9e-10
+  tr|F5GX62|F5GX62_HUMAN Uncharacterized protein OS=Homo sapiens ...  58.7    1e-09
+  tr|F5H4H0|F5H4H0_HUMAN Uncharacterized protein OS=Homo sapiens ...  58.7    1e-09
+  tr|F5H0B7|F5H0B7_HUMAN Uncharacterized protein OS=Homo sapiens ...  58.7    1e-09
+  tr|F5H491|F5H491_HUMAN Uncharacterized protein OS=Homo sapiens ...  58.7    1e-09
+  tr|F5H500|F5H500_HUMAN Uncharacterized protein OS=Homo sapiens ...  58.3    1e-09
+  tr|F5GYH7|F5GYH7_HUMAN Uncharacterized protein OS=Homo sapiens ...  58.3    1e-09
+  tr|F5H147|F5H147_HUMAN Uncharacterized protein OS=Homo sapiens ...  58.3    1e-09
+  tr|F5GWU8|F5GWU8_HUMAN Uncharacterized protein OS=Homo sapiens ...  58.3    1e-09
+  tr|F5H077|F5H077_HUMAN Uncharacterized protein OS=Homo sapiens ...  58.3    1e-09
+  tr|F5H004|F5H004_HUMAN Uncharacterized protein OS=Homo sapiens ...  58.3    1e-09
+  tr|F5H6R7|F5H6R7_HUMAN Uncharacterized protein OS=Homo sapiens ...  58.3    1e-09
+  sp|Q99578|RIT2_HUMAN GTP-binding protein Rit2 OS=Homo sapiens G...  58.3    1e-09
+  sp|P10301|RRAS_HUMAN Ras-related protein R-Ras OS=Homo sapiens ...  52.8    6e-08
+  sp|P62070|RRAS2_HUMAN Ras-related protein R-Ras2 OS=Homo sapien...  51.1    2e-07
+  sp|P11233|RALA_HUMAN Ras-related protein Ral-A OS=Homo sapiens ...  51.1    2e-07
+  tr|Q53T32|Q53T32_HUMAN Putative uncharacterized protein RALB OS...  50.7    2e-07
+  sp|P11234|RALB_HUMAN Ras-related protein Ral-B OS=Homo sapiens ...  50.7    2e-07
+  sp|Q99578-2|RIT2_HUMAN Isoform 2 of GTP-binding protein Rit2 OS...  49.8    4e-07
+  tr|B4DW74|B4DW74_HUMAN cDNA FLJ50711, moderately similar to Ras...  47.3    2e-06
+  tr|C9JQB3|C9JQB3_HUMAN Uncharacterized protein OS=Homo sapiens ...  44.8    1e-05
+  tr|C9J6B1|C9J6B1_HUMAN Uncharacterized protein OS=Homo sapiens ...  44.8    2e-05
+  tr|C9JYR1|C9JYR1_HUMAN Uncharacterized protein OS=Homo sapiens ...  44.3    2e-05
+  tr|C9JPE8|C9JPE8_HUMAN Uncharacterized protein OS=Homo sapiens ...  44.3    2e-05
+  sp|Q15382|RHEB_HUMAN GTP-binding protein Rheb OS=Homo sapiens G...  43.1    5e-05
+  tr|Q6ZS74|Q6ZS74_HUMAN V-ral simian leukemia viral oncogene hom...  40.9    2e-04
+  tr|F5GYR1|F5GYR1_HUMAN Uncharacterized protein OS=Homo sapiens ...  40.5    3e-04
+  tr|F5GWE9|F5GWE9_HUMAN Uncharacterized protein OS=Homo sapiens ...  39.7    5e-04
+  tr|Q6FGP0|Q6FGP0_HUMAN MRAS protein (Fragment) OS=Homo sapiens ...  38.8    9e-04
+  sp|O14807|RASM_HUMAN Ras-related protein M-Ras OS=Homo sapiens ...  38.8    9e-04
+  tr|F5H686|F5H686_HUMAN Uncharacterized protein OS=Homo sapiens ...  36.7    0.004
+  sp|P61225|RAP2B_HUMAN Ras-related protein Rap-2b OS=Homo sapien...  35.0    0.012
+  sp|Q9BPW5|RSLBB_HUMAN Ras-like protein family member 11B OS=Hom...  34.6    0.015
+  sp|Q6T310|RSLBA_HUMAN Ras-like protein family member 11A OS=Hom...  34.6    0.017
+  sp|P10114|RAP2A_HUMAN Ras-related protein Rap-2a OS=Homo sapien...  34.6    0.018
+  sp|Q9Y3L5|RAP2C_HUMAN Ras-related protein Rap-2c OS=Homo sapien...  34.6    0.018
+  tr|B1AH79|B1AH79_HUMAN Ras-related C3 botulinum toxin substrate...  34.1    0.020
+  sp|Q9NYN1|RASLC_HUMAN Ras-like protein family member 12 OS=Homo...  33.7    0.031
+  sp|Q96AH8|RAB7B_HUMAN Ras-related protein Rab-7b OS=Homo sapien...  33.7    0.035
+  tr|Q5JYX0|Q5JYX0_HUMAN Cell division cycle 42 (GTP binding prot...  33.3    0.045
+  sp|Q96A58|RERG_HUMAN Ras-related and estrogen-regulated growth ...  32.5    0.066
+  sp|Q9ULC3|RAB23_HUMAN Ras-related protein Rab-23 OS=Homo sapien...  32.0    0.094
+  tr|E9PQK5|E9PQK5_HUMAN Uncharacterized protein OS=Homo sapiens ...  31.6    0.12 
+  sp|Q96D21|RHES_HUMAN GTP-binding protein Rhes OS=Homo sapiens G...  31.6    0.14 
+  sp|Q96HU8|DIRA2_HUMAN GTP-binding protein Di-Ras2 OS=Homo sapie...  30.8    0.25 
+  sp|Q9H0T7|RAB17_HUMAN Ras-related protein Rab-17 OS=Homo sapien...  30.3    0.33 
+  sp|P15153|RAC2_HUMAN Ras-related C3 botulinum toxin substrate 2...  29.9    0.43 
+  sp|P63000|RAC1_HUMAN Ras-related C3 botulinum toxin substrate 1...  29.9    0.48 
+  tr|A4D2P1|A4D2P1_HUMAN Ras-related C3 botulinum toxin substrate...  29.9    0.48 
+  sp|P60763|RAC3_HUMAN Ras-related C3 botulinum toxin substrate 3...  29.5    0.52 
+  sp|P63000-2|RAC1_HUMAN Isoform B of Ras-related C3 botulinum to...  29.5    0.52 
+  tr|A4D2P0|A4D2P0_HUMAN Ras-related C3 botulinum toxin substrate...  29.5    0.52 
+  sp|P60953-1|CDC42_HUMAN Isoform 1 of Cell division control prot...  29.5    0.56 
+  sp|P60953|CDC42_HUMAN Cell division control protein 42 homolog ...  29.5    0.57 
+  tr|B1AH78|B1AH78_HUMAN Ras-related C3 botulinum toxin substrate...  29.5    0.58 
+  tr|Q6ICQ8|Q6ICQ8_HUMAN ARHG protein (Fragment) OS=Homo sapiens ...  29.5    0.66 
+  sp|P84095|RHOG_HUMAN Rho-related GTP-binding protein RhoG OS=Ho...  29.5    0.66 
+
+
+> tr|Q9BR65|Q9BR65_HUMAN V-Ha-ras Harvey rat sarcoma viral oncogene 
+homolog OS=Homo sapiens GN=HRAS PE=2 SV=1
+Length=170
+
+ Score = 79.1 bits (179),  Expect = 8e-16, Method: Compositional matrix adjust.
+ Identities = 36/36 (100%), Positives = 36/36 (100%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI
+Sbjct  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+
+
+> sp|P01112|RASH_HUMAN GTPase HRas OS=Homo sapiens GN=HRAS PE=1 
+SV=1
+Length=189
+
+ Score = 78.7 bits (178),  Expect = 8e-16, Method: Compositional matrix adjust.
+ Identities = 36/36 (100%), Positives = 36/36 (100%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI
+Sbjct  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+
+
+> sp|P01116-2|RASK_HUMAN Isoform 2B of GTPase KRas OS=Homo sapiens 
+GN=KRAS
+Length=188
+
+ Score = 78.7 bits (178),  Expect = 9e-16, Method: Compositional matrix adjust.
+ Identities = 36/36 (100%), Positives = 36/36 (100%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI
+Sbjct  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+
+
+> sp|P01116|RASK_HUMAN GTPase KRas OS=Homo sapiens GN=KRAS PE=1 
+SV=1
+Length=189
+
+ Score = 78.7 bits (178),  Expect = 1e-15, Method: Compositional matrix adjust.
+ Identities = 36/36 (100%), Positives = 36/36 (100%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI
+Sbjct  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+
+
+> tr|Q5U091|Q5U091_HUMAN Neuroblastoma RAS viral (V-ras) oncogene 
+homolog OS=Homo sapiens GN=NRAS PE=2 SV=1
+Length=189
+
+ Score = 78.3 bits (177),  Expect = 1e-15, Method: Compositional matrix adjust.
+ Identities = 36/36 (100%), Positives = 36/36 (100%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI
+Sbjct  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+
+
+> sp|P01111|RASN_HUMAN GTPase NRas OS=Homo sapiens GN=NRAS PE=1 
+SV=1
+Length=189
+
+ Score = 78.3 bits (177),  Expect = 1e-15, Method: Compositional matrix adjust.
+ Identities = 36/36 (100%), Positives = 36/36 (100%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI
+Sbjct  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+
+
+> tr|Q71SP6|Q71SP6_HUMAN K-ras p21 protein (Fragment) OS=Homo sapiens 
+GN=KRAS PE=2 SV=1
+Length=37
+
+ Score = 77.4 bits (175),  Expect = 2e-15, Method: Compositional matrix adjust.
+ Identities = 36/36 (100%), Positives = 36/36 (100%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI
+Sbjct  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+
+
+> sp|Q7Z444|RASE_HUMAN GTPase ERas OS=Homo sapiens GN=ERAS PE=2 
+SV=1
+Length=233
+
+ Score = 76.6 bits (173),  Expect = 4e-15, Method: Composition-based stats.
+ Identities = 27/36 (75%), Positives = 29/36 (81%), Gaps = 4/36 (11%)
+
+Query  3   EYKLVVVGAGGVGKSALTIQLIQNH--FVDEYDPTI  36
+           EYK VVVGA GVGKSALTIQL  NH  FV++ DPTI
+Sbjct  41  EYKAVVVGASGVGKSALTIQL--NHQCFVEDHDPTI  74
+
+
+> tr|B4DW94|B4DW94_HUMAN cDNA FLJ50714, moderately similar to Ras-related 
+protein Rap-1b OS=Homo sapiens PE=2 SV=1
+Length=137
+
+ Score = 74.4 bits (168),  Expect = 2e-14, Method: Composition-based stats.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> sp|A6NIZ1|RP1BL_HUMAN Ras-related protein Rap-1b-like protein 
+OS=Homo sapiens PE=2 SV=1
+Length=184
+
+ Score = 68.1 bits (153),  Expect = 2e-12, Method: Composition-based stats.
+ Identities = 25/36 (70%), Positives = 28/36 (78%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G  GVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSRGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> tr|Q5VY89|Q5VY89_HUMAN Ras-like without CAAX 1 OS=Homo sapiens 
+GN=RIT1 PE=2 SV=1
+Length=236
+
+ Score = 64.7 bits (145),  Expect = 1e-11, Method: Composition-based stats.
+ Identities = 22/34 (65%), Positives = 25/34 (74%), Gaps = 0/34 (0%)
+
+Query  3   EYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           EYKLV  GAGGVGKSA+T Q I   F ++ DPTI
+Sbjct  38  EYKLVMLGAGGVGKSAMTMQFISHRFPEDHDPTI  71
+
+
+> sp|Q92963|RIT1_HUMAN GTP-binding protein Rit1 OS=Homo sapiens 
+GN=RIT1 PE=1 SV=1
+Length=219
+
+ Score = 64.3 bits (144),  Expect = 2e-11, Method: Composition-based stats.
+ Identities = 22/34 (65%), Positives = 25/34 (74%), Gaps = 0/34 (0%)
+
+Query  3   EYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           EYKLV  GAGGVGKSA+T Q I   F ++ DPTI
+Sbjct  21  EYKLVMLGAGGVGKSAMTMQFISHRFPEDHDPTI  54
+
+
+> tr|Q5VY90|Q5VY90_HUMAN RIT1 protein OS=Homo sapiens GN=RIT1 PE=2 
+SV=1
+Length=219
+
+ Score = 64.3 bits (144),  Expect = 2e-11, Method: Composition-based stats.
+ Identities = 22/34 (65%), Positives = 25/34 (74%), Gaps = 0/34 (0%)
+
+Query  3   EYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           EYKLV  GAGGVGKSA+T Q I   F ++ DPTI
+Sbjct  21  EYKLVMLGAGGVGKSAMTMQFISHRFPEDHDPTI  54
+
+
+> sp|P61224|RAP1B_HUMAN Ras-related protein Rap-1b OS=Homo sapiens 
+GN=RAP1B PE=1 SV=1
+Length=184
+
+ Score = 59.2 bits (132),  Expect = 7e-10, Method: Compositional matrix adjust.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> sp|P62834|RAP1A_HUMAN Ras-related protein Rap-1A OS=Homo sapiens 
+GN=RAP1A PE=1 SV=1
+Length=184
+
+ Score = 59.2 bits (132),  Expect = 8e-10, Method: Compositional matrix adjust.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> tr|A8KAH9|A8KAH9_HUMAN RAP1A, member of RAS oncogene family OS=Homo 
+sapiens GN=RAP1A PE=2 SV=1
+Length=184
+
+ Score = 59.2 bits (132),  Expect = 8e-10, Method: Compositional matrix adjust.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> tr|F5H7Y6|F5H7Y6_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RAP1B PE=4 SV=1
+Length=179
+
+ Score = 58.7 bits (131),  Expect = 8e-10, Method: Compositional matrix adjust.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> tr|E7ESV4|E7ESV4_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RAP1B PE=4 SV=1
+Length=157
+
+ Score = 58.7 bits (131),  Expect = 8e-10, Method: Compositional matrix adjust.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> tr|F5GYB5|F5GYB5_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RAP1B PE=4 SV=1
+Length=136
+
+ Score = 58.7 bits (131),  Expect = 9e-10, Method: Compositional matrix adjust.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> tr|F5GX62|F5GX62_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RAP1B PE=4 SV=1
+Length=139
+
+ Score = 58.7 bits (131),  Expect = 1e-09, Method: Compositional matrix adjust.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> tr|F5H4H0|F5H4H0_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RAP1B PE=4 SV=1
+Length=48
+
+ Score = 58.7 bits (131),  Expect = 1e-09, Method: Compositional matrix adjust.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> tr|F5H0B7|F5H0B7_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RAP1B PE=4 SV=1
+Length=98
+
+ Score = 58.7 bits (131),  Expect = 1e-09, Method: Compositional matrix adjust.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> tr|F5H491|F5H491_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RAP1B PE=4 SV=1
+Length=93
+
+ Score = 58.7 bits (131),  Expect = 1e-09, Method: Compositional matrix adjust.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> tr|F5H500|F5H500_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RAP1B PE=4 SV=1
+Length=101
+
+ Score = 58.3 bits (130),  Expect = 1e-09, Method: Compositional matrix adjust.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> tr|F5GYH7|F5GYH7_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RAP1B PE=4 SV=1
+Length=53
+
+ Score = 58.3 bits (130),  Expect = 1e-09, Method: Compositional matrix adjust.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> tr|F5H147|F5H147_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RAP1B PE=4 SV=1
+Length=142
+
+ Score = 58.3 bits (130),  Expect = 1e-09, Method: Compositional matrix adjust.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> tr|F5GWU8|F5GWU8_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RAP1B PE=4 SV=1
+Length=87
+
+ Score = 58.3 bits (130),  Expect = 1e-09, Method: Compositional matrix adjust.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> tr|F5H077|F5H077_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RAP1B PE=4 SV=1
+Length=85
+
+ Score = 58.3 bits (130),  Expect = 1e-09, Method: Compositional matrix adjust.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> tr|F5H004|F5H004_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RAP1B PE=4 SV=1
+Length=127
+
+ Score = 58.3 bits (130),  Expect = 1e-09, Method: Compositional matrix adjust.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> tr|F5H6R7|F5H6R7_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RAP1B PE=4 SV=1
+Length=122
+
+ Score = 58.3 bits (130),  Expect = 1e-09, Method: Compositional matrix adjust.
+ Identities = 26/36 (73%), Positives = 29/36 (81%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M EYKLVV G GGVGKSALT+Q +Q  FV+ YDPTI
+Sbjct  1   MREYKLVVLGSGGVGKSALTVQFVQGIFVEKYDPTI  36
+
+
+> sp|Q99578|RIT2_HUMAN GTP-binding protein Rit2 OS=Homo sapiens 
+GN=RIT2 PE=1 SV=1
+Length=217
+
+ Score = 58.3 bits (130),  Expect = 1e-09, Method: Composition-based stats.
+ Identities = 23/35 (66%), Positives = 25/35 (72%), Gaps = 2/35 (5%)
+
+Query  3   EYKLVVVGAGGVGKSALTIQLIQNHFVDEY-DPTI  36
+           EYK V  GAGGVGKSA+T Q I  +F D Y DPTI
+Sbjct  20  EYKVVMLGAGGVGKSAMTMQFISHQFPD-YHDPTI  53
+
+
+> sp|P10301|RRAS_HUMAN Ras-related protein R-Ras OS=Homo sapiens 
+GN=RRAS PE=1 SV=1
+Length=218
+
+ Score = 52.8 bits (117),  Expect = 6e-08, Method: Composition-based stats.
+ Identities = 16/21 (77%), Positives = 17/21 (81%), Gaps = 0/21 (0%)
+
+Query  16  KSALTIQLIQNHFVDEYDPTI  36
+           KSALTIQ IQ  FV +YDPTI
+Sbjct  42  KSALTIQFIQSYFVSDYDPTI  62
+
+
+> sp|P62070|RRAS2_HUMAN Ras-related protein R-Ras2 OS=Homo sapiens 
+GN=RRAS2 PE=1 SV=1
+Length=204
+
+ Score = 51.1 bits (113),  Expect = 2e-07, Method: Composition-based stats.
+ Identities = 16/21 (77%), Positives = 17/21 (81%), Gaps = 0/21 (0%)
+
+Query  16  KSALTIQLIQNHFVDEYDPTI  36
+           KSALTIQ IQ  FV +YDPTI
+Sbjct  27  KSALTIQFIQSYFVTDYDPTI  47
+
+
+> sp|P11233|RALA_HUMAN Ras-related protein Ral-A OS=Homo sapiens 
+GN=RALA PE=1 SV=1
+Length=206
+
+ Score = 51.1 bits (113),  Expect = 2e-07, Method: Composition-based stats.
+ Identities = 18/31 (59%), Positives = 23/31 (75%), Gaps = 0/31 (0%)
+
+Query  5   KLVVVGAGGVGKSALTIQLIQNHFVDEYDPT  35
+           K + VG GGVGKSALT Q   + FV++Y+PT
+Sbjct  16  KVIMVGSGGVGKSALTLQFMYDEFVEDYEPT  46
+
+
+> tr|Q53T32|Q53T32_HUMAN Putative uncharacterized protein RALB 
+OS=Homo sapiens GN=RALB PE=2 SV=1
+Length=206
+
+ Score = 50.7 bits (112),  Expect = 2e-07, Method: Composition-based stats.
+ Identities = 18/31 (59%), Positives = 23/31 (75%), Gaps = 0/31 (0%)
+
+Query  5   KLVVVGAGGVGKSALTIQLIQNHFVDEYDPT  35
+           K + VG GGVGKSALT Q   + FV++Y+PT
+Sbjct  16  KVIMVGSGGVGKSALTLQFMYDEFVEDYEPT  46
+
+
+> sp|P11234|RALB_HUMAN Ras-related protein Ral-B OS=Homo sapiens 
+GN=RALB PE=1 SV=1
+Length=206
+
+ Score = 50.7 bits (112),  Expect = 2e-07, Method: Composition-based stats.
+ Identities = 18/31 (59%), Positives = 23/31 (75%), Gaps = 0/31 (0%)
+
+Query  5   KLVVVGAGGVGKSALTIQLIQNHFVDEYDPT  35
+           K + VG GGVGKSALT Q   + FV++Y+PT
+Sbjct  16  KVIMVGSGGVGKSALTLQFMYDEFVEDYEPT  46
+
+
+> sp|Q99578-2|RIT2_HUMAN Isoform 2 of GTP-binding protein Rit2 
+OS=Homo sapiens GN=RIT2
+Length=153
+
+ Score = 49.8 bits (110),  Expect = 4e-07, Method: Compositional matrix adjust.
+ Identities = 22/34 (65%), Positives = 24/34 (71%), Gaps = 0/34 (0%)
+
+Query  3   EYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           EYK V  GAGGVGKSA+T Q I  +F D  DPTI
+Sbjct  20  EYKVVMLGAGGVGKSAMTMQFISHQFPDYHDPTI  53
+
+
+> tr|B4DW74|B4DW74_HUMAN cDNA FLJ50711, moderately similar to Ras-related 
+protein Rap-1b OS=Homo sapiens PE=2 SV=1
+Length=142
+
+ Score = 47.3 bits (104),  Expect = 2e-06, Method: Composition-based stats.
+ Identities = 16/19 (85%), Positives = 16/19 (85%), Gaps = 0/19 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSAL  19
+           M EYKLVV G GGVGKSAL
+Sbjct  1   MREYKLVVLGSGGVGKSAL  19
+
+
+> tr|C9JQB3|C9JQB3_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RALB PE=4 SV=1
+Length=171
+
+ Score = 44.8 bits (98),  Expect = 1e-05, Method: Compositional matrix adjust.
+ Identities = 18/32 (57%), Positives = 23/32 (72%), Gaps = 0/32 (0%)
+
+Query  4   YKLVVVGAGGVGKSALTIQLIQNHFVDEYDPT  35
+            K + VG GGVGKSALT Q   + FV++Y+PT
+Sbjct  37  HKVIMVGSGGVGKSALTLQFMYDEFVEDYEPT  68
+
+
+> tr|C9J6B1|C9J6B1_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RALB PE=4 SV=1
+Length=167
+
+ Score = 44.8 bits (98),  Expect = 2e-05, Method: Compositional matrix adjust.
+ Identities = 18/32 (57%), Positives = 23/32 (72%), Gaps = 0/32 (0%)
+
+Query  4   YKLVVVGAGGVGKSALTIQLIQNHFVDEYDPT  35
+            K + VG GGVGKSALT Q   + FV++Y+PT
+Sbjct  15  HKVIMVGSGGVGKSALTLQFMYDEFVEDYEPT  46
+
+
+> tr|C9JYR1|C9JYR1_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RALB PE=4 SV=1
+Length=112
+
+ Score = 44.3 bits (97),  Expect = 2e-05, Method: Compositional matrix adjust.
+ Identities = 18/32 (57%), Positives = 23/32 (72%), Gaps = 0/32 (0%)
+
+Query  4   YKLVVVGAGGVGKSALTIQLIQNHFVDEYDPT  35
+            K + VG GGVGKSALT Q   + FV++Y+PT
+Sbjct  15  HKVIMVGSGGVGKSALTLQFMYDEFVEDYEPT  46
+
+
+> tr|C9JPE8|C9JPE8_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RALA PE=4 SV=1
+Length=101
+
+ Score = 44.3 bits (97),  Expect = 2e-05, Method: Compositional matrix adjust.
+ Identities = 18/32 (57%), Positives = 23/32 (72%), Gaps = 0/32 (0%)
+
+Query  4   YKLVVVGAGGVGKSALTIQLIQNHFVDEYDPT  35
+            K + VG GGVGKSALT Q   + FV++Y+PT
+Sbjct  15  HKVIMVGSGGVGKSALTLQFMYDEFVEDYEPT  46
+
+
+> sp|Q15382|RHEB_HUMAN GTP-binding protein Rheb OS=Homo sapiens 
+GN=RHEB PE=1 SV=1
+Length=184
+
+ Score = 43.1 bits (94),  Expect = 5e-05, Method: Compositional matrix adjust.
+ Identities = 18/32 (57%), Positives = 22/32 (69%), Gaps = 0/32 (0%)
+
+Query  5   KLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           K  + G   VGKS LTIQ ++ +FVD YDPTI
+Sbjct  8   KIAILGYRSVGKSSLTIQFVEGQFVDSYDPTI  39
+
+
+> tr|Q6ZS74|Q6ZS74_HUMAN V-ral simian leukemia viral oncogene homolog 
+B (Ras related; GTP binding protein), isoform CRA_b OS=Homo 
+sapiens GN=RALB PE=2 SV=1
+Length=227
+
+ Score = 40.9 bits (89),  Expect = 2e-04, Method: Composition-based stats.
+ Identities = 19/53 (36%), Positives = 23/53 (44%), Gaps = 23/53 (43%)
+
+Query  5   KLVVVGAGGVGKSALTIQLIQN----------------------HFVDEYDPT  35
+           K + VG GGVGKSALT Q   N                       FV++Y+PT
+Sbjct  16  KVIMVGSGGVGKSALTLQFM-NVSKSLAYDKKKYTANKKVEGILEFVEDYEPT  67
+
+
+> tr|F5GYR1|F5GYR1_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RERG PE=4 SV=1
+Length=39
+
+ Score = 40.5 bits (88),  Expect = 3e-04, Method: Compositional matrix adjust.
+ Identities = 17/35 (49%), Positives = 20/35 (58%), Gaps = 0/35 (0%)
+
+Query  2   TEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+            E KL + G  GVGKSAL +      F+ EYDPT 
+Sbjct  5   AEVKLAIFGRAGVGKSALVVRFLTKRFIWEYDPTL  39
+
+
+> tr|F5GWE9|F5GWE9_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RERG PE=4 SV=1
+Length=70
+
+ Score = 39.7 bits (86),  Expect = 5e-04, Method: Compositional matrix adjust.
+ Identities = 17/35 (49%), Positives = 20/35 (58%), Gaps = 0/35 (0%)
+
+Query  2   TEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+            E KL + G  GVGKSAL +      F+ EYDPT 
+Sbjct  5   AEVKLAIFGRAGVGKSALVVRFLTKRFIWEYDPTL  39
+
+
+> tr|Q6FGP0|Q6FGP0_HUMAN MRAS protein (Fragment) OS=Homo sapiens 
+GN=MRAS PE=2 SV=1
+Length=208
+
+ Score = 38.8 bits (84),  Expect = 9e-04, Method: Compositional matrix adjust.
+ Identities = 26/33 (79%), Positives = 27/33 (82%), Gaps = 0/33 (0%)
+
+Query  4   YKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           YKLVVVG GGVGKSALTIQ  Q  FV +YDPTI
+Sbjct  14  YKLVVVGDGGVGKSALTIQFFQKIFVPDYDPTI  46
+
+
+> sp|O14807|RASM_HUMAN Ras-related protein M-Ras OS=Homo sapiens 
+GN=MRAS PE=1 SV=2
+Length=208
+
+ Score = 38.8 bits (84),  Expect = 9e-04, Method: Compositional matrix adjust.
+ Identities = 26/33 (79%), Positives = 27/33 (82%), Gaps = 0/33 (0%)
+
+Query  4   YKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           YKLVVVG GGVGKSALTIQ  Q  FV +YDPTI
+Sbjct  14  YKLVVVGDGGVGKSALTIQFFQKIFVPDYDPTI  46
+
+
+> tr|F5H686|F5H686_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RERGL PE=4 SV=1
+Length=204
+
+ Score = 36.7 bits (79),  Expect = 0.004, Method: Composition-based stats.
+ Identities = 15/32 (47%), Positives = 18/32 (57%), Gaps = 0/32 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEY  32
+           M + KL V G  G GKSALT+      F+ EY
+Sbjct  1   MNDVKLAVLGGEGTGKSALTVRFLTKRFIGEY  32
+
+
+> sp|P61225|RAP2B_HUMAN Ras-related protein Rap-2b OS=Homo sapiens 
+GN=RAP2B PE=1 SV=1
+Length=183
+
+ Score = 35.0 bits (75),  Expect = 0.012, Method: Composition-based stats.
+ Identities = 12/21 (58%), Positives = 16/21 (77%), Gaps = 0/21 (0%)
+
+Query  16  KSALTIQLIQNHFVDEYDPTI  36
+           KSALT+Q +   F++ YDPTI
+Sbjct  16  KSALTVQFVTGSFIEKYDPTI  36
+
+
+> sp|Q9BPW5|RSLBB_HUMAN Ras-like protein family member 11B OS=Homo 
+sapiens GN=RASL11B PE=2 SV=1
+Length=248
+
+ Score = 34.6 bits (74),  Expect = 0.015, Method: Composition-based stats.
+ Identities = 13/29 (45%), Positives = 17/29 (59%), Gaps = 0/29 (0%)
+
+Query  5   KLVVVGAGGVGKSALTIQLIQNHFVDEYD  33
+           K  VVGA GVGK AL +      F+ +Y+
+Sbjct  35  KIAVVGASGVGKTALVVRFLTKRFIGDYE  63
+
+
+> sp|Q6T310|RSLBA_HUMAN Ras-like protein family member 11A OS=Homo 
+sapiens GN=RASL11A PE=2 SV=1
+Length=242
+
+ Score = 34.6 bits (74),  Expect = 0.017, Method: Composition-based stats.
+ Identities = 14/30 (47%), Positives = 19/30 (64%), Gaps = 0/30 (0%)
+
+Query  5   KLVVVGAGGVGKSALTIQLIQNHFVDEYDP  34
+           KL V GAG VGKSA+ +      F+ +Y+P
+Sbjct  29  KLAVLGAGRVGKSAMIVRFLTKRFIGDYEP  58
+
+
+> sp|P10114|RAP2A_HUMAN Ras-related protein Rap-2a OS=Homo sapiens 
+GN=RAP2A PE=1 SV=1
+Length=183
+
+ Score = 34.6 bits (74),  Expect = 0.018, Method: Composition-based stats.
+ Identities = 12/21 (58%), Positives = 16/21 (77%), Gaps = 0/21 (0%)
+
+Query  16  KSALTIQLIQNHFVDEYDPTI  36
+           KSALT+Q +   F++ YDPTI
+Sbjct  16  KSALTVQFVTGTFIEKYDPTI  36
+
+
+> sp|Q9Y3L5|RAP2C_HUMAN Ras-related protein Rap-2c OS=Homo sapiens 
+GN=RAP2C PE=1 SV=1
+Length=183
+
+ Score = 34.6 bits (74),  Expect = 0.018, Method: Composition-based stats.
+ Identities = 12/21 (58%), Positives = 16/21 (77%), Gaps = 0/21 (0%)
+
+Query  16  KSALTIQLIQNHFVDEYDPTI  36
+           KSALT+Q +   F++ YDPTI
+Sbjct  16  KSALTVQFVTGTFIEKYDPTI  36
+
+
+> tr|B1AH79|B1AH79_HUMAN Ras-related C3 botulinum toxin substrate 
+2 (Rho family, small GTP binding protein Rac2) OS=Homo sapiens 
+GN=RAC2 PE=4 SV=1
+Length=86
+
+ Score = 34.1 bits (73),  Expect = 0.020, Method: Compositional matrix adjust.
+ Identities = 18/36 (50%), Positives = 19/36 (53%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M   K VVVG G VGK  L I    N F  EY PT+
+Sbjct  1   MQAIKCVVVGDGAVGKTCLLISYTTNAFPGEYIPTV  36
+
+
+> sp|Q9NYN1|RASLC_HUMAN Ras-like protein family member 12 OS=Homo 
+sapiens GN=RASL12 PE=1 SV=1
+Length=266
+
+ Score = 33.7 bits (72),  Expect = 0.031, Method: Composition-based stats.
+ Identities = 12/22 (55%), Positives = 14/22 (64%), Gaps = 0/22 (0%)
+
+Query  13  GVGKSALTIQLIQNHFVDEYDP  34
+           G GKSALT+      F+ EYDP
+Sbjct  30  GAGKSALTVKFLTKRFISEYDP  51
+
+
+> sp|Q96AH8|RAB7B_HUMAN Ras-related protein Rab-7b OS=Homo sapiens 
+GN=RAB7B PE=2 SV=1
+Length=199
+
+ Score = 33.7 bits (72),  Expect = 0.035, Method: Compositional matrix adjust.
+ Identities = 15/34 (45%), Positives = 21/34 (62%), Gaps = 0/34 (0%)
+
+Query  3   EYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           + KL++VGA GVGK  L  Q ++  F +EY  T 
+Sbjct  8   DLKLIIVGAIGVGKTSLLHQYVHKTFYEEYQTTL  41
+
+
+> tr|Q5JYX0|Q5JYX0_HUMAN Cell division cycle 42 (GTP binding protein, 
+25kDa) (Fragment) OS=Homo sapiens GN=CDC42 PE=2 SV=1
+Length=136
+
+ Score = 33.3 bits (71),  Expect = 0.045, Method: Compositional matrix adjust.
+ Identities = 18/36 (50%), Positives = 19/36 (53%), Gaps = 0/36 (0%)
+
+Query  1   MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTI  36
+           M   K VVVG G VGK  L I    N F  EY PT+
+Sbjct  1   MQTIKCVVVGDGAVGKTCLLISYTTNKFPSEYVPTV  36
+
+
+> sp|Q96A58|RERG_HUMAN Ras-related and estrogen-regulated growth 
+inhibitor OS=Homo sapiens GN=RERG PE=1 SV=1
+Length=199
+
+ Score = 32.5 bits (69),  Expect = 0.066, Method: Composition-based stats.
+ Identities = 17/33 (52%), Positives = 20/33 (61%), Gaps = 0/33 (0%)
+
+Query  3   EYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPT  35
+           E KL + G  GVGKSAL +      F+ EYDPT
+Sbjct  6   EVKLAIFGRAGVGKSALVVRFLTKRFIWEYDPT  38
+
+
+> sp|Q9ULC3|RAB23_HUMAN Ras-related protein Rab-23 OS=Homo sapiens 
+GN=RAB23 PE=1 SV=1
+Length=237
+
+ Score = 32.0 bits (68),  Expect = 0.094, Method: Composition-based stats.
+ Identities = 12/18 (67%), Positives = 14/18 (78%), Gaps = 1/18 (5%)
+
+Query  5   KLVVVGAGGVGKSALTIQ  22
+           K+VVVG G VGKS + IQ
+Sbjct  11  KMVVVGNGAVGKSSM-IQ  27
+
+
+> tr|E9PQK5|E9PQK5_HUMAN Uncharacterized protein OS=Homo sapiens 
+GN=RRAS2 PE=4 SV=1
+Length=47
+
+ Score = 31.6 bits (67),  Expect = 0.12, Method: Compositional matrix adjust.
+ Identities = 22/29 (76%), Positives = 22/29 (76%), Gaps = 0/29 (0%)
+
+Query  4   YKLVVVGAGGVGKSALTIQLIQNHFVDEY  32
+           Y LVVVG GGVGKSALTIQ IQNH    Y
+Sbjct  15  YRLVVVGGGGVGKSALTIQFIQNHLLKKY  43
+
+
+> sp|Q96D21|RHES_HUMAN GTP-binding protein Rhes OS=Homo sapiens 
+GN=RASD2 PE=1 SV=1
+Length=266
+
+ Score = 31.6 bits (67),  Expect = 0.14, Method: Composition-based stats.
+ Identities = 16/38 (43%), Positives = 18/38 (48%), Gaps = 10/38 (26%)
+
+Query  4   YKLVVVGAGGVGKSALTIQLIQNHFV-----DEYDPTI  36
+           Y +VV GA  VGKS      I   F      D+Y PTI
+Sbjct  20  YRMVVLGASRVGKSS-----IVSRFLNGRFEDQYTPTI  52
+
+
+> sp|Q96HU8|DIRA2_HUMAN GTP-binding protein Di-Ras2 OS=Homo sapiens 
+GN=DIRAS2 PE=1 SV=1
+Length=199
+
+ Score = 30.8 bits (65),  Expect = 0.25, Method: Composition-based stats.
+ Identities = 11/17 (65%), Positives = 12/17 (71%), Gaps = 0/17 (0%)
+
+Query  3   EYKLVVVGAGGVGKSAL  19
+           +Y   V GAGGVGKS L
+Sbjct  7   DYRVAVFGAGGVGKSSL  23
+
+
+> sp|Q9H0T7|RAB17_HUMAN Ras-related protein Rab-17 OS=Homo sapiens 
+GN=RAB17 PE=1 SV=2
+Length=212
+
+ Score = 30.3 bits (64),  Expect = 0.33, Method: Composition-based stats.
+ Identities = 12/25 (48%), Positives = 14/25 (56%), Gaps = 0/25 (0%)
+
+Query  4   YKLVVVGAGGVGKSALTIQLIQNHF  28
+           +KLV  G G VGKS L    + N F
+Sbjct  20  FKLVLLGSGSVGKSSLALRYVKNDF  44
+
+
+> sp|P15153|RAC2_HUMAN Ras-related C3 botulinum toxin substrate 
+2 OS=Homo sapiens GN=RAC2 PE=1 SV=1
+Length=192
+
+ Score = 29.9 bits (63),  Expect = 0.43, Method: Composition-based stats.
+ Identities = 17/33 (52%), Positives = 18/33 (55%), Gaps = 6/33 (18%)
+
+Query  7   VVVGAGGVGKSALTIQLIQ---NHFVDEYDPTI  36
+           VVVG G VGK  L   LI    N F  EY PT+
+Sbjct  7   VVVGDGAVGKTCL---LISYTTNAFPGEYIPTV  36
+
+
+> sp|P63000|RAC1_HUMAN Ras-related C3 botulinum toxin substrate 
+1 OS=Homo sapiens GN=RAC1 PE=1 SV=1
+Length=192
+
+ Score = 29.9 bits (63),  Expect = 0.48, Method: Composition-based stats.
+ Identities = 17/33 (52%), Positives = 18/33 (55%), Gaps = 6/33 (18%)
+
+Query  7   VVVGAGGVGKSALTIQLIQ---NHFVDEYDPTI  36
+           VVVG G VGK  L   LI    N F  EY PT+
+Sbjct  7   VVVGDGAVGKTCL---LISYTTNAFPGEYIPTV  36
+
+
+> tr|A4D2P1|A4D2P1_HUMAN Ras-related C3 botulinum toxin substrate 
+1 (Rho family, small GTP binding protein Rac1) OS=Homo sapiens 
+GN=RAC1 PE=2 SV=1
+Length=192
+
+ Score = 29.9 bits (63),  Expect = 0.48, Method: Composition-based stats.
+ Identities = 17/33 (52%), Positives = 18/33 (55%), Gaps = 6/33 (18%)
+
+Query  7   VVVGAGGVGKSALTIQLIQ---NHFVDEYDPTI  36
+           VVVG G VGK  L   LI    N F  EY PT+
+Sbjct  7   VVVGDGAVGKTCL---LISYTTNAFPGEYIPTV  36
+
+
+> sp|P60763|RAC3_HUMAN Ras-related C3 botulinum toxin substrate 
+3 OS=Homo sapiens GN=RAC3 PE=1 SV=1
+Length=192
+
+ Score = 29.5 bits (62),  Expect = 0.52, Method: Composition-based stats.
+ Identities = 17/33 (52%), Positives = 18/33 (55%), Gaps = 6/33 (18%)
+
+Query  7   VVVGAGGVGKSALTIQLIQ---NHFVDEYDPTI  36
+           VVVG G VGK  L   LI    N F  EY PT+
+Sbjct  7   VVVGDGAVGKTCL---LISYTTNAFPGEYIPTV  36
+
+
+> sp|P63000-2|RAC1_HUMAN Isoform B of Ras-related C3 botulinum 
+toxin substrate 1 OS=Homo sapiens GN=RAC1
+Length=211
+
+ Score = 29.5 bits (62),  Expect = 0.52, Method: Composition-based stats.
+ Identities = 17/33 (52%), Positives = 18/33 (55%), Gaps = 6/33 (18%)
+
+Query  7   VVVGAGGVGKSALTIQLIQ---NHFVDEYDPTI  36
+           VVVG G VGK  L   LI    N F  EY PT+
+Sbjct  7   VVVGDGAVGKTCL---LISYTTNAFPGEYIPTV  36
+
+
+> tr|A4D2P0|A4D2P0_HUMAN Ras-related C3 botulinum toxin substrate 
+1 (Rho family, small GTP binding protein Rac1) OS=Homo sapiens 
+GN=RAC1 PE=1 SV=1
+Length=211
+
+ Score = 29.5 bits (62),  Expect = 0.52, Method: Composition-based stats.
+ Identities = 17/33 (52%), Positives = 18/33 (55%), Gaps = 6/33 (18%)
+
+Query  7   VVVGAGGVGKSALTIQLIQ---NHFVDEYDPTI  36
+           VVVG G VGK  L   LI    N F  EY PT+
+Sbjct  7   VVVGDGAVGKTCL---LISYTTNAFPGEYIPTV  36
+
+
+> sp|P60953-1|CDC42_HUMAN Isoform 1 of Cell division control protein 
+42 homolog OS=Homo sapiens GN=CDC42
+Length=191
+
+ Score = 29.5 bits (62),  Expect = 0.56, Method: Composition-based stats.
+ Identities = 17/33 (52%), Positives = 18/33 (55%), Gaps = 6/33 (18%)
+
+Query  7   VVVGAGGVGKSALTIQLIQ---NHFVDEYDPTI  36
+           VVVG G VGK  L   LI    N F  EY PT+
+Sbjct  7   VVVGDGAVGKTCL---LISYTTNKFPSEYVPTV  36
+
+
+> sp|P60953|CDC42_HUMAN Cell division control protein 42 homolog 
+OS=Homo sapiens GN=CDC42 PE=1 SV=2
+Length=191
+
+ Score = 29.5 bits (62),  Expect = 0.57, Method: Composition-based stats.
+ Identities = 17/33 (52%), Positives = 18/33 (55%), Gaps = 6/33 (18%)
+
+Query  7   VVVGAGGVGKSALTIQLIQ---NHFVDEYDPTI  36
+           VVVG G VGK  L   LI    N F  EY PT+
+Sbjct  7   VVVGDGAVGKTCL---LISYTTNKFPSEYVPTV  36
+
+
+> tr|B1AH78|B1AH78_HUMAN Ras-related C3 botulinum toxin substrate 
+2 (Rho family, small GTP binding protein Rac2) (Fragment) 
+OS=Homo sapiens GN=RAC2 PE=3 SV=1
+Length=166
+
+ Score = 29.5 bits (62),  Expect = 0.58, Method: Composition-based stats.
+ Identities = 17/33 (52%), Positives = 18/33 (55%), Gaps = 6/33 (18%)
+
+Query  7   VVVGAGGVGKSALTIQLIQ---NHFVDEYDPTI  36
+           VVVG G VGK  L   LI    N F  EY PT+
+Sbjct  7   VVVGDGAVGKTCL---LISYTTNAFPGEYIPTV  36
+
+
+> tr|Q6ICQ8|Q6ICQ8_HUMAN ARHG protein (Fragment) OS=Homo sapiens 
+GN=ARHG PE=2 SV=1
+Length=191
+
+ Score = 29.5 bits (62),  Expect = 0.66, Method: Composition-based stats.
+ Identities = 17/33 (52%), Positives = 18/33 (55%), Gaps = 6/33 (18%)
+
+Query  7   VVVGAGGVGKSALTIQLI---QNHFVDEYDPTI  36
+           VVVG G VGK  L   LI    N F  EY PT+
+Sbjct  7   VVVGDGAVGKTCL---LICYTTNAFPKEYIPTV  36
+
+
+> sp|P84095|RHOG_HUMAN Rho-related GTP-binding protein RhoG OS=Homo 
+sapiens GN=RHOG PE=1 SV=1
+Length=191
+
+ Score = 29.5 bits (62),  Expect = 0.66, Method: Composition-based stats.
+ Identities = 17/33 (52%), Positives = 18/33 (55%), Gaps = 6/33 (18%)
+
+Query  7   VVVGAGGVGKSALTIQLI---QNHFVDEYDPTI  36
+           VVVG G VGK  L   LI    N F  EY PT+
+Sbjct  7   VVVGDGAVGKTCL---LICYTTNAFPKEYIPTV  36
+
+
+
+Lambda     K      H
+   0.340    0.286     1.72 
+
+Gapped
+Lambda     K      H
+   0.294    0.110    0.610 
+
+Effective search space used: 431829664
+
+
+  Database: Homo sapiens Swiss-Prot
+    Posted date:  Jul 14, 2011  1:49 PM
+  Number of letters in database: 32,382,908
+  Number of sequences in database:  69,906
+
+
+
+Matrix: PAM30
+Gap Penalties: Existence: 9, Extension: 1
+Neighboring words threshold: 16
+Window for multiple hits: 15

@@ -27,15 +27,17 @@ class BaseMixin(object):
                                                   require=False)
             self.login = Account(self.cnx, name)
             self.login.check_password(password)
+            logging.info("adhoc: direct login")
         except (KeyError, ValueError):
             # The following remedies an apparent deficiency of several
             # human browsers: For some pages in the site (notably
             # the root '/'), the authentication data does not seem to be
             # sent voluntarily by the browser.
             if request.cookie.has_key("%s-login" % configuration.NAME):
-                logging.debug("adhoc: not logged in, but cookie %s-login" % configuration.NAME)
+                logging.info("adhoc: not logged in, but cookie %s-login" % configuration.NAME)
                 raise HTTP_UNAUTHORIZED_BASIC_CHALLENGE(realm=configuration.REALM)
             self.login = Account(self.cnx, 'anonymous')
+            logging.info("adhoc: anonymous login")
 
     def execute(self, sql, *values):
         cursor = self.cnx.cursor()
@@ -70,7 +72,8 @@ class BaseMixin(object):
             if self.is_anonymous():
                 raise HTTP_UNAUTHORIZED_BASIC_CHALLENGE(realm=configuration.REALM)
             else:
-                raise HTTP_FORBIDDEN("disallowed for login '%s'", self.login)
+                raise HTTP_FORBIDDEN("disallowed for login '%s'" %
+                                     self.login.name)
 
     def is_anonymous(self):
         "Is the login user 'anonymous'?"
@@ -145,7 +148,10 @@ class GET_Mixin(BaseMixin):
                 for tool in tools[1:]:
                     links.append(dict(title="%(family)s: %(name)s" % tool,
                                       href=application.get_url(tool['name'])))
-            links.append(dict(title='API doc', href=application.get_url('doc')))
+            links.append(dict(title='Documentation: API',
+                              href=application.get_url('doc', 'API')))
+            links.append(dict(title='Documentation: API tutorial',
+                              href=application.get_url('doc', 'API_tutorial')))
 
             outreprs = self.get_outreprs_links(resource, request, application)
 

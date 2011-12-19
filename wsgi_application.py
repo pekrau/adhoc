@@ -9,6 +9,7 @@ from wrapid.get_static import GET_Static
 
 from adhoc import configuration
 from adhoc.home import *
+from adhoc.doc import *
 from adhoc.login import *
 from adhoc.account import *
 from adhoc.task import *
@@ -16,6 +17,12 @@ from adhoc.task import *
 application = wrapid.application.Application(name=configuration.NAME,
                                              version=configuration.VERSION,
                                              debug=configuration.DEBUG)
+
+application.append(Resource('/static/{filename}', name='Static file',
+                            GET=GET_Static(configuration.STATIC_DIR,
+                                           cache_control='max-age=3600'),
+                            descr='Access to a static file in a predetermined'
+                            ' directory on the server.'))
 
 application.append(Resource('/', name='Home',
                             GET=GET_Home(),
@@ -56,15 +63,15 @@ application.append(Resource('/task/{iui}/output', name='Task output',
 import adhoc.blast
 adhoc.blast.setup(application)
 
-application.append(Resource('/static/{filename}', name='Static file',
-                            GET=GET_Static(configuration.STATIC_DIR,
-                                           cache_control='max-age=3600'),
-                            descr='Access to static files in a predetermined'
-                            ' directory on the server.'))
-application.append(Resource('/doc', name='API doc',
+application.append(Resource('/doc/API', name='API doc',
                             GET=GET_Documentation(),
                             descr='Produce this documentation of the web'
                             ' API by introspection of the source code.'))
+application.append(Resource('/doc/{filename}', name='Documentation file',
+                            GET=GET_Doc(),
+                            descr='Access to a documentation file in'
+                            ' a predetermined directory on the server.'))
+
 application.append(Resource('/login',
                             GET=GET_Login(),
                             descr='Force the client to give authentication.'))

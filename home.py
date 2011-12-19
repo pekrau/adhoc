@@ -46,11 +46,8 @@ Currently, the suite of BLAST programs are available. The list of BLAST
 databases include some public standard data sets. Depending on the teams
 that your account is a member of, some private databases may also be available.
 
-Updated 7 Nov 2011 !
---------------------
-
-*The implementation of this site was modified. If you experience any problems,
-contact Per Kraulis with the details, such as the exact error message,
-the operation you attempted to perform, etc.*
+**Important:** If you experience any problems with this site,
+contact Per Kraulis with the relevant details, such as the exact
+error message, the operation you attempted to perform, etc.
 
 """ % login_descr

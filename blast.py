@@ -239,29 +239,29 @@ class POST_TaskCreate(POST_Mixin, POST):
         except KeyError:
             pass
 
-    def set_dust(self):
+    def set_dust(self, default):
         try:
             dust = self.inputs['dust']
-            self.task.data['parameters']['-dust'] = dust
-            self.new_preferences['dust'] = dust
         except KeyError:
-            pass
+            dust = default
+        self.task.data['parameters']['-dust'] = dust
+        self.new_preferences['dust'] = dust
 
-    def set_seg(self):
+    def set_seg(self, default):
         try:
             seg = self.inputs['seg']
-            self.task.data['parameters']['-seg'] = seg
-            self.new_preferences['seg'] = seg
         except KeyError:
-            pass
+            seq = default
+        self.task.data['parameters']['-seg'] = seg
+        self.new_preferences['seg'] = seg
 
-    def set_task_type(self):
+    def set_task_type(self, default):
         try:
             task_type = self.inputs['task_type']
-            self.task.data['parameters']['-task'] = task_type
-            self.new_preferences['task_type'] = task_type
         except KeyError:
-            pass
+            task_type = default
+        self.task.data['parameters']['-task'] = task_type
+        self.new_preferences['task_type'] = task_type
 
     def set_evalue(self):
         try:
@@ -324,11 +324,11 @@ BLASTN_FIELDS = Fields(StringField('title', title='Title', length=30,
                                  ' is specified in the field above.'),
                        SelectField('dust', title='DUST filter',
                                    options=['yes', 'no', '20 64 1'],
-                                   required=True, default='no', check=True,
+                                   default='no', check=True,
                                    descr='Filter out low-complexity regions'
                                    ' from the query sequence.'),
                        SelectField('task_type', title='Task type',
-                                   required=True, default='blastn',
+                                   default='blastn',
                                    options=
                                    [dict(value='blastn',
                                          title='blastn: traditional, requiring'
@@ -394,8 +394,8 @@ class POST_BlastnCreate(POST_TaskCreate):
     def set_data(self):
         self.set_db()
         self.set_query('nucleotide')
-        self.set_dust()
-        self.set_task_type()
+        self.set_dust('no')
+        self.set_task_type('blastn')
         self.set_evalue()
         self.set_output_format()
         self.set_num_descriptions()
@@ -421,7 +421,7 @@ BLASTP_FIELDS = Fields(StringField('title', title='Title', length=30,
                                    descr='Filter out low-complexity regions'
                                    ' from the query sequence.'),
                        SelectField('task_type', title='Task type',
-                                   required=True, default='blastp',
+                                   default='blastp',
                                    options=
                                    [dict(value='blastp',
                                          title='blastp: traditional, to'
@@ -480,8 +480,8 @@ class POST_BlastpCreate(POST_TaskCreate):
     def set_data(self):
         self.set_db()
         self.set_query('protein')
-        self.set_task_type()
-        self.set_seg()
+        self.set_task_type('blastp')
+        self.set_seg('no')
         self.set_evalue()
         self.set_output_format()
         self.set_num_descriptions()
@@ -508,8 +508,7 @@ BLASTX_FIELDS = Fields(StringField('title', title='Title', length=30,
                                    ' the nucleotide query into protein.'),
                        SelectField('seg', title='SEG filter',
                                    options=['yes', 'no', '12 2.2 2.5'],
-                                   required=True, default='12 2.2 2.5',
-                                   check=True,
+                                   default='12 2.2 2.5', check=True,
                                    descr='Filter out low-complexity regions'
                                    ' from the query sequence.'),
                        FloatField('evalue', title='E-value',
@@ -563,7 +562,7 @@ class POST_BlastxCreate(POST_TaskCreate):
         self.set_db()
         self.set_query('nucleotide')
         self.set_query_gencode()
-        self.set_seg()
+        self.set_seg('12 2.2 2.5')
         self.set_evalue()
         self.set_output_format()
         self.set_num_descriptions()
@@ -590,8 +589,7 @@ TBLASTN_FIELDS = Fields(StringField('title', title='Title', length=30,
                                  ' is specified in the field above.'),
                        SelectField('seg', title='SEG filter',
                                    options=['yes', 'no', '12 2.2 2.5'],
-                                   required=True, default='12 2.2 2.5',
-                                   check=True,
+                                   default='12 2.2 2.5', check=True,
                                    descr='Filter out low-complexity regions'
                                    ' from the query sequence.'),
                        FloatField('evalue', title='E-value',
@@ -645,7 +643,7 @@ class POST_TblastnCreate(POST_TaskCreate):
         self.set_db()
         self.set_db_gencode()
         self.set_query('protein')
-        self.set_seg()
+        self.set_seg('12 2.2 2.5')
         self.set_evalue()
         self.set_output_format()
         self.set_num_descriptions()
@@ -677,8 +675,7 @@ TBLASTX_FIELDS = Fields(StringField('title', title='Title', length=30,
                                    ' the nucleotide query into protein.'),
                        SelectField('seg', title='SEG filter',
                                    options=['yes', 'no', '12 2.2 2.5'],
-                                   required=True, default='12 2.2 2.5',
-                                   check=True,
+                                   default='12 2.2 2.5', check=True,
                                    descr='Filter out low-complexity regions'
                                    ' from the query sequence.'),
                        FloatField('evalue', title='E-value',
@@ -733,7 +730,7 @@ class POST_TblastxCreate(POST_TaskCreate):
         self.set_db_gencode()
         self.set_query('nucleotide')
         self.set_query_gencode()
-        self.set_seg()
+        self.set_seg('12 2.2 2.5')
         self.set_evalue()
         self.set_output_format()
         self.set_num_descriptions()

@@ -104,3 +104,5 @@ table.representations tr td {vertical-align: top; }
 .right {text-align: right; }
 
 .icon {vertical-align: middle; }
+
+.description code {background-color: moccasin; }

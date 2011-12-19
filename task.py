@@ -6,6 +6,7 @@ Task resources.
 import os
 import uuid
 import json
+import signal
 
 from wrapid.resource import *
 from wrapid.fields import *

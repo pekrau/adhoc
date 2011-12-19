@@ -13,7 +13,7 @@ import time
 import json
 
 NAME = 'Adhoc'
-VERSION = '2.1'
+VERSION = '2.2'
 REALM = 'adhoc'
 
 DEBUG = False                           # May be changed by site module
@@ -66,6 +66,7 @@ STATIC_STATUSES = set([FINISHED, FAILED, KILLED])
 
 SOURCE_DIR = os.path.dirname(__file__)
 STATIC_DIR = os.path.join(SOURCE_DIR, 'static')
+DOCS_DIR = os.path.join(SOURCE_DIR, 'docs')
 EXECUTE_SCRIPT = os.path.join(SOURCE_DIR, 'execute.py')
 
 MASTER_DBFILE = os.path.join(DATA_DIR, 'adhoc.sql3')
