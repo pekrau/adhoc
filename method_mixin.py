@@ -133,13 +133,13 @@ class GET_Mixin(BaseMixin):
 
             links = []
             if self.is_admin():
-                links.append(dict(title='Tasks',
+                links.append(dict(title='All tasks',
                                   href=application.get_url('tasks')))
             links.append(dict(title='My tasks',
                               href=application.get_url('tasks',
                                                        self.login.name)))
             if self.is_admin():
-                links.append(dict(title='Accounts',
+                links.append(dict(title='All accounts',
                                   href=application.get_url('accounts')))
             links.append(dict(title='My account',
                               href=application.get_url('account',

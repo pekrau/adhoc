@@ -23,9 +23,6 @@ class HtmlRepresentation(BaseHtmlRepresentation):
 
     def get_head(self):
         head = super(HtmlRepresentation, self).get_head()
-        head.append(LINK(rel='stylesheet',
-                         href=self.get_url('static', 'style.css'),
-                         type='text/css'))
         try:
             refresh = self.data['refresh']
         except KeyError:
@@ -38,9 +35,17 @@ class HtmlRepresentation(BaseHtmlRepresentation):
                              content="%s; url=%s" % (refresh, url)))
         return head
 
+    def get_stylesheets(self):
+        return [LINK(rel='stylesheet',
+                     href=self.get_url('static', 'style.css'),
+                     type='text/css')]
+
+    def get_favicon(self):
+        return LINK(href=self.get_url('static', 'favicon.ico'),
+                    rel='shortcut icon')
+
     def get_logo(self):
         return A(IMG(src=self.get_url('static', 'adhoc.png'),
-                     width="100", height="96",
                      alt=self.data['application']['name'],
                      title=self.data['application']['name']),
                  href=self.data['application']['href'])
