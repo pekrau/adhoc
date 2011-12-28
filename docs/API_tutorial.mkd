@@ -40,9 +40,9 @@ This example illustrates several points:
 
 1. The httplib module requires that we split up the URL
    into its components netloc ('tools.scilifelab.se') and path ('/adhoc').
-   The scheme 'http' is implied.
    This would not be necessary when using urllib or urllib2.
-2. The request must include the explicit HTTP methods, in this case 'GET'.
+   The scheme 'http' is implied.
+2. The request must include the explicit HTTP method, in this case 'GET'.
 3. The response has a status code. The possible status code values are
    defined by HTTP. In this case we get 200, which translates to 'OK'.
 4. The representation is included in the response, and is obtained using

@@ -55,7 +55,7 @@ class Account(object):
 
 
 class GET_Accounts(GET_Mixin, GET):
-    "Return the accounts list."
+    "Produce the accounts list."
 
     def __init__(self):
         super(GET_Accounts, self).__init__(
@@ -115,7 +115,7 @@ class AccountsHtmlRepresentation(HtmlRepresentation):
 
 
 class GET_Account(GET_Mixin, GET):
-    "Return the account data."
+    "Produce the account data."
 
     def __init__(self):
         super(GET_Account, self).__init__(
@@ -205,7 +205,7 @@ CREATE_FIELDS = Fields(StringField('name', title='Name',
 
 
 class GET_AccountCreate(GET_Mixin, GET):
-    "Return the create form for a new account."
+    "Produce the create form for a new account."
 
     def __init__(self):
         super(GET_AccountCreate, self).__init__(
@@ -300,7 +300,7 @@ EDIT_FIELDS = Fields(PasswordField('new_password', title='New password',
 
 
 class GET_AccountEdit(GET_Mixin, GET):
-    "Return the edit form for an account."
+    "Produce the edit form for an account."
 
     def __init__(self):
         super(GET_AccountEdit, self).__init__(

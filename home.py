@@ -13,7 +13,7 @@ from .html_representation import HtmlRepresentation
 
 
 class GET_Home(GET_Mixin, GET):
-    "Return the Adhoc home page."
+    "Produce the Adhoc home page."
 
     def __init__(self):
         super(GET_Home, self).__init__(

@@ -20,7 +20,7 @@ from .html_representation import *
 
 
 class GET_Tasks(GET_Mixin, GET):
-    "Return the tasks list page."
+    "Produce the tasks list page."
 
     def __init__(self):
         super(GET_Tasks, self).__init__(
@@ -109,7 +109,7 @@ class TasksHtmlRepresentation(HtmlRepresentation):
 
 
 class GET_Task(GET_Mixin, GET):
-    "Return the task page."
+    "Produce the task page."
 
     def __init__(self):
         super(GET_Task, self).__init__(
@@ -255,7 +255,7 @@ class TaskTextRepresentation(TextRepresentation):
 
 
 class GET_TaskData(GET_Mixin, Method):
-    "Return a data item for the task."
+    "Produce a data item for the task."
 
     def __init__(self, descr=None):
         super(GET_TaskData, self).__init__(descr=descr)
@@ -280,7 +280,7 @@ class GET_TaskData(GET_Mixin, Method):
 
 
 class GET_TaskStatus(GET_TaskData):
-    "Return the task status."
+    "Produce the task status."
 
     def __init__(self):
         super(GET_TaskStatus, self).__init__(descr=self.__doc__)
@@ -297,7 +297,7 @@ class GET_TaskStatus(GET_TaskData):
 
 
 class GET_TaskQuery(GET_TaskData):
-    "Return the task query."
+    "Produce the task query."
 
     def __init__(self):
         super(GET_TaskQuery, self).__init__(descr=self.__doc__)
@@ -316,7 +316,7 @@ class GET_TaskQuery(GET_TaskData):
 
 
 class GET_TaskOutput(GET_TaskData):
-    "Return the task output."
+    "Produce the task output."
 
     def __init__(self):
         super(GET_TaskOutput, self).__init__(descr=self.__doc__)

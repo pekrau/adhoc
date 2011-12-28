@@ -1,13 +1,16 @@
 """ Adhoc web resource: simple bioinformatics tasks.
 
 To do:
+- add HMMER?
 - XXX not allowed Accounts page when admin login? tools site
-- git upload new tag
+- git: upload new tag
 - markdown in GET_Documentation
+- __version__ in package __init__.py ? How access?
 - version indicator in URL?
+- fix tests.py same as in WhoYou
+- script or web tool to add database
 - when using WhoYou: preferences must be transferred one level down,
   under key 'Adhoc' (configuration.name)
-- fix tests.py same as in WhoYou
 
 - expand test suite
 

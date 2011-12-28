@@ -120,7 +120,7 @@ class BlastHtmlRepresentation(HtmlRepresentation):
 
 
 class GET_BlastCreate(GET_Mixin, GET):
-    "Return the page for creating a BLAST task."
+    "Produce the page for creating a BLAST task."
 
     tool = None
     database_type = None
@@ -368,7 +368,7 @@ BLASTN_FIELDS = Fields(StringField('title', title='Title', length=30,
 
 
 class GET_BlastnCreate(GET_BlastCreate):
-    "Return the page for creating a 'blastn' task."
+    "Produce the page for creating a 'blastn' task."
 
     tool = 'blastn'
     database_type = 'nucleotide'
@@ -454,7 +454,7 @@ BLASTP_FIELDS = Fields(StringField('title', title='Title', length=30,
                        
 
 class GET_BlastpCreate(GET_BlastCreate):
-    "Return the page for creating a 'blastp' task."
+    "Produce the page for creating a 'blastp' task."
 
     tool = 'blastp'
     database_type = 'protein'
@@ -535,7 +535,7 @@ BLASTX_FIELDS = Fields(StringField('title', title='Title', length=30,
                        
 
 class GET_BlastxCreate(GET_BlastCreate):
-    "Return the page for creating a 'blastx' task."
+    "Produce the page for creating a 'blastx' task."
 
     tool = 'blastx'
     database_type = 'protein'
@@ -616,7 +616,7 @@ TBLASTN_FIELDS = Fields(StringField('title', title='Title', length=30,
                        
 
 class GET_TblastnCreate(GET_BlastCreate):
-    "Return the page for creating a 'tblastn' task."
+    "Produce the page for creating a 'tblastn' task."
 
     tool = 'tblastn'
     database_type = 'nucleotide'
@@ -702,7 +702,7 @@ TBLASTX_FIELDS = Fields(StringField('title', title='Title', length=30,
                        
 
 class GET_TblastxCreate(GET_BlastCreate):
-    "Return the page for creating a 'tblastx' task."
+    "Produce the page for creating a 'tblastx' task."
 
     tool = 'tblastx'
     database_type = 'nucleotide'
