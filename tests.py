@@ -3,82 +3,12 @@
 Unit tests for the web resource API.
 """
 
-import unittest
-import optparse
-import httplib
-import wsgiref.headers
-import base64
-import json
-import urllib
-import urlparse
 import time
 
-configuration = dict(NETLOC = 'localhost',
-                     ROOT = '/adhoc',
-                     ACCOUNT = 'test',
-                     PASSWORD = 'abc123')
+from wrapid.testbase import *
 
 
-class TestMixin(object):
-
-    def get_connection(self):
-        try:
-            host, port = configuration['NETLOC'].split(':', 1)
-        except ValueError:
-            host = configuration['NETLOC']
-            port = None
-        return httplib.HTTPConnection(host, port)
-
-    def get_path(self, path_or_url):
-        parts = urlparse.urlparse(path_or_url)
-        if parts.scheme:
-            self.assertEqual(parts.scheme, 'http')
-            self.assertEqual(parts.netloc, configuration['NETLOC'])
-        if parts.path.startswith(configuration['ROOT']):
-            return parts.path[len(configuration['ROOT']):]
-        else:
-            return parts.path
-
-    def get_headers(self, accept='application/json', **hdrs):
-        headers = wsgiref.headers.Headers([(k.replace('_', '-'), v)
-                                           for k,v in hdrs.items()])
-        encoded = base64.b64encode("%s:%s" % (configuration['ACCOUNT'],
-                                              configuration['PASSWORD']))
-        auth = "Basic %s" % encoded
-        headers.add_header('Authorization', auth)
-        headers.add_header('Accept', accept)
-        return dict(headers.items())
-
-    def GET(self, resource, accept='application/json', **query):
-        cnx = self.get_connection()
-        urlpath = configuration['ROOT'] + resource
-        if query:
-            urlpath += '?' + urllib.urlencode(query)
-        cnx.request('GET', urlpath,
-                    headers=self.get_headers(accept=accept))
-        return cnx.getresponse()
-
-    def POST(self, resource, accept='application/json', outdata=None):
-        cnx = self.get_connection()
-        urlpath = configuration['ROOT'] + resource
-        if outdata:
-            cnx.request('POST', urlpath,
-                        body=json.dumps(outdata),
-                        headers=self.get_headers(accept=accept,
-                                                 content_type='application/json'))
-        else:
-            cnx.request('POST', urlpath,
-                        headers=self.get_headers(accept=accept))
-        return cnx.getresponse()
-
-    def DELETE(self, resource):
-        cnx = self.get_connection()
-        urlpath = configuration['ROOT'] + resource
-        cnx.request('DELETE', urlpath, headers=self.get_headers())
-        return cnx.getresponse()
-
-
-class TestAccess(TestMixin, unittest.TestCase):
+class TestAccess(TestBase):
     "Check basic access."
 
     def test_GET_home_HTML(self):
@@ -114,7 +44,7 @@ class TestAccess(TestMixin, unittest.TestCase):
                          msg="HTTP status %s" % response.status)
 
 
-class TestAccount(TestMixin, unittest.TestCase):
+class TestAccount(TestBase):
     "Test account handling."
 
     def test_GET_accounts(self):
@@ -125,7 +55,7 @@ class TestAccount(TestMixin, unittest.TestCase):
 
     def test_GET_account(self):
         "Fetch the data for this account, in JSON format."
-        response = self.GET("/account/%s" % configuration['ACCOUNT'])
+        response = self.GET("/account/%s" % self.configuration.account)
         self.assertEqual(response.status, httplib.OK,
                          msg="HTTP status %s" % response.status)
         headers = wsgiref.headers.Headers(response.getheaders())
@@ -142,7 +72,7 @@ class TestAccount(TestMixin, unittest.TestCase):
                          msg="HTTP status %s" % response.status)
 
 
-class TestBlastp(TestMixin, unittest.TestCase):
+class TestBlastp(TestBase):
     "Test creating and executing a blastp task."
 
     def test_GET_blastp(self):
@@ -164,7 +94,7 @@ class TestBlastp(TestMixin, unittest.TestCase):
             self.fail('invalid JSON data')
         tool = data.get('tool')
         self.assert_(tool is not None)
-        self.assertEqual(tool['name'],'blastp')
+        self.assertEqual(tool['name'], 'blastp')
         fields = tool.get('fields')
         self.assert_(fields is not None)
         lookup = dict([(f['name'], f) for f in fields])
@@ -210,38 +140,12 @@ class TestBlastp(TestMixin, unittest.TestCase):
                          msg="HTTP status %s" % response.status)
 
 
-def parse_command_line():
-    parser = optparse.OptionParser()
-    parser.add_option('--account', '-a', action='store',
-                      default=configuration['ACCOUNT'])
-    parser.add_option('--password', '-p', action='store')
-    url = urlparse.urlunsplit(('http',
-                               configuration['NETLOC'],
-                               configuration['ROOT'],
-                               '',
-                               ''))
-    parser.add_option('--url', '-u', action='store', default=url)
-    options, arguments = parser.parse_args()
-    if options.url:
-        parts = urlparse.urlsplit(options.url)
-        if parts.scheme != 'http':
-            raise ValueError("no support for '%s' scheme" % parts.scheme)
-        configuration['NETLOC'] = parts.netloc
-        configuration['ROOT'] = parts.path
-    if options.account:
-        configuration['ACCOUNT'] = options.account
-    if options.password:
-        configuration['PASSWORD'] = options.password
-
-
 if __name__ == '__main__':
-    parse_command_line()
-    suites = []
-    for klass in [TestAccess,
-                  TestAccount,
-                  TestBlastp]:
-        suites.append(unittest.TestLoader().loadTestsFromTestCase(klass))
-    alltests = unittest.TestSuite(suites)
-    print "Testing http://%s/%s ...\n" % (configuration['NETLOC'],
-                                          configuration['ROOT'])
-    unittest.TextTestRunner(verbosity=2).run(alltests)
+    from adhoc import configuration
+    ex = TestExecutor(root=configuration.TEST_ROOT,
+                      account=configuration.TEST_ACCOUNT,
+                      password=configuration.TEST_PASSWORD)
+    print "Testing http://%s/%s ...\n" % (ex.netloc, ex.root)
+    ex.test(TestAccess,
+            TestAccount,
+            TestBlastp)

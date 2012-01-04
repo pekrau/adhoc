@@ -29,6 +29,10 @@ PYTHON = '/usr/bin/python'
 DATA_DIR = '/var/local/adhoc'
 SALT = 'default123'
 
+TEST_ROOT = '/adhoc'
+TEST_ACCOUNT = 'test'
+TEST_PASSWORD = 'abc123'
+
 #----------------------------------------------------------------------
 # Do not change anything below this section.
 #----------------------------------------------------------------------

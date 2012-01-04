@@ -14,6 +14,7 @@ from adhoc.login import *
 from adhoc.account import *
 from adhoc.task import *
 
+
 application = wrapid.application.Application(name=configuration.NAME,
                                              version=configuration.VERSION,
                                              debug=configuration.DEBUG)
