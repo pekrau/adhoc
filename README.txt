@@ -1,4 +1,4 @@
-adhoc is a web application for executing tasks.
+Adhoc is a web application for executing tasks.
 
 As the name implies, it is used to interface to various software as
 appropriate.
@@ -12,7 +12,7 @@ given a UUID, and is then executed by the system.
 The user can view the task and check its current status. When
 finished, the output can be viewed or downloaded.
 
-The adhoc web interface is RESTful, meaning that scripts can easily be
+The Adhoc web interface is RESTful, meaning that scripts can easily be
 written to access the system.
 
 The databases needed by the tools are defined by the administrator,

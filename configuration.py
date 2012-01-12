@@ -15,7 +15,6 @@ DEBUG = False
 
 NAME = 'Adhoc'
 VERSION = '2.2'
-REALM = NAME
 
 DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 

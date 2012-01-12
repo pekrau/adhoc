@@ -23,7 +23,7 @@ class BaseMixin(object):
         self.cnx = sqlite3.connect(configuration.MASTER_DBFILE)
         try:
             name, password = basic_authentication(request,
-                                                  configuration.REALM,
+                                                  configuration.NAME,
                                                   require=False)
             self.login = Account(self.cnx, name)
             self.login.check_password(password)
@@ -35,7 +35,7 @@ class BaseMixin(object):
             # sent voluntarily by the browser.
             if request.cookie.has_key("%s-login" % configuration.NAME):
                 logging.info("adhoc: not logged in, but cookie %s-login" % configuration.NAME)
-                raise HTTP_UNAUTHORIZED_BASIC_CHALLENGE(realm=configuration.REALM)
+                raise HTTP_UNAUTHORIZED_BASIC_CHALLENGE(realm=configuration.NAME)
             self.login = Account(self.cnx, 'anonymous')
             logging.info("adhoc: anonymous login")
 
@@ -70,7 +70,7 @@ class BaseMixin(object):
         """
         if not self.is_access():
             if self.is_anonymous():
-                raise HTTP_UNAUTHORIZED_BASIC_CHALLENGE(realm=configuration.REALM)
+                raise HTTP_UNAUTHORIZED_BASIC_CHALLENGE(realm=configuration.NAME)
             else:
                 raise HTTP_FORBIDDEN("disallowed for login '%s'" %
                                      self.login.name)
