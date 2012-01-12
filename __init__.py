@@ -1,6 +1,8 @@
 """ Adhoc web resource: simple bioinformatics tasks.
 
-To do:
+To do
+=====
+
 - add HMMER3 ?
 - XXX not allowed Accounts page when admin login? tools site
 - markdown in GET_Documentation

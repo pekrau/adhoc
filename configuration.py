@@ -8,33 +8,41 @@ import os
 import sys
 import socket
 import urllib
-import hashlib
-import time
 import json
+
+
+DEBUG = False
 
 NAME = 'Adhoc'
 VERSION = '2.2'
-REALM = 'adhoc'
-
-DEBUG = False                           # May be changed by site module
+REALM = NAME
 
 DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
-REFRESH_FACTOR = 2.0
-MAX_REFRESH = 65.0
+DATA_DIR = '/var/local/adhoc'
+
 DEFAULT_MAX_TASKS = 200
 
-PYTHON = '/usr/bin/python'
+REFRESH_FACTOR = 2.0
+MAX_REFRESH = 65.0
 
-DATA_DIR = '/var/local/adhoc'
+# Password encryption
 SALT = 'default123'
 
+# Path to Python executable
+PYTHON = '/usr/bin/python'
+
+# BLAST executables location and version
+BLAST_PATH = '/usr/local/bin'
+BLAST_VERSION = 'NCBI 2.2.25+ 32bit'
+
+# Setup for tests.py
 TEST_ROOT = '/adhoc'
 TEST_ACCOUNT = 'test'
 TEST_PASSWORD = 'abc123'
 
 #----------------------------------------------------------------------
-# Do not change anything below this section.
+# Do not change anything below this.
 #----------------------------------------------------------------------
 # The 'site_XXX' module must define paths to tool executables.
 # It may redefine any of the above global variables.
@@ -73,7 +81,7 @@ STATIC_DIR = os.path.join(SOURCE_DIR, 'static')
 DOCS_DIR = os.path.join(SOURCE_DIR, 'docs')
 EXECUTE_SCRIPT = os.path.join(SOURCE_DIR, 'execute.py')
 
-MASTER_DBFILE = os.path.join(DATA_DIR, 'adhoc.sql3')
+MASTER_DBFILE = os.path.join(DATA_DIR, 'master.sql3')
 DB_DIR = os.path.join(DATA_DIR, 'db')
 TASK_DIR = os.path.join(DATA_DIR, 'task')
 
@@ -101,47 +109,3 @@ def get_teams():
         return [str(t) for t in json.load(infile)]
     finally:
         infile.close()
-
-def get_password_hexdigest(password):
-    md5 = hashlib.md5()
-    md5.update(SALT)
-    md5.update(password)
-    return md5.hexdigest()
-
-def get_static_path(filename):
-    path = os.path.normpath(os.path.join(STATIC_DIR, filename))
-    if not path.startswith(STATIC_DIR):
-        raise ValueError('access outside of static directory')
-    return path
-
-def now():
-    return time.strftime(DATETIME_FORMAT, time.gmtime())
-
-def to_bool(value):
-    """Convert the string value to boolean.
-    Raise ValueError if not interpretable.
-    """
-    if not value: return False
-    value = value.lower()
-    if value in ('true', 't', 'on', 'yes', '1'):
-        return True
-    elif value in ('false', 'f', 'off', 'no', '0'):
-        return False
-    else:
-        raise ValueError("invalid literal '%s' for boolean" % value)
-
-def rstr(value):
-    "Return str of unicode value, else same, recursively."
-    if value is None:
-        return None
-    elif isinstance(value, unicode):
-        return str(value)
-    elif isinstance(value, list):
-        return map(rstr, value)
-    elif isinstance(value, set):
-        return set(map(rstr, value))
-    elif isinstance(value, dict):
-        return dict([(rstr(key), rstr(value))
-                     for key, value in value.iteritems()])
-    else:
-        return value

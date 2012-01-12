@@ -9,6 +9,7 @@ import getpass
 import sqlite3
 
 from adhoc import configuration
+from adhoc import utils
 
 
 def create_db(admin_password):
@@ -50,7 +51,7 @@ def create_db(admin_password):
 
 def create_account(cursor, name, password, teams, max_tasks, email,description):
     if password:
-        password = configuration.get_password_hexdigest(password)
+        password = utils.get_password_hexdigest(password)
     cursor.execute('INSERT INTO account(name,password,teams,'
                    ' max_tasks,email,description)'
                    ' VALUES(?,?,?,?,?,?)',

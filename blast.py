@@ -14,6 +14,7 @@ from wrapid.json_representation import JsonRepresentation
 from wrapid.text_representation import TextRepresentation
 
 from . import configuration
+from . import utils
 from .method_mixin import *
 from .html_representation import *
 
@@ -35,7 +36,7 @@ def get_databases(type, account_teams):
         else:
             if not teams.intersection(account_teams): continue
         result.append(db)
-    return configuration.rstr(result)
+    return utils.rstr(result)
 
 
 OUTPUT_FORMATS = [dict(value='0',

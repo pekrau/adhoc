@@ -13,6 +13,7 @@ from wrapid.json_representation import JsonRepresentation
 from wrapid.text_representation import TextRepresentation
 
 from . import configuration
+from . import utils
 from .method_mixin import *
 from .html_representation import *
 
@@ -21,7 +22,7 @@ class Account(object):
     "Container for account data."
 
     def __init__(self, cnx, name):
-        self.name = configuration.rstr(name)
+        self.name = utils.rstr(name)
         cursor = cnx.cursor()
         cursor.execute('SELECT id,password,teams,max_tasks,email,description,'
                        'preferences FROM account WHERE name=?',
@@ -32,16 +33,16 @@ class Account(object):
         self.password = record[1]
         self.teams = set(map(str, record[2].split()))
         self.max_tasks = record[3]
-        self.email = configuration.rstr(record[4])
-        self.description = configuration.rstr(record[5])
+        self.email = utils.rstr(record[4])
+        self.description = utils.rstr(record[5])
         preferences = record[6]
         if preferences:
-            self.preferences = configuration.rstr(json.loads(preferences))
+            self.preferences = utils.rstr(json.loads(preferences))
         else:
             self.preferences = dict()
 
     def check_password(self, password):
-        if self.password != configuration.get_password_hexdigest(password):
+        if self.password != utils.get_password_hexdigest(password):
             raise ValueError
 
     def get_data(self):
@@ -258,7 +259,7 @@ class POST_AccountCreate(POST_Mixin, POST):
             raise HTTP_BAD_REQUEST('password must contain at least 6 characters')
         if inserts['password'] != inserts.pop('confirm_password'):
                 raise HTTP_BAD_REQUEST('passwords not equal')
-        inserts['password'] = configuration.get_password_hexdigest(inserts['password'])
+        inserts['password'] = utils.get_password_hexdigest(inserts['password'])
         try:
             inserts['teams'] = ' '.join(inserts['teams'])
         except KeyError:
@@ -380,7 +381,7 @@ class POST_AccountEdit(POST_Mixin, POST):
                 raise HTTP_BAD_REQUEST('password must contain at least 6 characters')
             if new_password != confirm_new_password:
                 raise HTTP_BAD_REQUEST('new passwords not equal')
-            updates['password'] = configuration.get_password_hexdigest(new_password)
+            updates['password'] = utils.get_password_hexdigest(new_password)
         if self.is_admin():
             try:
                 updates['teams'] = ' '.join(updates['teams'])

@@ -14,6 +14,7 @@ from wrapid.json_representation import JsonRepresentation
 from wrapid.text_representation import TextRepresentation
 
 from . import configuration
+from . import utils
 from . import usage
 from .method_mixin import *
 from .html_representation import *
@@ -52,7 +53,7 @@ class GET_Tasks(GET_Mixin, GET):
         tasks = []
         for task in self.get_tasks(self.accountname):
             tasks.append(dict(iui=str(task.iui),
-                              title=configuration.rstr(task.title),
+                              title=utils.rstr(task.title),
                               account=task.account,
                               tool=str(task.tool),
                               status=str(task.status),
@@ -133,7 +134,7 @@ class GET_Task(GET_Mixin, GET):
         self.allow_access()
         data['entity'] = 'task'
         data['title'] = self.task.title or None
-        data['task'] = configuration.rstr(self.task.get_data(resource.get_url))
+        data['task'] = utils.rstr(self.task.get_data(resource.get_url))
         if not data['task'].has_key('cpu_time') and self.task.pid:
             try:
                 process = usage.Usage(pid=self.task.pid,
@@ -424,7 +425,7 @@ class Task(object):
         self.id = record[0]
         self.href = str(record[1])
         self.tool = str(record[2])
-        self.title = configuration.rstr(record[3])
+        self.title = utils.rstr(record[3])
         self.status = str(record[4])
         self.pid = record[5]
         self.size = record[6]
@@ -438,7 +439,7 @@ class Task(object):
         assert self.iui
         assert self.id is None
         self.accountid = accountid
-        self.modified = configuration.now()
+        self.modified = utils.now()
         cursor = self.execute('INSERT INTO task(iui,href,tool,title,status,'
                               'pid,account,modified) VALUES(?,?,?,?,?,?,?,?)',
                               self.iui,
@@ -465,7 +466,7 @@ class Task(object):
         self.pid = new
         self.execute('UPDATE task SET pid=?, modified=? WHERE iui=?',
                      new,
-                     configuration.now(),
+                     utils.now(),
                      self.iui)
         self.cnx.commit()
 
@@ -473,7 +474,7 @@ class Task(object):
         self.status = new
         self.execute('UPDATE task SET status=?, modified=? WHERE iui=?',
                      new,
-                     configuration.now(),
+                     utils.now(),
                      self.iui)
         self.cnx.commit()
 
@@ -485,7 +486,7 @@ class Task(object):
         json.dump(self.data, outfile)
         outfile.close()
         self.size = os.path.getsize(filename)
-        self.modified = configuration.now()
+        self.modified = utils.now()
         self.execute('UPDATE task SET size=?, modified=? WHERE id=?',
                      self.size,
                      self.modified,
