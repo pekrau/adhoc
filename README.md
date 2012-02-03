@@ -58,3 +58,18 @@ controlled by the team memberships of a user account.
 
 Contact the administrator if you wish to make additional databases
 available, or if your memberships should be changed.
+
+### Implementation
+
+The Sqlite3 database system is used as storage back-end in the current
+implementation.
+
+The Adhoc source code lives at
+[https://github.com/pekrau/adhoc](https://github.com/pekrau/adhoc).
+It relies on the packages **wrapid** at
+[https://github.com/pekrau/wrapid](https://github.com/pekrau/wrapid)
+and **HyperText** at
+[https://github.com/pekrau/HyperText](https://github.com/pekrau/HyperText).
+
+An example installation can be viewed at
+[http://tools.scilifelab.se/webtables](http://tools.scilifelab.se/adhoc).

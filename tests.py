@@ -49,6 +49,12 @@ class TestAccess(TestBase):
         self.assertEqual(response.status, httplib.NOT_FOUND,
                          msg="HTTP status %s" % response.status)
 
+    def test_login(self):
+        "Check explicit login."
+        response = self.wr.GET('/login')
+        self.assertEqual(response.status, httplib.SEE_OTHER,
+                         msg="HTTP status %s" % response.status)
+
 
 class TestAccount(TestBase):
     "Test account handling."

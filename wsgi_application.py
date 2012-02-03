@@ -5,6 +5,7 @@ Apache WSGI interface using the 'wrapid' package.
 
 import wrapid
 from wrapid.application import Application
+from wrapid.resource import Resource
 from wrapid.get_static import GET_Static
 from wrapid.get_documentation import GET_Documentation
 
