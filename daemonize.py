@@ -1,4 +1,6 @@
-"""Module to fork the current process as a daemon.
+""" Adhoc: Simple web application for task execution.
+
+Module to fork the current process as a daemon.
 
 NOTE: don't do any of this if your daemon gets started by inetd!
 inetd does all you need, including redirecting standard file descriptors;

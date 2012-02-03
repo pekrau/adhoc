@@ -1,30 +1,25 @@
-""" Adhoc web resource: simple bioinformatics tasks.
+""" Adhoc: Simple web application for task execution.
 
 Login resource.
 """
 
-from wrapid.response import HTTP_UNAUTHORIZED_BASIC_CHALLENGE, HTTP_SEE_OTHER
-
-from . import configuration
-from .method_mixin import BaseMixin
+from .method_mixin import *
 
 
-class GET_Login(BaseMixin):
+class GET_Login(MethodMixin, GET):
     "Login to an account."
 
-    def __call__(self, resource, request, application):
-        """Handle the request and return a response instance.
-        If not logged in, then do so. Redirect to account page.
-        """
-        self.connect(resource, request, application)
+    def handle(self, resource, request, application):
+        "If not logged in, then do so. Redirect to account page."
         if self.login.name == 'anonymous':
-            raise HTTP_UNAUTHORIZED_BASIC_CHALLENGE(realm=configuration.NAME)
-        else:
-            # The cookie remedies an apparent deficiency of several
-            # human browsers: For some pages in the site (notably
-            # the application root '/'), the authentication data does not
-            # seem to be sent voluntarily by the browser.
-            cookie = "%s-login=yes; Path=%s" % (configuration.NAME,
-                                                application.path)
-            url = "%s/account/%s" % (application.url, self.login.name)
-            raise HTTP_SEE_OTHER(Location=url, Set_Cookie=cookie)
+            raise HTTP_UNAUTHORIZED_BASIC_CHALLENGE(realm=application.name)
+        self.redirect = "%s/account/%s" % (application.url, self.login.name)
+        # The cookie remedies an apparent deficiency of several
+        # human browsers: For some pages in the site (notably
+        # the application root '/'), the authentication data does not
+        # seem to be sent voluntarily by the browser.
+        self.cookie = "%s-login=yes; Path=%s" % (application.name,
+                                                 application.path)
+
+    def get_response(self, resource, request, application):
+        return HTTP_SEE_OTHER(Location=self.redirect, Set_Cookie=self.cookie)

@@ -1,4 +1,4 @@
-""" Adhoc web resource.
+""" Adhoc: Simple web application for task execution.
 
 Create the database from scratch, and the 'admin' account.
 """
@@ -9,12 +9,11 @@ import getpass
 import sqlite3
 
 from adhoc import configuration
-from adhoc import utils
 
 
 def create_db(admin_password):
-    assert not os.path.exists(configuration.MASTER_DBFILE)
-    cnx = sqlite3.connect(configuration.MASTER_DBFILE)
+    assert not os.path.exists(configuration.MASTER_DB_FILE)
+    cnx = sqlite3.connect(configuration.MASTER_DB_FILE)
     cursor = cnx.cursor()
     cursor.execute('CREATE TABLE account'
                    '(id INTEGER PRIMARY KEY,'
@@ -51,7 +50,7 @@ def create_db(admin_password):
 
 def create_account(cursor, name, password, teams, max_tasks, email,description):
     if password:
-        password = utils.get_password_hexdigest(password)
+        password = configuration.get_password_hexdigest(password)
     cursor.execute('INSERT INTO account(name,password,teams,'
                    ' max_tasks,email,description)'
                    ' VALUES(?,?,?,?,?,?)',
@@ -64,7 +63,7 @@ def create_account(cursor, name, password, teams, max_tasks, email,description):
     
 
 if __name__ == '__main__':
-    if os.path.exists(configuration.MASTER_DBFILE):
+    if os.path.exists(configuration.MASTER_DB_FILE):
         print 'Error: database already exists!'
         sys.exit(1)
     password = getpass.getpass("Give the password for the 'admin' account > ")

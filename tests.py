@@ -1,11 +1,17 @@
-""" Adhoc web resource: simple bioinformatics tasks.
+""" Adhoc: Simple web application for task execution.
 
 Unit tests for the web resource API.
 """
 
 import time
+import httplib
 
 from wrapid.testbase import *
+
+
+URL = 'http://localhost/adhoc'
+ACCOUNT = 'test'
+PASSWORD = 'abc123'
 
 
 class TestAccess(TestBase):
@@ -13,33 +19,33 @@ class TestAccess(TestBase):
 
     def test_GET_home_HTML(self):
         "Fetch the home page, in HTML format."
-        response = self.GET('/', accept='text/html')
+        wr = self.get_wr('text/html')
+        response = wr.GET('/')
         self.assertEqual(response.status, httplib.OK,
                          msg="HTTP status %s" % response.status)
-        headers = wsgiref.headers.Headers(response.getheaders())
+        headers = self.get_headers(response)
         self.assert_(headers.get('content-type').startswith('text/html'))
 
     def test_GET_home_JSON(self):
         "Fetch the home page, in JSON format."
-        response = self.GET('/')
+        response = self.wr.GET('/')
         self.assertEqual(response.status, httplib.OK,
                          msg="HTTP status %s" % response.status)
-        headers = wsgiref.headers.Headers(response.getheaders())
-        self.assert_(headers.get('content-type') == 'application/json')
-        try:
-            data = json.loads(response.read())
-        except ValueError:
-            self.fail('invalid JSON data')
+        headers = self.get_headers(response)
+        self.assert_(headers['content-type'] == 'application/json',
+                     msg=headers['content-type'])
+        self.get_json_data(response)
 
     def test_GET_home_XYZ(self):
         "Try fetching the home page in an impossible format."
-        response = self.GET('/', accept='text/xyz')
+        wr = self.get_wr('text/xyz')
+        response = wr.GET('/')
         self.assertEqual(response.status, httplib.NOT_ACCEPTABLE,
                          msg="HTTP status %s" % response.status)
 
     def test_GET_nonexistent(self):
         "Try fetching a non-existent resource."
-        response = self.GET('/doesnotexist')
+        response = self.wr.GET('/doesnotexist')
         self.assertEqual(response.status, httplib.NOT_FOUND,
                          msg="HTTP status %s" % response.status)
 
@@ -49,25 +55,23 @@ class TestAccount(TestBase):
 
     def test_GET_accounts(self):
         "Try fetching accounts list for non-admin test user."
-        response = self.GET('/accounts')
+        response = self.wr.GET('/accounts')
         self.assertEqual(response.status, httplib.FORBIDDEN,
                          msg="HTTP status %s" % response.status)
 
     def test_GET_account(self):
         "Fetch the data for this account, in JSON format."
-        response = self.GET("/account/%s" % self.configuration.account)
+        response = self.wr.GET("/account/%s" % self.wr.account)
         self.assertEqual(response.status, httplib.OK,
                          msg="HTTP status %s" % response.status)
-        headers = wsgiref.headers.Headers(response.getheaders())
-        self.assert_(headers.get('content-type') == 'application/json')
-        try:
-            data = json.loads(response.read())
-        except ValueError:
-            self.fail('invalid JSON data')
+        headers = self.get_headers(response)
+        self.assert_(headers['content-type'] == 'application/json',
+                     msg=headers['content-type'])
+        self.get_json_data(response)
 
     def test_GET_account_admin(self):
         "Try fetching 'admin' account data."
-        response = self.GET('/account/admin')
+        response = self.wr.GET('/account/admin')
         self.assertEqual(response.status, httplib.FORBIDDEN,
                          msg="HTTP status %s" % response.status)
 
@@ -77,21 +81,15 @@ class TestBlastp(TestBase):
 
     def test_GET_blastp(self):
         "Get the data for blastp tool."
-        response = self.GET('/blastp')
+        response = self.wr.GET('/blastp')
         self.assertEqual(response.status, httplib.OK,
                          msg="HTTP status %s" % response.status)
-        try:
-            data = json.loads(response.read())
-        except ValueError:
-            self.fail('invalid JSON data')
+        self.get_json_data(response)
 
     def test_POST_blastp(self):
         "Create, execute and delete a task based on data for the tool."
-        response = self.GET('/blastp')
-        try:
-            data = json.loads(response.read())
-        except ValueError:
-            self.fail('invalid JSON data')
+        response = self.wr.GET('/blastp')
+        data = self.get_json_data(response)
         tool = data.get('tool')
         self.assert_(tool is not None)
         self.assertEqual(tool['name'], 'blastp')
@@ -108,22 +106,23 @@ class TestBlastp(TestBase):
             if database['size'] < smallest['size']:
                 smallest = database
         self.assert_(smallest is not None)
-        outdata = dict(title='unittest',
-                       db=smallest['value'],
-                       task_type='blastp-short',
-                       query_content='>test\nQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHQYREQIKRVKDSDDVPMVLVGNKCDL',
-                       evalue=10.0,
-                       outfmt=0)
-        response = self.POST('/blastp', outdata=outdata)
+        data = dict(title='unittest',
+                    db=smallest['value'],
+                    task_type='blastp-short',
+                    query_content='>test\nQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHQYREQIKRVKDSDDVPMVLVGNKCDL',
+                    evalue=10.0,
+                    outfmt=0)
+        response = self.wr.POST('/blastp', data=data)
         self.assertEqual(response.status, httplib.SEE_OTHER,
                          msg="HTTP status %s" % response.status)
-        url = response.getheader('location')
+        headers = self.get_headers(response)
+        url = headers['location']
         self.assert_(url)
-        path = self.get_path(url)
+        path = self.wr.get_rpath(url)
         # Loop until task is finished
         for waiting in range(0, 10):
             time.sleep(1.0)
-            response = self.GET(path + '/status')
+            response = self.wr.GET(path + '/status')
             self.assertEqual(response.status, httplib.OK,
                              msg="HTTP status %s" % response.status)
             status = response.read()
@@ -133,19 +132,16 @@ class TestBlastp(TestBase):
             return
         self.assertEqual(status, 'finished')
         # Cleanup
-        response = self.GET(path)
-        data = json.loads(response.read())
-        response = self.DELETE("/task/%s" % data['task']['iui'])
+        response = self.wr.GET(path)
+        data = self.get_json_data(response)
+        response = self.wr.DELETE("/task/%s" % data['task']['iui'])
         self.assertEqual(response.status, httplib.SEE_OTHER,
                          msg="HTTP status %s" % response.status)
 
 
 if __name__ == '__main__':
-    from adhoc import configuration
-    ex = TestExecutor(root=configuration.TEST_ROOT,
-                      account=configuration.TEST_ACCOUNT,
-                      password=configuration.TEST_PASSWORD)
-    print "Testing http://%s/%s ...\n" % (ex.netloc, ex.root)
+    ex = TestExecutor(url=URL, account=ACCOUNT, password=PASSWORD)
+    print 'Testing', ex.wr
     ex.test(TestAccess,
             TestAccount,
             TestBlastp)

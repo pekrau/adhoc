@@ -1,4 +1,4 @@
-""" Adhoc web resource: simple bioinformatics tasks.
+""" Adhoc: Simple web application for task execution.
 
 Site setup for the 'avatar2' machine; development.
 """

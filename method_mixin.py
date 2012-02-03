@@ -1,43 +1,69 @@
-""" Adhoc web resource: simple bioinformatics tasks.
+""" Adhoc: Simple web application for task execution.
 
-Mixin classes for methods: database connection, authentication, etc.
+Mixin class for methods: database connection and authentication.
 """
 
 import logging
 import sqlite3
 import json
 
-from wrapid.utils import basic_authentication
-from wrapid.response import (HTTP_UNAUTHORIZED_BASIC_CHALLENGE,
-                             HTTP_FORBIDDEN)
+from wrapid.fields import *
+from wrapid.response import *
+from wrapid.resource import Resource, GET, POST, DELETE
+from wrapid.utils import basic_authentication, now, rstr, to_bool
 
 from . import configuration
 
 
-class BaseMixin(object):
-    "Base mixin class; database connection, authentication, etc."
+class MethodMixin(object):
+    "Mixin class for Method subclasses: database connection and authentication."
 
-    def connect(self, resource, request, application):
+    def prepare(self, resource, request, application):
         "Connect to the database, and set the data for the authenticated user."
         from .account import Account
-        self.cnx = sqlite3.connect(configuration.MASTER_DBFILE)
+        self.cnx = sqlite3.connect(configuration.MASTER_DB_FILE)
         try:
             name, password = basic_authentication(request,
-                                                  configuration.NAME,
+                                                  application.name,
                                                   require=False)
             self.login = Account(self.cnx, name)
             self.login.check_password(password)
-            logging.info("adhoc: direct login")
         except (KeyError, ValueError):
             # The following remedies an apparent deficiency of several
             # human browsers: For some pages in the site (notably
             # the root '/'), the authentication data does not seem to be
             # sent voluntarily by the browser.
-            if request.cookie.has_key("%s-login" % configuration.NAME):
-                logging.info("adhoc: not logged in, but cookie %s-login" % configuration.NAME)
-                raise HTTP_UNAUTHORIZED_BASIC_CHALLENGE(realm=configuration.NAME)
+            if request.cookie.has_key("%s-login" % application.name):
+                raise HTTP_UNAUTHORIZED_BASIC_CHALLENGE(realm=application.name)
             self.login = Account(self.cnx, 'anonymous')
-            logging.info("adhoc: anonymous login")
+        self.set_current(resource, request, application)
+        self.check_access(application.name)
+
+    def finalize(self):
+        self.cnx.close()
+
+    def set_current(self, resource, request, application):
+        "Set the current entities to operate on."
+        pass
+
+    def check_access(self, realm):
+        """Raise HTTP FORBIDDEN if login user is not allowed to read this.
+        Raise HTTP_UNAUTHORIZED if anonymous user.
+        """
+        if not self.is_access():
+            if self.login.name == 'anonymous':
+                raise HTTP_UNAUTHORIZED_BASIC_CHALLENGE(realm=realm)
+            else:
+                raise HTTP_FORBIDDEN("disallowed for login '%s'" %
+                                     self.login.name)
+
+    def is_access(self):
+        "Is the login user allowed to access this method of the resource?"
+        return True
+
+    def is_login_admin(self):
+        "Is the login user admin, or is member of admin team?"
+        return self.login.name == 'admin' or 'admin' in self.login.teams
 
     def execute(self, sql, *values):
         cursor = self.cnx.cursor()
@@ -51,33 +77,39 @@ class BaseMixin(object):
     def close(self):
         self.cnx.close()
 
-    def is_admin(self):
-        "Is the login user admin, or is member of admin team?"
-        return self.login.name == 'admin' or 'admin' in self.login.teams
+    def get_data_basic(self, resource, request, application):
+        "Return a dictionary with the basic data for the resource."
+        links = []
+        if self.is_login_admin():
+            links.append(dict(title='All tasks',
+                              href=application.get_url('tasks')))
+        links.append(dict(title='My tasks',
+                          href=application.get_url('tasks',
+                                                   self.login.name)))
+        if self.is_login_admin():
+            links.append(dict(title='All accounts',
+                              href=application.get_url('accounts')))
+        links.append(dict(title='My account',
+                          href=application.get_url('account',
+                                                   self.login.name)))
+        for tools in configuration.TOOLS:
+            for tool in tools[1:]:
+                links.append(dict(title="%(family)s: %(name)s" % tool,
+                                  href=application.get_url(tool['name'])))
+        links.append(dict(title='Documentation: API',
+                          href=application.get_url('doc', 'API')))
+        links.append(dict(title='Documentation: API tutorial',
+                          href=application.get_url('doc', 'API_tutorial')))
 
-    def allow_admin(self):
-        "Raise HTTP FORBIDDEN if login user is not admin."
-        if not self.is_admin():
-            raise HTTP_FORBIDDEN("'admin' login required")
-
-    def is_access(self):
-        "Is the login user allowed to access this method of the resource?"
-        return True
-
-    def allow_access(self):
-        """Raise HTTP FORBIDDEN if login user is not allowed to read this.
-        Raise HTTP_UNAUTHORIZED if anonymous user.
-        """
-        if not self.is_access():
-            if self.is_anonymous():
-                raise HTTP_UNAUTHORIZED_BASIC_CHALLENGE(realm=configuration.NAME)
-            else:
-                raise HTTP_FORBIDDEN("disallowed for login '%s'" %
-                                     self.login.name)
-
-    def is_anonymous(self):
-        "Is the login user 'anonymous'?"
-        return self.login.name == 'anonymous'
+        return dict(application=dict(name=application.name,
+                                     version=application.version,
+                                     href=application.url,
+                                     host=configuration.HOST),
+                    resource=resource.type,
+                    href=resource.url,
+                    links=links,
+                    outreprs=self.get_outrepr_links(resource, application),
+                    loginname=self.login.name)
 
     def get_account(self, variables):
         """Get the account instance according to the variables data.
@@ -114,73 +146,6 @@ class BaseMixin(object):
         size = cursor.fetchone()[0] or 0
         return count, size
 
-
-class GET_Mixin(BaseMixin):
-
-    def get_data(self, resource, request, application):
-        self.connect(resource, request, application)
-        try:
-            # XXX the values should be taken from 'configuration'
-            host = dict(title='SciLifeLab tools',
-                        href='http://tools.scilifelab.se/',
-                        contact='Per Kraulis',
-                        email='per.kraulis@scilifelab.se')
-
-            appl = dict(name=application.name,
-                        version=application.version,
-                        href=application.url,
-                        host=host)
-
-            links = []
-            if self.is_admin():
-                links.append(dict(title='All tasks',
-                                  href=application.get_url('tasks')))
-            links.append(dict(title='My tasks',
-                              href=application.get_url('tasks',
-                                                       self.login.name)))
-            if self.is_admin():
-                links.append(dict(title='All accounts',
-                                  href=application.get_url('accounts')))
-            links.append(dict(title='My account',
-                              href=application.get_url('account',
-                                                       self.login.name)))
-            for tools in configuration.TOOLS:
-                for tool in tools[1:]:
-                    links.append(dict(title="%(family)s: %(name)s" % tool,
-                                      href=application.get_url(tool['name'])))
-            links.append(dict(title='Documentation: API',
-                              href=application.get_url('doc', 'API')))
-            links.append(dict(title='Documentation: API tutorial',
-                              href=application.get_url('doc', 'API_tutorial')))
-
-            outreprs = self.get_outreprs_links(resource, request, application)
-
-            data = dict(application=appl,
-                        href=resource.url,
-                        links=links,
-                        outreprs=outreprs,
-                        loginname=self.login.name)
-            self.add_data(data, resource, request, application)
-            return data
-        finally:
-            self.close()
-
-    def add_data(self, data, resource, request, application):
-        raise NotImplementedError
-
-
-class POST_Mixin(BaseMixin):
-
-    def __call__(self, resource, request, application):
-        self.connect(resource, request, application)
-        try:
-            self.action(resource, request, application)
-        finally:
-            self.close()
-
-    def action(self, resource, request, application):
-        raise NotImplementedError
-
     def update_account_preferences(self):
         if not self.inputs.get('set_preferences'): return
         self.login.preferences[self.tool] = self.new_preferences
@@ -188,3 +153,11 @@ class POST_Mixin(BaseMixin):
                      json.dumps(self.login.preferences),
                      self.login.name)
         self.commit()
+
+
+class RedirectMixin(object):
+    "Mixin providing a redirect response."
+
+    def get_response(self, resource, request, application):
+        "Redirect to a previously specified URL."
+        return HTTP_SEE_OTHER(Location=self.redirect)

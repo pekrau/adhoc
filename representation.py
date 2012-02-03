@@ -1,18 +1,28 @@
-""" Adhoc web resource: simple bioinformatics tasks.
+""" Adhoc: Simple web application for task execution.
 
-Base class for HTML representation of data.
+General representation classes.
 """
 
 import urllib
 
-from wrapid.resource import *
+from wrapid.response import *
 from wrapid.html_representation import *
+from wrapid.json_representation import JsonRepresentation
+from wrapid.text_representation import TextRepresentation
 
 from . import configuration
 
 
 class HtmlRepresentation(BaseHtmlRepresentation):
     "HTML representation of the resource."
+
+    def prepare(self):
+        "Set up the icons dictionary; requires application URL."
+        self.icons = dict()
+        for name in ['created', 'error', 'executing', 'failed',
+                     'finished', 'killed', 'required', 'waiting', 'warning']:
+            self.icons[name] = IMG(src=self.get_url('static', "%s.png" % name),
+                                   title=name, width=16,height=16, klass='icon')
 
     def get_url(self, *segments, **query):
         "Return a URL based on the application URL."
@@ -63,7 +73,18 @@ class HtmlRepresentation(BaseHtmlRepresentation):
                                     action=self.get_url('login')))),
                          style='white-space: nowrap;')
 
-    def get_form_panel(self, funcs=dict(), submit='Save'):
+    def get_status(self, status):
+        if status not in configuration.STATUSES:
+            raise ValueError("invalid status '%s'" % status)
+        return DIV(self.icons[status], SPAN(' ' + status, klass='icon'))
+
+
+class FormHtmlRepresentation(HtmlRepresentation):
+    "HTML representation of the form page for data input."
+
+    submit = 'Save'
+
+    def get_content(self):
         try:
             data = self.data['tool']
         except KeyError:
@@ -71,25 +92,12 @@ class HtmlRepresentation(BaseHtmlRepresentation):
         required = IMG(src=self.get_url('static', 'required.png'))
         form = self.get_form(data['fields'],
                              data['href'],
-                             funcs=funcs,
                              values=data.get('values', dict()),
                              required=required,
                              legend=data['title'],
                              klass='input',
-                             submit=submit)
+                             submit=self.submit)
         return DIV(P(form),
                    P(FORM(INPUT(type='submit', value='Cancel'),
                           method='GET',
                           action=data.get('cancel') or data['href'])))
-
-    def get_status(self, status):
-        if status not in configuration.STATUSES:
-            raise ValueError("invalid status '%s'" % status)
-        return self.get_icon(status, label=status)
-
-    def get_icon(self, icon, label=None):
-        items = [IMG(src=self.get_url('static', "%s.png" % icon),
-                     alt=label or icon, title=label or icon, klass='icon')]
-        if label:
-            items.append(SPAN(" %s" % label, klass='icon'))
-        return DIV(*items)

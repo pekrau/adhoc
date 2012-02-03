@@ -1,4 +1,4 @@
-""" Adhoc web resource: simple bioinformatics tasks.
+""" Adhoc: Simple web application for task execution.
 
 Configuration settings.
 """
@@ -10,13 +10,12 @@ import socket
 import urllib
 import json
 
+from wrapid.utils import get_password_hexdigest as get_pwd_hex
 
 DEBUG = False
 
-NAME = 'Adhoc'
-VERSION = '2.2'
-
-DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+HOST = dict(title='SciLifeLab tools',
+            href='http://localhost/')
 
 DATA_DIR = '/var/local/adhoc'
 
@@ -35,10 +34,6 @@ PYTHON = '/usr/bin/python'
 BLAST_PATH = '/usr/local/bin'
 BLAST_VERSION = 'NCBI 2.2.25+ 32bit'
 
-# Setup for tests.py
-TEST_ROOT = '/adhoc'
-TEST_ACCOUNT = 'test'
-TEST_PASSWORD = 'abc123'
 
 #----------------------------------------------------------------------
 # Do not change anything below this.
@@ -80,13 +75,14 @@ STATIC_DIR = os.path.join(SOURCE_DIR, 'static')
 DOCS_DIR = os.path.join(SOURCE_DIR, 'docs')
 EXECUTE_SCRIPT = os.path.join(SOURCE_DIR, 'execute.py')
 
-MASTER_DBFILE = os.path.join(DATA_DIR, 'master.sql3')
+README_FILE = os.path.join(SOURCE_DIR, 'README.md')
+MASTER_DB_FILE = os.path.join(DATA_DIR, 'master.sql3')
 DB_DIR = os.path.join(DATA_DIR, 'db')
 TASK_DIR = os.path.join(DATA_DIR, 'task')
 
+
 TOOLS = []                              # List of lists; first item is section
 TOOLS_LOOKUP = dict()
-
 
 def add_tool(family, name, function):
     if name in TOOLS_LOOKUP:
@@ -100,6 +96,7 @@ def add_tool(family, name, function):
         TOOLS.append(tools)
     TOOLS_LOOKUP[name] = function
 
+
 def get_teams():
     """Return the list of teams.
     NOTE: a team name must *not* contain any blanks!"""
@@ -108,3 +105,6 @@ def get_teams():
         return [str(t) for t in json.load(infile)]
     finally:
         infile.close()
+
+def get_password_hexdigest(password):
+    return get_pwd_hex(password, salt=SALT)

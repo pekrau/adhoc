@@ -1,6 +1,6 @@
-"""Return information for processes on the machine.
+""" Adhoc: Simple web application for task execution.
 
-Works for Linux and Unix.
+Return information for processes on the machine. Works for Linux and Unix.
 
 Per Kraulis
 2008-10-15
