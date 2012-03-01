@@ -3,12 +3,6 @@
 Task resources.
 """
 
-import os
-import uuid
-import json
-import signal
-
-from . import usage
 from .method_mixin import *
 from .representation import *
 
@@ -16,97 +10,76 @@ from .representation import *
 class TasksHtmlRepresentation(HtmlRepresentation):
     "HTML representation of the task list."
 
-    scripts = ('jquery-1.6.4.min.js',
-               'jquery.localtime-0.5.js')
-
     def get_content(self):
         rows = [TR(TH('Title'),
-                   TH('Account'),
-                   TH('Tool'),
                    TH('Status'),
+                   TH('Tool'),
                    TH('CPU time (s)'),
                    TH('Size (bytes)'),
+                   TH('Account'),
                    TH('Modified'))]
-        for task in self.data['tasks']:
-            cpu_time = task['cpu_time']
-            if cpu_time is None:
-                cpu_time = '?'
-            else:
-                cpu_time = "%.2f" % cpu_time
-            rows.append(TR(TD(A(task.get('title') or '[no title]',
-                                href=task['href'])),
-                           TD(task['account']),
-                           TD(task['tool']),
-                           TD(self.get_status(task['status'])),
-                           TD(cpu_time, klass='number'),
-                           TD(task['size'], klass='number'),
-                           TD(task['modified'], klass='localtime')))
+        for taskdata in self.data['tasks']:
+            rows.append(TR(TD(A(taskdata.get('title') or '[no title]',
+                                href=taskdata['href'])),
+                           TD(self.get_icon(taskdata['status']['value'])),
+                           TD(taskdata['tool']),
+                           TD("%.1f" % taskdata['cpu_time'], klass='integer'),
+                           TD(taskdata['size'], klass='integer'),
+                           TD(taskdata['account']),
+                           TD(taskdata['modified'], klass='localtime')))
         return TABLE(klass='list', *rows)
 
 
 class GET_Tasks(MethodMixin, GET):
     "Display list of tasks."
 
-    outreprs = (JsonRepresentation,
+    outreprs = [JsonRepresentation,
                 TextRepresentation,
-                TasksHtmlRepresentation)
+                TasksHtmlRepresentation]
 
-    def set_current(self, resource, request, application):
-        account = self.get_account(resource.variables)
-        if account:
-            self.accountname = account.name
-        else:
-            if resource.variables.get('account'): # Account given, not found
-                raise HTTP_NOT_FOUND
-            self.accountname = None
+    def is_accessible(self):
+        # XXX when filtered by access is implemented, then allow anyone
+        return self.is_login_admin()
 
-    def is_access(self):
-        if self.accountname:
-            return self.is_login_admin() or self.accountname == self.login.name
-        else:
-            return self.is_login_admin()
-
-    def get_data(self, resource, request, application):
-        data = self.get_data_basic(resource, request, application)
-        data['resource'] = 'Task list'
-        if self.accountname:
-            data['title'] = "Tasks for account %s" % self.accountname
-        else:
-            data['title'] = 'Tasks'
-        tasks = []
-        for task in self.get_tasks(self.accountname):
-            tasks.append(dict(iui=str(task.iui),
-                              title=rstr(task.title),
-                              account=task.account,
-                              tool=str(task.tool),
-                              status=str(task.status),
-                              cpu_time=task.data.get('cpu_time'),
-                              size=task.size,
-                              modified=str(task.modified),
-                              href=task.href))
-        data['tasks'] = tasks
+    def get_data_resource(self, resource, request, application):
+        data = dict(title='Tasks',
+                    resource='Task list',
+                    tasks=[])
+        # XXX need to be filtered by login access; see above
+        for task in self.db.get_tasks():
+            data['tasks'].append(task.get_data(application=application,
+                                               full=False))
         return data
 
-    def get_tasks(self, accountname=None):
-        "Get all tasks; for the account name, if given."
-        values = []
-        sql = 'SELECT t.iui FROM task AS t'
-        if accountname:
-            sql += ', account AS a WHERE t.account=a.id AND a.name=?'
-            values.append(accountname)
-        sql += ' ORDER BY t.modified DESC'
-        cursor = self.execute(sql, *values)
-        result = []
-        for record in cursor:
-            result.append(Task(self.cnx, record[0]))
-        return result
+
+class GET_TasksAccount(MethodMixin, GET):
+    "Display list of tasks for an account."
+
+    outreprs = [JsonRepresentation,
+                TextRepresentation,
+                TasksHtmlRepresentation]
+
+    def set_current(self, resource, request, application):
+        self.set_current_account(resource, request, application)
+
+    def is_accessible(self):
+        if self.is_login_admin(): return True
+        if self.account['name'] == self.login['name']: return True
+        if self.account['name'] == 'anonymous': return True
+        return False
+
+    def get_data_resource(self, resource, request, application):
+        data = dict(title="Tasks for %s" % self.account['name'],
+                    resource='Task list account',
+                    tasks=[])
+        for task in self.db.get_tasks(self.account['name']):
+            data['tasks'].append(task.get_data(application=application,
+                                               full=False))
+        return data
 
 
 class TaskHtmlRepresentation(HtmlRepresentation):
     "HTML representation of the task data."
-
-    scripts = ('jquery-1.6.4.min.js',
-               'jquery.localtime-0.5.js')
 
     NONE = I('[none]')
 
@@ -117,28 +90,23 @@ class TaskHtmlRepresentation(HtmlRepresentation):
     def get_content(self):
         taskdata = self.data['task']
         rows = []
-        if taskdata['status']['value'] in configuration.DYNAMIC_STATUSES and \
-           not self.data.has_key('refresh'):
-            rows.append(TR(TH(),
-                           TD(FORM(INPUT(type='submit',
-                                         value='Auto-refresh this page'),
-                                   INPUT(type='hidden',
-                                         name='refresh', value='1.0'),
-                                   method='GET',
-                                   action=self.data['href']))))
-        rows.append(TR(TH(A('Status',
-                            href=taskdata['href'] + '/status')),
-                       TD(self.get_status(taskdata['status']['value']))))
+        ## if taskdata['status']['value'] in configuration.DYNAMIC_STATUSES and \
+        ##    not self.data.has_key('refresh'):
+        ##     rows.append(TR(TH(),
+        ##                    TD(FORM(INPUT(type='submit',
+        ##                                  value='Auto-refresh this page'),
+        ##                            INPUT(type='hidden',
+        ##                                  name='refresh', value='1.0'),
+        ##                            method='GET',
+        ##                            action=self.data['href']))))
+        status = taskdata['status']
+        rows.append(TR(TH(A('Status', href=status['href'])),
+                       TD(self.get_icon_labelled(status['value']))))
         rows.append(TR(TH('Modified'),
                        TD(taskdata['modified'], klass='localtime')))
+        rows.append(TR(TH('CPU time (s)'), TD("%.1f" % taskdata['cpu_time'])))
         rows.append(TR(TH('Size (bytes)'),
                        TD(taskdata['size'])))
-        cpu_time = taskdata.get('cpu_time')
-        if cpu_time is None:
-            cpu_time = '?'
-        else:
-            cpu_time = "%.2f" % cpu_time
-        rows.append(TR(TH('CPU time (s)'), TD(cpu_time)))
         command = taskdata.get('command')
         if command:
             command = CODE(command)
@@ -203,69 +171,58 @@ class TaskTextRepresentation(TextRepresentation):
         except KeyError: pass
 
 
-class GET_Task(MethodMixin, GET):
+class TaskMixin(object):
+
+    def set_current(self, resource, request, application):
+        try:
+            self.task = Task(self.db, iui=resource.variables['iui'])
+        except KeyError:
+            raise HTTP_NOT_FOUND
+
+    def is_accessible(self):
+        if self.is_login_admin(): return True
+        if self.task.account == self.login['name']: return True
+        return False
+
+
+class GET_Task(TaskMixin, MethodMixin, GET):
     "Display the task."
 
-    outreprs = (TaskJsonRepresentation,
+    outreprs = [TaskJsonRepresentation,
                 TaskTextRepresentation,
-                TaskHtmlRepresentation)
+                TaskHtmlRepresentation]
 
     fields = (FloatField('refresh',
                          descr='If the task has a dynamic status,'
                          ' refresh the HTML page after the'
                          ' specified number of seconds.'),)
 
-    def set_current(self, resource, request, application):
-        try:
-            self.task = Task(self.cnx, resource.variables['iui'])
-        except ValueError:
-            raise HTTP_NOT_FOUND
+    def get_data_operations(self, resource, request, application):
+        "Return the operations response data."
+        return [dict(title='Delete',
+                     href=resource.get_url(),
+                     method='DELETE')]
 
-    def is_access(self):
-        return self.is_login_admin() or self.task.account == self.login.name
-
-    def get_data(self, resource, request, application):
-        data = self.get_data_basic(resource, request, application)
-        data['resource'] = 'Task'
-        data['title'] = self.task.title or None
-        data['task'] = rstr(self.task.get_data(resource.get_url))
-        if not data['task'].has_key('cpu_time') and self.task.pid:
-            try:
-                process = usage.Usage(pid=self.task.pid,
-                                      include_children=True)
-            except ValueError:
-                pass
-            else:
-                data['task']['cpu_time'] = process.cpu_time
-        data['operations'] = [dict(title='Delete this task',
-                                   href=resource.get_url(),
-                                   method='DELETE')]
+    def get_data_resource(self, resource, request, application):
+        "Return the dictionary with the resource-specific response data."
+        data = dict(resource='Task',
+                    title=self.task.title or None,
+                    task=self.task.get_data(application=application))
         if self.task.status in configuration.DYNAMIC_STATUSES:
             inputs = self.parse_fields(request)
             refresh = inputs.get('refresh')
             if refresh:
                 data['refresh'] = min(configuration.MAX_REFRESH,
                                       max(1.0, refresh))
+            else:
+                data['refresh'] = 1.0
         return data
                 
 
-class GET_TaskData(MethodMixin, GET):
-    "Return a data item for the task."
-
-    def set_current(self, resource, request, application):
-        try:
-            self.task = Task(self.cnx, resource.variables['iui'])
-        except ValueError:
-            raise HTTP_NOT_FOUND
-
-    def is_access(self):
-        return self.is_login_admin() or self.task.account == self.login.name
-
-
-class GET_TaskStatus(GET_TaskData):
+class GET_TaskStatus(TaskMixin, MethodMixin, GET):
     "Return the task status."
 
-    outreprs = (TextRepresentation,)
+    outreprs = [TextRepresentation]
 
     def get_response(self, resource, request, application):
         response = HTTP_OK(content_type='text/plain')
@@ -281,8 +238,8 @@ class AnyDummyRepresentation(Representation):
     mimetype = '*/*'
 
 
-class GET_TaskQuery(GET_TaskData):
-    "Produce the task query."
+class GET_TaskQuery(TaskMixin, MethodMixin, GET):
+    "Return the task query."
 
     outrepresentations = (AnyDummyRepresentation,)
 
@@ -296,8 +253,8 @@ class GET_TaskQuery(GET_TaskData):
         return response
 
 
-class GET_TaskOutput(GET_TaskData):
-    "Produce the task output."
+class GET_TaskOutput(TaskMixin, MethodMixin, GET):
+    "Return the task output."
 
     outrepresentations = (AnyDummyRepresentation,)
 
@@ -311,171 +268,9 @@ class GET_TaskOutput(GET_TaskData):
         return response
 
 
-class DELETE_Task(MethodMixin, RedirectMixin, DELETE):
+class DELETE_Task(TaskMixin, MethodMixin, RedirectMixin, DELETE):
     "Delete the task."
-
-    def set_current(self, resource, request, application):
-        try:
-            self.task = Task(self.cnx, resource.variables['iui'])
-        except ValueError:
-            raise HTTP_NOT_FOUND
-
-    def is_access(self):
-        return self.is_login_admin() or self.task.account == self.login.name
 
     def handle(self, resource, request, application):
         self.redirect = application.get_url('tasks', self.task.account)
         self.task.delete()
-        
-
-            
-class Task(object):
-    "Task container and execution manager."
-
-    def __init__(self, cnx, iui=None):
-        self.cnx = cnx
-        if iui is None:
-            self.id = None
-            self.iui = uuid.uuid4().hex
-            self.href = None
-            self.tool = None
-            self.title = None
-            self.status = configuration.CREATED
-            self.pid = None
-            self.size = None
-            self.account = None
-            self.modified = None
-            self.data = dict()
-        else:
-            self.fetch(iui)
-
-    def __str__(self):
-        return "%s task: %s" % (self.tool, self.title or '[no title]')
-
-    def get_data(self, urlfunc):
-        result = self.data.copy()
-        result['iui'] = self.iui
-        result['href'] = self.href
-        result['tool'] = self.tool
-        result['size'] = self.size
-        result['modified'] = self.modified
-        result['status'] = dict(value=self.status,
-                                href=urlfunc('status'))
-        content = result.pop('query')
-        query = dict(content=content,
-                     size=len(content or ''),
-                     # XXX fix this for the general case
-                     ## mimetype=data['task'].pop('query_content_type'),
-                     mimetype='text/plain',
-                     href=urlfunc('query'))
-        result['query'] = query
-        content = result.pop('output', None)
-        if content is not None:
-            output = dict(content=content,
-                          size=len(content),
-                          mimetype=result.pop('output_content_type'),
-                          href=urlfunc('output'))
-            result['output'] = output
-        return result
-
-    def execute(self, sql, *values):
-        cursor = self.cnx.cursor()
-        cursor.execute(sql, values)
-        return cursor
-
-    def fetch(self, iui):
-        self.iui = iui
-        cursor = self.execute('SELECT t.id,t.href,t.tool,t.title,t.status,'
-                              ' t.pid,t.size,a.name,t.modified'
-                              ' FROM task AS t, account AS a'
-                              ' WHERE t.iui=? and t.account=a.id', self.iui)
-        record = cursor.fetchone()
-        if not record:
-            raise ValueError("no such task %s" % self.iui)
-        self.id = record[0]
-        self.href = str(record[1])
-        self.tool = str(record[2])
-        self.title = rstr(record[3])
-        self.status = str(record[4])
-        self.pid = record[5]
-        self.size = record[6]
-        self.account = str(record[7])
-        self.modified = str(record[8])
-        infile = open(os.path.join(configuration.TASK_DIR, self.iui))
-        self.data = json.load(infile)
-        infile.close()
-
-    def create(self, accountid):
-        assert self.iui
-        assert self.id is None
-        self.accountid = accountid
-        self.modified = now()
-        cursor = self.execute('INSERT INTO task(iui,href,tool,title,status,'
-                              'pid,account,modified) VALUES(?,?,?,?,?,?,?,?)',
-                              self.iui,
-                              self.href,
-                              self.tool,
-                              self.title,
-                              self.status,
-                              self.pid,
-                              self.accountid,
-                              self.modified)
-        self.id = cursor.lastrowid
-        self._update()
-
-    def save(self):
-        assert self.iui
-        assert self.id
-        self.execute('UPDATE task SET title=?, status=? WHERE id=?',
-                     self.title,
-                     self.status,
-                     self.id)
-        self._update()
-
-    def set_pid(self, new):
-        self.pid = new
-        self.execute('UPDATE task SET pid=?, modified=? WHERE iui=?',
-                     new,
-                     now(),
-                     self.iui)
-        self.cnx.commit()
-
-    def set_status(self, new):
-        self.status = new
-        self.execute('UPDATE task SET status=?, modified=? WHERE iui=?',
-                     new,
-                     now(),
-                     self.iui)
-        self.cnx.commit()
-
-    def _update(self):
-        assert self.iui
-        assert self.id
-        filename = os.path.join(configuration.TASK_DIR, self.iui)
-        outfile = open(filename, 'w')
-        json.dump(self.data, outfile)
-        outfile.close()
-        self.size = os.path.getsize(filename)
-        self.modified = now()
-        self.execute('UPDATE task SET size=?, modified=? WHERE id=?',
-                     self.size,
-                     self.modified,
-                     self.id)
-        self.cnx.commit()
-
-    def delete(self):
-        assert self.iui
-        assert self.id
-        if self.status == configuration.EXECUTING:
-            os.kill(self.pid, signal.SIGKILL)
-        self.execute('DELETE FROM task WHERE id=?', self.id)
-        self.cnx.commit()
-        os.remove(os.path.join(configuration.TASK_DIR, self.iui))
-        try:
-            os.remove(os.path.join(configuration.TASK_DIR, "%s.out"% self.iui))
-        except OSError:
-            pass
-        try:
-            os.remove(os.path.join(configuration.TASK_DIR, "%s.err"% self.iui))
-        except OSError:
-            pass

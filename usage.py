@@ -1,11 +1,6 @@
 """ Adhoc: Simple web application for task execution.
 
 Return information for processes on the machine. Works for Linux and Unix.
-
-Per Kraulis
-2008-10-15
-2009-01-23  got rid of LoadAverage: in stdlib: os.getloadavg
-2010-03-22  changed class name; use subprocess module instead of os.popen3
 """
 
 import os

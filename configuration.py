@@ -7,25 +7,19 @@ import logging
 import os
 import sys
 import socket
-import urllib
-import json
 
-from wrapid.utils import get_password_hexdigest as get_pwd_hex
 
 DEBUG = False
+
+DATA_DIR = '/var/local/adhoc'
 
 HOST = dict(title='SciLifeLab tools',
             href='http://localhost/')
 
-DATA_DIR = '/var/local/adhoc'
-
-DEFAULT_MAX_TASKS = 200
+DEFAULT_QUOTA_NTASKS = 200
 
 REFRESH_FACTOR = 2.0
 MAX_REFRESH = 65.0
-
-# Password encryption
-SALT = 'default123'
 
 # Path to Python executable
 PYTHON = '/usr/bin/python'
@@ -33,6 +27,12 @@ PYTHON = '/usr/bin/python'
 # BLAST executables location and version
 BLAST_PATH = '/usr/local/bin'
 BLAST_VERSION = 'NCBI 2.2.25+ 32bit'
+
+# Fallback user account interface; should be overriden by proper implementation
+import fallback_users as users
+
+# Specify string template for user account editing, if available
+ACCOUNT_BASE_URL_TEMPLATE = None
 
 
 #----------------------------------------------------------------------
@@ -60,15 +60,15 @@ else:
     logging.basicConfig(level=logging.INFO)
 
 
-CREATED = 'created'
-WAITING = 'waiting'
+CREATED   = 'created'
+WAITING   = 'waiting'
 EXECUTING = 'executing'
-FINISHED = 'finished'
-FAILED = 'failed'
-KILLED = 'killed'
-STATUSES = set([CREATED, WAITING, EXECUTING, FINISHED, FAILED, KILLED])
+FINISHED  = 'finished'
+FAILED    = 'failed'
+KILLED    = 'killed'
+STATUSES         = set([CREATED, WAITING, EXECUTING, FINISHED, FAILED, KILLED])
 DYNAMIC_STATUSES = set([CREATED, WAITING, EXECUTING])
-STATIC_STATUSES = set([FINISHED, FAILED, KILLED])
+STATIC_STATUSES  = set([FINISHED, FAILED, KILLED])
 
 SOURCE_DIR = os.path.dirname(__file__)
 STATIC_DIR = os.path.join(SOURCE_DIR, 'static')
@@ -79,6 +79,14 @@ README_FILE = os.path.join(SOURCE_DIR, 'README.md')
 MASTER_DB_FILE = os.path.join(DATA_DIR, 'master.sql3')
 DB_DIR = os.path.join(DATA_DIR, 'db')
 TASK_DIR = os.path.join(DATA_DIR, 'task')
+
+
+def get_account_quotas(account):
+    "Get the quotas dictionary from the account dictionary, or defaults."
+    try:
+        return account['properties']['Adhoc']['quotas']
+    except KeyError:
+        return dict(ntasks=DEFAULT_QUOTA_NTASKS)
 
 
 TOOLS = []                              # List of lists; first item is section
@@ -95,16 +103,3 @@ def add_tool(family, name, function):
         tools = [family, dict(family=family, name=name, function=function)]
         TOOLS.append(tools)
     TOOLS_LOOKUP[name] = function
-
-
-def get_teams():
-    """Return the list of teams.
-    NOTE: a team name must *not* contain any blanks!"""
-    infile = open(os.path.join(DATA_DIR, 'teams.json'))
-    try:
-        return [str(t) for t in json.load(infile)]
-    finally:
-        infile.close()
-
-def get_password_hexdigest(password):
-    return get_pwd_hex(password, salt=SALT)

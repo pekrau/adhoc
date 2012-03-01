@@ -8,6 +8,8 @@ import json
 import subprocess
 import logging
 
+from wrapid.utils import rstr
+
 from .method_mixin import *
 from .representation import *
 
@@ -24,7 +26,7 @@ def get_databases(type, account_teams):
     for db in databases:
         try:
             teams = set(db['teams'])
-        except KeyError:                # No database teams means public
+        except KeyError:                # Unspecified teams means public
             pass
         else:
             if not teams.intersection(account_teams): continue
@@ -89,8 +91,6 @@ GENETIC_CODES = [dict(value='1', title='Standard'),
 class BlastHtmlRepresentation(FormHtmlRepresentation):
     "Common HTML representation of the BLAST task create page."
 
-    submit = 'Create and execute task'
-
     def get_form_field_panel(self, field, current=None):
         "Custom HTML for the 'db' multiselect field."
         if not field['name'] == 'db': raise KeyError
@@ -106,78 +106,63 @@ class BlastHtmlRepresentation(FormHtmlRepresentation):
                                     value=option['value'],
                                     checked=option['value'] in current)),
                            TD(option['title']),
-                           TD(option['number'], klass='number'),
-                           TD(option['size'], klass='number'),
-                           TD(option['updated'])))
+                           TD(option['number'], klass='integer'),
+                           TD(option['size'], klass='integer'),
+                           TD(option['updated'], klass='integer')))
         return TABLE(klass='list', *rows)
 
 
-class GET_BlastCreate(MethodMixin, GET):
+class GET_BlastCreate(ToolMixin, MethodMixin, GET):
     "Display the BLAST tool form to create a task."
 
-    tool = None
     database_type = None
 
-    outreprs = (JsonRepresentation,
+    outreprs = [JsonRepresentation,
                 TextRepresentation,
-                BlastHtmlRepresentation)
+                BlastHtmlRepresentation]
 
     fields = ()
 
     def set_current(self, resource, request, application):
-        if self.login.max_tasks >= 0:
-            count, size = self.get_tasks_stats(self.login.name)
-            if count >= self.login.max_tasks:
-                raise HTTP_CONFLICT('max number of tasks reached')
+        self.check_quota(resource, request, application)
 
-    def get_data(self, resource, request, application):
-        data = self.get_data_basic(resource, request, application)
-        data['resource'] = "Tool %s" % self.tool
-        data['title'] = "%s task creation" % self.tool
-        data['descr'] = self.descr
+    def get_data_resource(self, resource, request, application):
+        data = dict(resource="Tool %s" % self.tool,
+                    title="%s task creation" % self.tool,
+                    descr=self.descr)
         databases = []
-        for db in get_databases(self.database_type, self.login.teams):
+        for db in get_databases(self.database_type, self.login['teams']):
             db.pop('teams', None)
             db['value'] = db.pop('filename')
             databases.append(db)
-        fill = dict(db=dict(options=databases))
-        default = self.login.preferences.get(self.tool, dict())
-        data['tool'] = dict(name=self.tool,
-                            fields=self.get_fields_data(fill=fill,
-                                                        default=default),
+        fields=self.get_fields_data(fill=dict(db=dict(options=databases)),
+                                    default=self.get_preferences())
+        data['form'] = dict(tool=self.tool,
+                            fields=fields,
+                            label='Create task and execute',
                             title='Enter query and select parameters',
-                            href=resource.get_url(),
-                            cancel=application.get_url())
+                            href=resource.url,
+                            cancel=application.url)
         return data
 
 
-class POST_TaskCreate(MethodMixin, RedirectMixin, POST):
+class POST_TaskCreate(ToolMixin, MethodMixin, RedirectMixin, POST):
     "Create the BLAST task and start execution."
-
-    tool = None
 
     fields = ()
 
-    def set_current(self, resource, request, application):
-        if self.login.max_tasks >= 0:
-            count, size = self.get_tasks_stats(self.login.name)
-            if count >= self.login.max_tasks:
-                raise HTTP_CONFLICT('max number of tasks reached')
-
     def handle(self, resource, request, application):
-        from .task import Task
+        self.check_quota(resource, request, application)
         self.inputs = self.parse_fields(request)
-        self.task = Task(self.cnx)
-        self.task.href = application.get_url('task', self.task.iui)
-        self.task.tool = self.tool
-        self.new_preferences = dict()
+        self.preferences = dict()
+        self.create_task()
         self.task.title = self.inputs.get('title')
-        self.new_preferences['title'] = self.task.title
+        self.preferences['title'] = self.task.title
         self.task.data['parameters'] = dict()
         self.set_data()
         self.execute_task()
-        self.update_account_preferences()
-        self.redirect = self.task.href
+        self.set_preferences()
+        self.redirect = application.get_url('task', self.task.iui)
 
     def set_data(self):
         raise NotImplementedError
@@ -185,7 +170,7 @@ class POST_TaskCreate(MethodMixin, RedirectMixin, POST):
     def set_db(self):
         db = self.inputs['db']
         self.task.data['parameters']['-db'] = ' '.join(db)
-        self.new_preferences['db'] = db
+        self.preferences['db'] = db
 
     def set_query(self, query_type):
         query = self.inputs['query_file']
@@ -221,7 +206,7 @@ class POST_TaskCreate(MethodMixin, RedirectMixin, POST):
         try:
             db_gencode = self.inputs['db_gencode']
             self.task.data['parameters']['-db_gencode'] = db_gencode
-            self.new_preferences['db_gencode'] = db_gencode
+            self.preferences['db_gencode'] = db_gencode
         except KeyError:
             pass
 
@@ -229,7 +214,7 @@ class POST_TaskCreate(MethodMixin, RedirectMixin, POST):
         try:
             query_gencode = self.inputs['query_gencode']
             self.task.data['parameters']['-query_gencode'] = query_gencode
-            self.new_preferences['query_gencode'] = query_gencode
+            self.preferences['query_gencode'] = query_gencode
         except KeyError:
             pass
 
@@ -239,7 +224,7 @@ class POST_TaskCreate(MethodMixin, RedirectMixin, POST):
         except KeyError:
             dust = default
         self.task.data['parameters']['-dust'] = dust
-        self.new_preferences['dust'] = dust
+        self.preferences['dust'] = dust
 
     def set_seg(self, default):
         try:
@@ -247,7 +232,7 @@ class POST_TaskCreate(MethodMixin, RedirectMixin, POST):
         except KeyError:
             seq = default
         self.task.data['parameters']['-seg'] = seg
-        self.new_preferences['seg'] = seg
+        self.preferences['seg'] = seg
 
     def set_task_type(self, default):
         try:
@@ -255,7 +240,7 @@ class POST_TaskCreate(MethodMixin, RedirectMixin, POST):
         except KeyError:
             task_type = default
         self.task.data['parameters']['-task'] = task_type
-        self.new_preferences['task_type'] = task_type
+        self.preferences['task_type'] = task_type
 
     def set_evalue(self):
         try:
@@ -263,7 +248,7 @@ class POST_TaskCreate(MethodMixin, RedirectMixin, POST):
             if evalue <= 0.0:
                 raise HTTP_BAD_REQUEST('invalid E-value')
             self.task.data['parameters']['-evalue'] = evalue
-            self.new_preferences['evalue'] = evalue
+            self.preferences['evalue'] = evalue
         except KeyError:
             pass
 
@@ -271,7 +256,7 @@ class POST_TaskCreate(MethodMixin, RedirectMixin, POST):
         try:
             outfmt = self.inputs['outfmt']
             self.task.data['parameters']['-outfmt'] = outfmt
-            self.new_preferences['outfmt'] = outfmt
+            self.preferences['outfmt'] = outfmt
         except KeyError:
             pass
 
@@ -281,7 +266,7 @@ class POST_TaskCreate(MethodMixin, RedirectMixin, POST):
             if number < 0:
                 raise HTTP_BAD_REQUEST('invalid # seq descriptions')
             self.task.data['parameters']['-num_descriptions'] = number
-            self.new_preferences['num_descriptions'] = number
+            self.preferences['num_descriptions'] = number
         except KeyError:
             pass
 
@@ -291,12 +276,12 @@ class POST_TaskCreate(MethodMixin, RedirectMixin, POST):
             if number < 0:
                 raise HTTP_BAD_REQUEST('invalid # seq alignments')
             self.task.data['parameters']['-num_alignments'] = number
-            self.new_preferences['num_alignments'] = number
+            self.preferences['num_alignments'] = number
         except KeyError:
             pass
 
     def execute_task(self):
-        self.task.create(self.login.id)
+        self.task.create(self.login['name'])
         process = subprocess.Popen([configuration.PYTHON,
                                     configuration.EXECUTE_SCRIPT,
                                     self.task.iui])
@@ -366,12 +351,14 @@ class GET_BlastnCreate(GET_BlastCreate):
 
     @property
     def descr(self):
-        return '''BLAST search in a **nucleotide database** using a **nucleotide query**. Executable version %s.
-
-For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' % configuration.BLAST_VERSION
+        return '''BLAST search in a **nucleotide database** using
+a **nucleotide query**. Executable version %s. For more information,
+see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' \
+    % configuration.BLAST_VERSION
 
 
 class POST_BlastnCreate(POST_TaskCreate):
+    "Create and start execution of a 'blastn' task."
 
     tool = 'blastn'
 
@@ -444,12 +431,14 @@ class GET_BlastpCreate(GET_BlastCreate):
 
     @property
     def descr(self):
-        return '''BLAST search in a **protein database** using a **protein query**. Executable version %s.
-
-For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' % configuration.BLAST_VERSION
+        return '''BLAST search in a **protein database** using
+a **protein query**. Executable version %s. For more information,
+see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' \
+    % configuration.BLAST_VERSION
 
 
 class POST_BlastpCreate(POST_TaskCreate):
+    "Create and start execution of a 'blastp' task."
 
     tool = 'blastp'
 
@@ -518,12 +507,14 @@ class GET_BlastxCreate(GET_BlastCreate):
 
     @property
     def descr(self):
-        return '''BLAST search in a **protein database** using a **translated nucleotide query**. Executable version %s.
-
-For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' % configuration.BLAST_VERSION
+        return '''BLAST search in a **protein database** using
+a **translated nucleotide query**. Executable version %s. For more information,
+see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' \
+    % configuration.BLAST_VERSION
 
 
 class POST_BlastxCreate(POST_TaskCreate):
+    "Create and start execution of a 'blastx' task."
 
     tool = 'blastx'
 
@@ -592,12 +583,14 @@ class GET_TblastnCreate(GET_BlastCreate):
 
     @property
     def descr(self):
-        return '''BLAST search in a **translated nucleotide database** using a **protein query**. Executable version %s.
-
-For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' % configuration.BLAST_VERSION
+        return '''BLAST search in a **translated nucleotide database** using
+a **protein query**. Executable version %s. For more information,
+see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' \
+    % configuration.BLAST_VERSION
 
 
 class POST_TblastnCreate(POST_TaskCreate):
+    "Create and start execution of a 'tblastn' task."
 
     tool = 'tblastn'
 
@@ -672,15 +665,14 @@ class GET_TblastxCreate(GET_BlastCreate):
 
     @property
     def descr(self):
-        return '''BLAST search in a **translated nucleotide database** using a **translated nucleotide query**. Executable version %s.
-
-For more information, see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' % configuration.BLAST_VERSION
+        return '''BLAST search in a **translated nucleotide database** using
+a **translated nucleotide query**. Executable version %s. For more information,
+see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' \
+    % configuration.BLAST_VERSION
 
 
 class POST_TblastxCreate(POST_TaskCreate):
-    """Create and execute a 'tblastx' task.
-    The response is a HTTP 303 'See Other' redirection to the URL of the task.
-    """
+    "Create and start execution of a 'tblastx' task."
 
     tool = 'tblastx'
 
@@ -724,6 +716,8 @@ class BlastTool(object):
                                    stdout=subprocess.PIPE,
                                    stdin=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
+        # Save the pid of the process doing the heavy work.
+        task.pid = process.pid          # Implicit save
         stdout, stderr = process.communicate(input=task.data['query'])
         task.data['output'] = stdout
         outfmt = task.data['parameters'].get('-outfmt')
@@ -735,7 +729,7 @@ class BlastTool(object):
             task.data['output_content_type'] = 'text/plain'
         task.data['error'] = stderr
         if process.returncode > 0:
-            task.status = configuration.FAILED
+            task.status = configuration.FAILED # Implicit save.
         elif process.returncode < 0:
             task.status = configuration.KILLED
         else:

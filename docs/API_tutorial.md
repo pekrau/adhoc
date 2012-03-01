@@ -4,17 +4,13 @@ that can speak HTTP can therefore be used to interact with the system.
 
 In this tutorial we will use Python and its standard module
 [httplib](http://docs.python.org/library/httplib.html).
-This is a basic module which is used here since it shows
-explicitly in a direct way what is going on.
+This is a very basic HTTP interaction module. It has the advantage
+of showing explicitly the mechanism of HTTP interactions.
 
-It is fairly straightforward to apply the information given here
-when using one of the more powerful Python modules
-[urllib](http://docs.python.org/library/urllib.html)
-or [urllib2](http://docs.python.org/library/urllib2.html),
-if you so prefer.
-
-A brief overview of the basics of a RESTful web service can
-be found [here](RESTful_web_services).
+There are more powerful Python modules for HTTP interactions,
+such as [urllib](http://docs.python.org/library/urllib.html)
+or [urllib2](http://docs.python.org/library/urllib2.html).
+The information presented here is useful also in those cases.
 
 Obtaining a document from the web service
 -----------------------------------------
@@ -157,7 +153,7 @@ for that tool using an ordinary browser. The input parameters for the tool
 are described there.
 
 For the exact names of the input parameters, one can look at the appropriate
-section in the page for [the API](API).
+section in the documentation page for [the API](API).
 
 One should also look in the TXT representation of the tool page,
 since the parameters and the allowed options are listed there.

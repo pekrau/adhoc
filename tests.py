@@ -96,10 +96,10 @@ class TestBlastp(TestBase):
         "Create, execute and delete a task based on data for the tool."
         response = self.wr.GET('/blastp')
         data = self.get_json_data(response)
-        tool = data.get('tool')
-        self.assert_(tool is not None)
-        self.assertEqual(tool['name'], 'blastp')
-        fields = tool.get('fields')
+        form = data.get('form')
+        self.assert_(form is not None)
+        self.assertEqual(form['tool'], 'blastp')
+        fields = form.get('fields')
         self.assert_(fields is not None)
         lookup = dict([(f['name'], f) for f in fields])
         db = None

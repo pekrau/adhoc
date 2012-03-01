@@ -1,7 +1,7 @@
 ## Adhoc: Simple web application for task execution
 
 This web application is an interface to various third-party
-software as appropriate.
+software. Currently, the BLAST tools are implemented.
 
 ### Usage
 
@@ -12,10 +12,10 @@ executed by the server in the background.
 
 Each task is identified by a IUI (Instance Unique Identifier),
 which is a string of 32 characters, visible in the URL of the task.
-The user can view the task and check its current status at any time.
-When the task has finished, the output can be viewed or downloaded.
-A task is persistent; it is stored on the server until explicitly
-deleted by the user.
+The user can bookmark this URL to view the task and check its current
+status at any time. When the task has finished, the output can be
+viewed or downloaded. A task is persistent; it is stored on the server
+until explicitly deleted by the user.
 
 In the current implementation, the execution is simply done in
 the background on the server. Other implementations may use a
@@ -32,7 +32,7 @@ It is possible to use the Adhoc system without logging in, in which case
 the built-in account 'anonymous' is used. All its tasks are publicly
 available, and only public databases are available to it.
 
-Contact the administrator of your site to obtain your own account.
+Contact the administrator of the server to obtain your own account.
 
 ### Current tools
 
@@ -44,11 +44,6 @@ also be available.
 
 Other tools can be implemented as the need arises. Contact the administrator.
 
-### RESTful interface
-
-The Adhoc web interface is RESTful, meaning that scripts can easily
-be written to access the system.
-
 ### Databases
 
 The databases for the tools are managed by the administrator.
@@ -59,17 +54,27 @@ controlled by the team memberships of a user account.
 Contact the administrator if you wish to make additional databases
 available, or if your memberships should be changed.
 
+### RESTful interface
+
+The Adhoc web interface is RESTful, meaning that scripts can easily
+be written to access the system.
+
 ### Implementation
 
-The Sqlite3 database system is used as storage back-end in the current
-implementation.
+The system is written in Python 2.6:
 
-The Adhoc source code lives at
-[https://github.com/pekrau/adhoc](https://github.com/pekrau/adhoc).
-It relies on the packages **wrapid** at
-[https://github.com/pekrau/wrapid](https://github.com/pekrau/wrapid)
-and **HyperText** at
-[https://github.com/pekrau/HyperText](https://github.com/pekrau/HyperText).
+- [https://github.com/pekrau/adhoc](https://github.com/pekrau/adhoc):
+  Source code for the **Adhoc** system.
+- [https://github.com/pekrau/wrapid](https://github.com/pekrau/wrapid):
+  Package **wrapid** providing the web service framework.
+- [https://github.com/pekrau/hypertext](https://github.com/pekrau/hypertext):
+  Package **HyperText** for producing the HTML of the web service interface.
+- [https://github.com/pekrau/whoyou](https://github.com/pekrau/whoyou):
+  Package **WhoYou** providing basic authentication services.
+  This can in principle be exchanged for another system.
+
+The Sqlite3 database system is used as storage back-end in the current
+implementation. This is included in the standard Python distribution.
 
 An example installation can be viewed at
-[http://tools.scilifelab.se/webtables](http://tools.scilifelab.se/adhoc).
+[http://tools.scilifelab.se/adhoc](http://tools.scilifelab.se/adhoc).

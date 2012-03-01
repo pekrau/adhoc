@@ -6,10 +6,9 @@ Task execution.
 import os
 import sys
 import resource
-import sqlite3
 
 from adhoc import configuration
-from adhoc.task import Task
+from adhoc.database import Database, Task
 from adhoc.daemonize import daemonize
 
 # Set up tools lookup
@@ -21,39 +20,41 @@ def execute():
         sys.exit('no task IUI given')
     iui = sys.argv[1]
     try:
-        cnx = sqlite3.connect(configuration.MASTER_DB_FILE)
-        task = Task(cnx, iui)
+        db = Database()
+        db.open()
+        task = Task(db, iui=iui)
         if task.status != configuration.CREATED:
             raise ValueError("task status is not '%s'" % configuration.CREATED)
-        task.set_status(configuration.EXECUTING)
+        task.status = configuration.EXECUTING
     except ValueError, msg:
         sys.exit(str(msg))
     finally:
-        cnx.close()                     # Close before daemonizing
+        db.close()                      # Close before daemonizing
 
     daemonize(stdout=os.path.join(configuration.TASK_DIR, "%s.out" % iui),
               stderr=os.path.join(configuration.TASK_DIR, "%s.err" % iui))
     
-    cnx = sqlite3.connect(configuration.MASTER_DB_FILE) # Open after daemonizing
+    db.open()                           # Open again after daemonizing
     try:
-        task = Task(cnx, iui)
-        task.set_pid(os.getpid())
+        task = Task(db, iui=iui)
         try:
             tool = configuration.TOOLS_LOOKUP[task.tool]
         except KeyError:
             raise ValueError("no such tool '%s'" % task.tool)
+
+        # The tool must save the pid of the process doing the heavy work.
         tool(task)
-        result = 0.0
+
+        task.cpu_time = 0.0
         for who in (resource.RUSAGE_SELF, resource.RUSAGE_CHILDREN):
             usage = resource.getrusage(who)
-            result += usage.ru_utime + usage.ru_stime
-        task.data['cpu_time'] = result
-        task.save()
+            task.cpu_time += usage.ru_utime + usage.ru_stime
     except Exception, msg:
         task.data['error'] = "%s\n%s" % (task.data.get('error', ''), msg)
-        task.set_status(configuration.FAILED)
+        task._status = configuration.FAILED
     finally:
-        cnx.close()
+        task.save()
+        db.close()
 
 
 if __name__ == '__main__':

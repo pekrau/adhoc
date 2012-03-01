@@ -10,15 +10,10 @@ from .representation import *
 class GET_Home(MethodMixin, GET):
     "The Adhoc home page."
 
-    outreprs = (JsonRepresentation,
+    outreprs = [JsonRepresentation,
                 TextRepresentation,
-                HtmlRepresentation)
+                HtmlRepresentation]
 
-    def get_data(self, resource, request, application):
-        data = self.get_data_basic(resource, request, application)
-        data['title'] = "%s %s" % (application.name, application.version)
-        try:
-            data['descr'] = open(configuration.README_FILE).read()
-        except IOError:
-            data['descr'] = 'Adhoc: Simple web application for task execution'
-        return data
+    def get_data_resource(self, resource, request, application):
+        return dict(resource='Home',
+                    descr=open(configuration.README_FILE).read())

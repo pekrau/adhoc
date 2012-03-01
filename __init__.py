@@ -1,3 +1,3 @@
 " Adhoc: Simple web application for task execution."
 
-__version__ = '2.2'
+__version__ = '12.2'
