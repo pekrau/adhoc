@@ -90,15 +90,6 @@ class TaskHtmlRepresentation(HtmlRepresentation):
     def get_content(self):
         taskdata = self.data['task']
         rows = []
-        ## if taskdata['status']['value'] in configuration.DYNAMIC_STATUSES and \
-        ##    not self.data.has_key('refresh'):
-        ##     rows.append(TR(TH(),
-        ##                    TD(FORM(INPUT(type='submit',
-        ##                                  value='Auto-refresh this page'),
-        ##                            INPUT(type='hidden',
-        ##                                  name='refresh', value='1.0'),
-        ##                            method='GET',
-        ##                            action=self.data['href']))))
         status = taskdata['status']
         rows.append(TR(TH(A('Status', href=status['href'])),
                        TD(self.get_icon_labelled(status['value']))))
@@ -115,7 +106,7 @@ class TaskHtmlRepresentation(HtmlRepresentation):
         rows.append(TR(TH('Command'), TD(command)))
         error = taskdata.get('error')
         if error:
-            error = PRE(self.safe_text(error))
+            error = PRE(self.safe(error))
         else:
             error = self.NONE
         rows.append(TR(TH('Error'), TD(error)))
@@ -130,7 +121,7 @@ class TaskHtmlRepresentation(HtmlRepresentation):
         if mimetype == 'text/plain':
             content = item.get('content')
             if content:
-                content = PRE(self.safe_text(content))
+                content = PRE(self.safe(content))
             else:
                 content = self.NONE
         else:

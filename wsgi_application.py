@@ -17,16 +17,14 @@ from adhoc.task import *
 from adhoc.documentation import *
 
 # Package dependency
-assert wrapid.__version__ == '12.2'
+assert wrapid.__version__ == '12.3'
 
 
-class Adhoc(Application):
-    version = adhoc.__version__
-    debug   = configuration.DEBUG
-    host    = configuration.HOST
+application = Application(name='Adhoc',
+                          version=adhoc.__version__,
+                          host=configuration.HOST,
+                          debug=configuration.DEBUG)
 
-
-application = Adhoc()
 
 # Home
 application.append(Resource('/',

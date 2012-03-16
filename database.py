@@ -220,7 +220,6 @@ class Task(object):
     def data(self):
         if self._data is None:
             if self.iui:
-                logging.debug("Adhoc: reading task data '%s'", self.iui)
                 infile = open(os.path.join(configuration.TASK_DIR, self.iui))
                 self._data = rstr(json.load(infile))
                 infile.close()

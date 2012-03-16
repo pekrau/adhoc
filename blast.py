@@ -6,7 +6,6 @@ BLAST web resources and tools.
 import os
 import json
 import subprocess
-import logging
 
 from wrapid.utils import rstr
 
@@ -32,6 +31,10 @@ def get_databases(type, account_teams):
             if not teams.intersection(account_teams): continue
         result.append(db)
     return rstr(result)
+
+
+class DbMultiSelectField(MultiSelectField):
+    type = 'db_multiselect'
 
 
 OUTPUT_FORMATS = [dict(value='0',
@@ -91,20 +94,19 @@ GENETIC_CODES = [dict(value='1', title='Standard'),
 class BlastHtmlRepresentation(FormHtmlRepresentation):
     "Common HTML representation of the BLAST task create page."
 
-    def get_form_field_panel(self, field, current=None):
+    def get_element_db_multiselect(self, field, default=None):
         "Custom HTML for the 'db' multiselect field."
-        if not field['name'] == 'db': raise KeyError
-        if not current: current = []
         rows = [TR(TH('Search'),
                    TH('Database'),
                    TH('# sequences'),
                    TH('Total size'),
                    TH('Updated'))]
+        if not default: default = []
         for option in field['options']:
             rows.append(TR(TD(INPUT(type='checkbox',
                                     name=field['name'],
                                     value=option['value'],
-                                    checked=option['value'] in current)),
+                                    checked=option['value'] in default)),
                            TD(option['title']),
                            TD(option['number'], klass='integer'),
                            TD(option['size'], klass='integer'),
@@ -135,7 +137,7 @@ class GET_BlastCreate(ToolMixin, MethodMixin, GET):
             db.pop('teams', None)
             db['value'] = db.pop('filename')
             databases.append(db)
-        fields=self.get_fields_data(fill=dict(db=dict(options=databases)),
+        fields=self.get_data_fields(fill=dict(db=dict(options=databases)),
                                     default=self.get_preferences())
         data['form'] = dict(tool=self.tool,
                             fields=fields,
@@ -174,18 +176,14 @@ class POST_TaskCreate(ToolMixin, MethodMixin, RedirectMixin, POST):
 
     def set_query(self, query_type):
         query = self.inputs['query_file']
-        logging.debug("query_file %s", query)
-        if not query:
-            query = self.inputs['query_content']
-            logging.debug("query_content %s", query)
-        if query is None:
-            raise HTTP_BAD_REQUEST('no query specified')
-        query = str(query)        # Convert from 'buffer', since file content.
         if query:
-            if query[0] != '>':   # Add FASTA header line
-                query = ">query\n%s" % query
+            query = query['value']
         else:
-            raise HTTP_BAD_REQUEST('no content in query file nor in field')
+            query = self.inputs['query_content']
+        if not query:
+            raise HTTP_BAD_REQUEST('no query specified')
+        if query[0] != '>':   # Add FASTA header line
+            query = ">query\n%s" % query
         characters = set()
         for line in query.split('\n'):
             line = line.strip()
@@ -296,10 +294,10 @@ class GET_BlastnCreate(GET_BlastCreate):
 
     fields = (StringField('title', title='Title', length=30,
                           descr='Descriptive title for the task.'),
-              MultiSelectField('db', title='Database',
-                               required=True, check=False,
-                               descr='Check the nucleotide database(s)'
-                                     ' to search.'),
+              DbMultiSelectField('db', title='Database',
+                                 required=True, check=False,
+                                 descr='Check the nucleotide database(s)'
+                                       ' to search.'),
               FileField('query_file', title='Query file',
                         descr='Upload file containing query nucleotide'
                               ' sequence(s) in FASTA format.'),
@@ -383,10 +381,10 @@ class GET_BlastpCreate(GET_BlastCreate):
 
     fields = (StringField('title', title='Title', length=30,
                           descr='Descriptive title for the task.'),
-              MultiSelectField('db', title='Database',
-                               required=True, check=False,
-                               descr='Check the protein database(s)'
-                                     ' to search.'),
+              DbMultiSelectField('db', title='Database',
+                                 required=True, check=False,
+                                 descr='Check the protein database(s)'
+                                       ' to search.'),
               FileField('query_file', title='Query file',
                         descr='Upload file containing query protein'
                               ' sequence(s) in FASTA format.'),
@@ -463,10 +461,10 @@ class GET_BlastxCreate(GET_BlastCreate):
 
     fields = (StringField('title', title='Title', length=30,
                           descr='Descriptive title for the task.'),
-              MultiSelectField('db', title='Database',
-                               required=True, check=False,
-                               descr='Check the protein database(s)'
-                                     ' to search.'),
+              DbMultiSelectField('db', title='Database',
+                                 required=True, check=False,
+                                 descr='Check the protein database(s)'
+                                       ' to search.'),
               FileField('query_file', title='Query file',
                         descr='Upload file containing query nucleotide'
                               ' sequence(s) in FASTA format.'),
@@ -539,10 +537,10 @@ class GET_TblastnCreate(GET_BlastCreate):
 
     fields = (StringField('title', title='Title', length=30,
                           descr='Descriptive title for the task.'),
-              MultiSelectField('db', title='Database',
-                               required=True, check=False,
-                               descr='Check the nucleotide database(s)'
-                                     ' to search.'),
+              DbMultiSelectField('db', title='Database',
+                                 required=True, check=False,
+                                 descr='Check the nucleotide database(s)'
+                                       ' to search.'),
               SelectField('db_gencode', title='Database genetic code',
                           options=GENETIC_CODES,
                           default='1',
@@ -616,10 +614,10 @@ class GET_TblastxCreate(GET_BlastCreate):
 
     fields = (StringField('title', title='Title', length=30,
                           descr='Descriptive title for the task.'),
-              MultiSelectField('db', title='Database',
-                               required=True, check=False,
-                               descr='Check the nucleotide database(s)'
-                                     ' to search.'),
+              DbMultiSelectField('db', title='Database',
+                                 required=True, check=False,
+                                 descr='Check the nucleotide database(s)'
+                                       ' to search.'),
               SelectField('db_gencode', title='Database genetic code',
                           options=GENETIC_CODES,
                           default='1',

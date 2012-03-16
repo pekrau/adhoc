@@ -1,7 +1,27 @@
 ## Adhoc: Simple web application for task execution
 
-This web application is an interface to various third-party
-software. Currently, the BLAST tools are implemented.
+This web application is an interface to various third-party software,
+which are made available as a set of tools for executing specific tasks.
+
+### Current tools
+
+The set of **BLAST** programs for searching biomolecule
+sequence databases is available. The list of BLAST databases
+includes some public standard data sets. Depending on the teams
+that your account is a member of, some private databases may
+also be available.
+
+Other tools can be implemented as the need arises. Contact the administrator.
+
+### Databases
+
+The databases for the tools are managed by the administrator.
+It is currently not possible for a user to upload a database
+through the web interface. The access to the databases is
+controlled by the team memberships of a user account.
+
+Contact the administrator if you wish to make additional databases
+available, or if your memberships should be changed.
 
 ### Usage
 
@@ -34,34 +54,14 @@ available, and only public databases are available to it.
 
 Contact the administrator of the server to obtain your own account.
 
-### Current tools
-
-The **BLAST** suite of programs for searching biomolecule
-sequence databases is available. The list of BLAST databases
-includes some public standard data sets. Depending on the teams
-that your account is a member of, some private databases may
-also be available.
-
-Other tools can be implemented as the need arises. Contact the administrator.
-
-### Databases
-
-The databases for the tools are managed by the administrator.
-It is currently not possible for a user to upload a database
-through the web interface. The access to the databases is
-controlled by the team memberships of a user account.
-
-Contact the administrator if you wish to make additional databases
-available, or if your memberships should be changed.
-
 ### RESTful interface
 
 The Adhoc web interface is RESTful, meaning that scripts can easily
-be written to access the system.
+be written to access the system from other machines.
 
 ### Implementation
 
-The system is written in Python 2.6:
+The system is written in Python 2.6; 2.7 should also work.
 
 - [https://github.com/pekrau/adhoc](https://github.com/pekrau/adhoc):
   Source code for the **Adhoc** system.
@@ -69,12 +69,15 @@ The system is written in Python 2.6:
   Package **wrapid** providing the web service framework.
 - [https://github.com/pekrau/hypertext](https://github.com/pekrau/hypertext):
   Package **HyperText** for producing the HTML of the web service interface.
+- [http://pypi.python.org/pypi/Markdown](http://pypi.python.org/pypi/Markdown):
+  Package **Markdown** for producing HTML from text using the simple markup
+  language [Markdown](http://daringfireball.net/projects/markdown/).
 - [https://github.com/pekrau/whoyou](https://github.com/pekrau/whoyou):
   Package **WhoYou** providing basic authentication services.
   This can in principle be exchanged for another system.
 
-The Sqlite3 database system is used as storage back-end in the current
-implementation. This is included in the standard Python distribution.
+The **Sqlite3** database system is used as storage back-end in the current
+implementation. It is included in the standard Python distribution.
 
 An example installation can be viewed at
 [http://tools.scilifelab.se/adhoc](http://tools.scilifelab.se/adhoc).

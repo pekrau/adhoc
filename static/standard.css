@@ -1,1 +1,164 @@
-../../wrapid/standard.css
+/* Standard style sheet */
+
+* {font-family: Arial, Helvetica, sans-serif;
+   font-size: small; }
+
+body {background-color: white; }
+
+h1 {font-size: x-large;
+    padding-left: 2em; }
+
+h2 {font-size: medium;
+    padding-left: 2em; }
+
+h3 {font-size: small;
+    padding-left: 1em; }
+
+a {text-decoration: none;
+   font-weight: bold; }
+
+img {border-width: 0;
+     padding: 0;
+     margin: 0; }
+
+code {font-family: monospace; }
+
+pre {font-family: monospace; }
+
+input {background-color: lightgrey; }
+
+textarea {background-color: lightgrey;
+          font-family: monospace; }
+
+form {padding: 0;
+      margin: 0; }
+
+fieldset th {text-align: right; }
+
+button     {vertical-align: middle; }
+button img {vertical-align: middle;
+            padding-right: 0.5em; }
+
+table tr th {vertical-align: top; }
+table tr td {vertical-align: top; }
+
+.body_left td {width: 120px; }
+
+.login {white-space: nowrap;}
+
+.icon img { vertical-align: middle; }
+.icon span { vertical-align: middle;
+             padding-left: 0.5em; }
+
+.descr pre { border-style: solid;
+             border-color: lightgray;
+             border-width: 0 0 0 5px;
+             padding: 1em;
+             margin: 1em; }
+
+form .descr { font-style: italic; }
+
+.integer {white-space: nowrap;
+          text-align: right; }
+
+.navigation table {white-space: nowrap;
+                   border-spacing: 0;
+                   padding: 0;
+                   margin: 0; }
+
+.navigation table ul {padding-left: 1em;
+		      margin: 0;
+		      list-style-type: none; }
+
+.info tr th {text-align: right;
+             vertical-align: middle; }
+
+.metadata table {border-style: solid;
+                 border-color: lightgray;
+                 border-width: 2px 0 0 2px;
+                 margin-bottom: 4px; }
+
+.metadata table th {text-align: left;
+                    border-style: solid;
+                    border-color: lightgray;
+                    border-width: 0 0 1px 0; }
+
+.outreprs table {border-style: solid;
+                 border-color: lightgray;
+                 border-width: 2px 0 0 2px;
+                 margin-bottom: 4px; }
+
+.outreprs table th {text-align: left;
+                    border-style: solid;
+                    border-color: lightgray;
+                    border-width: 0 0 1px 0; }
+
+.doc h2 a {font-size: large; }
+
+.doc code {white-space: nowrap; }
+
+.doc table {margin: 1em 0 0 0.5em; }
+
+.doc caption {text-align: left;
+              font-weight: bold;
+              margin: 0 0 0.25em 2em; }
+
+.doc tr th {text-align: left;
+            border-width: 2px;
+            border-top-style: solid;
+            border-bottom-style: solid;
+            padding-left: 0.5em; }
+
+.doc tr td {border-width: 1px;
+            border-bottom-style: solid;
+            padding-left: 0.5em; }
+
+.doc table td table {padding: 0;
+                     margin: 0;
+                     border-width: 0; }
+.doc table td table th {padding: 0;
+                        margin: 0;
+                        border-top-style: none;
+                        border-width: 1px; }
+.doc table td table td {padding: 0 2px;
+                        margin: 0;
+                        border-width: 0; }
+
+table.output tr th {vertical-align: top;
+                    text-align: right;
+                    white-space: nowrap; }
+table.output tr td {vertical-align: top;
+                    border-style: solid;
+                    border-width: 1px;
+		    padding: 2px 4px; }
+
+table.data {border-style: solid;
+            border-width: 2px 0 0 2px; }
+table.data tr th {vertical-align: top;
+                  text-align: left;
+                  border-style: solid;
+                  border-width: 0 1px 1px 0; }
+table.data tr td {vertical-align: top;
+                  border-style: solid;
+                  border-width: 0 1px 1px 0; }
+table.data pre { border-style: none;
+		 padding: 0;
+		 margin: 0; }
+
+table.list tr th {vertical-align: top;
+                  text-align: left;
+                  border-style: solid;
+                  border-width: 2px 0; }
+table.list tr td {vertical-align: top;
+                  border-style: solid;
+                  border-width: 0 0 1px 0; }
+
+table.params tr th {vertical-align: top;
+                    text-align: right; }
+table.params tr td {vertical-align: top;
+                    text-align: left;
+                    padding-left: 1em; }
+
+span.current { border-style: solid;
+               border-color: black;
+               border-width: 1px;

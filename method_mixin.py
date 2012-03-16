@@ -3,7 +3,6 @@
 Mixin class for methods: database connection and authentication.
 """
 
-import logging
 import sqlite3
 import json
 
@@ -22,7 +21,6 @@ class MethodMixin(LoginMixin):
     def prepare(self, resource, request, application):
         "Connect to the database, and set the data for the authenticated user."
         self.set_login(resource, request, application)
-        logging.debug("Adhoc login %s", self.login)
         self.db = Database()
         self.db.open()
         self.set_current(resource, request, application)

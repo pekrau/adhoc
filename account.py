@@ -74,7 +74,7 @@ class AccountHtmlRepresentation(HtmlRepresentation):
                       TR(TH('Email'),
                          TD(account['email'] or '')),
                       TR(TH('Description'),
-                         TD(markdown_to_html(account['description']))),
+                         TD(self.to_html(account['description']))),
                       TR(TH('Statistics'),
                          TD(stats))))
         return table
