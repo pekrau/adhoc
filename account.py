@@ -42,14 +42,14 @@ class GET_Accounts(MethodMixin, GET):
         if self.is_login_admin(): return True
         return False
 
-    def get_data_resource(self, resource, request, application):
+    def get_data_resource(self, request):
+        get_url = request.application.get_url
         data = dict(title='Accounts')
         data['accounts'] = configuration.users.get_accounts()
         for account in data['accounts']:
-            account['href'] = application.get_url('account', account['name'])
+            account['href'] = get_url('account', account['name'])
             account['statistics'] = self.db.get_statistics(account['name'])
-            account['statistics']['href'] = application.get_url('tasks',
-                                                                account['name'])
+            account['statistics']['href'] = get_url('tasks', account['name'])
             account['quotas'] = configuration.get_account_quotas(account)
         return data
 
@@ -87,8 +87,8 @@ class GET_Account(MethodMixin, GET):
                 TextRepresentation,
                 AccountHtmlRepresentation]
 
-    def set_current(self, resource, request, application):
-        self.set_current_account(resource, request, application)
+    def set_current(self, request):
+        self.set_current_account(request)
 
     def is_accessible(self):
         if self.is_login_admin(): return True
@@ -96,16 +96,17 @@ class GET_Account(MethodMixin, GET):
         if self.account['name'] == 'anonymous': return True
         return False
 
-    def get_data_resource(self, resource, request, application):
+    def get_data_resource(self, request):
         account = self.account.copy()
         statistics = self.db.get_statistics(account['name'])
-        statistics['href'] = application.get_url('tasks', account['name'])
+        statistics['href'] = request.application.get_url('tasks',
+                                                         account['name'])
         account['statistics'] = statistics
         account['quotas'] = configuration.get_account_quotas(account)
         return dict(title="Account %(name)s" % account,
                     account=account)
 
-    def get_data_operations(self, resource, request, application):
+    def get_data_operations(self, request):
         name = self.account['name']
         if configuration.ACCOUNT_BASE_URL_TEMPLATE and name != 'anonymous':
             return [dict(title='Edit account',

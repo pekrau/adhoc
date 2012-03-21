@@ -5,12 +5,16 @@ Produce the documentation for the web resource API by introspection.
 
 from wrapid.documentation import *
 
+from . import configuration
 from .representation import *
 from .method_mixin import MethodMixin
 
 
 class GET_AdhocDocumentation(MethodMixin, GET_Documentation):
     "Return a static documentation page."
+
+    dirpath       = configuration.DOCS_DIR
+    cache_control = 'max-age=300'
 
     outreprs = [JsonRepresentation,
                 TextRepresentation,

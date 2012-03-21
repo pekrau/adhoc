@@ -3,7 +3,6 @@
 General representation classes.
 """
 
-from wrapid.response import *
 from wrapid.html_representation import *
 from wrapid.json_representation import JsonRepresentation
 from wrapid.text_representation import TextRepresentation

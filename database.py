@@ -246,7 +246,7 @@ class Task(object):
         except OSError:
             pass
 
-    def get_data(self, application=None, full=True):
+    def get_data(self, request, full=True):
         result = dict(iui=self.iui,
                       tool=self.tool,
                       title=self.title,
@@ -258,8 +258,9 @@ class Task(object):
         if self.status == configuration.EXECUTING and self.pid:
             usage = Usage(pid=self.pid, include_children=True)
             result['cpu_time'] = usage.cpu_time
-        if application:
-            result['href'] = href = application.get_url('task', self.iui)
+        if request:
+            href = request.application.get_url('task', self.iui)
+            result['href'] = href
             result['status']['href'] = href + '/status'
         else:
             href = None

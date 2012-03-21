@@ -14,6 +14,6 @@ class GET_Home(MethodMixin, GET):
                 TextRepresentation,
                 HtmlRepresentation]
 
-    def get_data_resource(self, resource, request, application):
+    def get_data_resource(self, request):
         return dict(resource='Home',
                     descr=open(configuration.README_FILE).read())

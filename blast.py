@@ -125,10 +125,10 @@ class GET_BlastCreate(ToolMixin, MethodMixin, GET):
 
     fields = ()
 
-    def set_current(self, resource, request, application):
-        self.check_quota(resource, request, application)
+    def set_current(self, request):
+        self.check_quota(request)
 
-    def get_data_resource(self, resource, request, application):
+    def get_data_resource(self, request):
         data = dict(resource="Tool %s" % self.tool,
                     title="%s task creation" % self.tool,
                     descr=self.descr)
@@ -143,8 +143,8 @@ class GET_BlastCreate(ToolMixin, MethodMixin, GET):
                             fields=fields,
                             label='Create task and execute',
                             title='Enter query and select parameters',
-                            href=resource.url,
-                            cancel=application.url)
+                            href=request.url,
+                            cancel=request.application.url)
         return data
 
 
@@ -153,8 +153,8 @@ class POST_TaskCreate(ToolMixin, MethodMixin, RedirectMixin, POST):
 
     fields = ()
 
-    def handle(self, resource, request, application):
-        self.check_quota(resource, request, application)
+    def handle(self, request):
+        self.check_quota(request)
         self.inputs = self.parse_fields(request)
         self.preferences = dict()
         self.create_task()
@@ -164,7 +164,7 @@ class POST_TaskCreate(ToolMixin, MethodMixin, RedirectMixin, POST):
         self.set_data()
         self.execute_task()
         self.set_preferences()
-        self.redirect = application.get_url('task', self.task.iui)
+        self.redirect = request.application.get_url('task', self.task.iui)
 
     def set_data(self):
         raise NotImplementedError
@@ -743,23 +743,23 @@ configuration.add_tool('BLAST', 'tblastx', BlastTool('tblastx'))
 
 def setup(application):
     "Setup the web application interface."
-    application.append(Resource('/blastn',
-                                type='Tool blastn',
-                                GET=GET_BlastnCreate(),
-                                POST=POST_BlastnCreate()))
-    application.append(Resource('/blastp',
-                                type='Tool blastp',
-                                GET=GET_BlastpCreate(),
-                                POST=POST_BlastpCreate()))
-    application.append(Resource('/blastx',
-                                type='Tool blastx',
-                                GET=GET_BlastxCreate(),
-                                POST=POST_BlastxCreate()))
-    application.append(Resource('/tblastn',
-                                type='Tool tblastn',
-                                GET=GET_TblastnCreate(),
-                                POST=POST_TblastnCreate()))
-    application.append(Resource('/tblastx',
-                                type='Tool tblastx',
-                                GET=GET_TblastxCreate(),
-                                POST=POST_TblastxCreate()))
+    application.add_resource('/blastn',
+                             name='Tool blastn',
+                             GET=GET_BlastnCreate,
+                             POST=POST_BlastnCreate)
+    application.add_resource('/blastp',
+                             name='Tool blastp',
+                             GET=GET_BlastpCreate,
+                             POST=POST_BlastpCreate)
+    application.add_resource('/blastx',
+                             name='Tool blastx',
+                             GET=GET_BlastxCreate,
+                             POST=POST_BlastxCreate)
+    application.add_resource('/tblastn',
+                             name='Tool tblastn',
+                             GET=GET_TblastnCreate,
+                             POST=POST_TblastnCreate)
+    application.add_resource('/tblastx',
+                             name='Tool tblastx',
+                             GET=GET_TblastxCreate,
+                             POST=POST_TblastxCreate)

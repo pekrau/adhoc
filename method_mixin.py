@@ -7,8 +7,8 @@ import sqlite3
 import json
 
 from wrapid.fields import *
-from wrapid.response import *
-from wrapid.resource import Resource, GET, POST, DELETE, RedirectMixin
+from wrapid.responses import *
+from wrapid.methods import GET, POST, DELETE, RedirectMixin
 from wrapid.login import LoginMixin
 
 from . import configuration
@@ -18,13 +18,13 @@ from .database import Database, Task
 class MethodMixin(LoginMixin):
     "Mixin class for Method subclasses: database connection and authentication."
 
-    def prepare(self, resource, request, application):
+    def prepare(self, request):
         "Connect to the database, and set the data for the authenticated user."
-        self.set_login(resource, request, application)
+        self.set_login(request)
         self.db = Database()
         self.db.open()
-        self.set_current(resource, request, application)
-        self.check_access(application.name)
+        self.set_current(request)
+        self.check_access(request.application.name)
 
     def get_account(self, name, password=None):
         """Return a dictionary describing the account:
@@ -42,29 +42,27 @@ class MethodMixin(LoginMixin):
     def finalize(self):
         self.db.close()
 
-    def set_current(self, resource, request, application):
+    def set_current(self, request):
         "Set the current entities to operate on."
         pass
 
-    def set_current_account(self, resource, request, application):
+    def set_current_account(self, request):
         """Set the account to operate on; special case.
         This handles the case where an account name contains a dot
         and a short (<=4 chars) last name, which will otherwise
         be confused for a FORMAT specification.
         """
-        variables = resource.variables
         try:
-            self.account = self.get_account(variables['account'])
+            self.account = self.get_account(request.variables['account'])
         except KeyError:
-            if not variables.get('FORMAT'):
+            if not request.variables.get('FORMAT'):
                 raise HTTP_NOT_FOUND
-            name = variables['account'] + variables['FORMAT']
+            name = request.variables['account'] + request.variables['FORMAT']
             try:
                 self.account = self.get_account(name)
             except KeyError:
                 raise HTTP_NOT_FOUND
-            else:
-                resource.undo_format_specifier('account')
+            request.undo_format_specifier('account')
 
     def check_access(self, realm):
         """Check that login account may access this resource.
@@ -87,29 +85,28 @@ class MethodMixin(LoginMixin):
         if 'admin' in self.login['teams']: return True
         return False
 
-    def get_data_links(self, resource, request, application):
+    def get_data_links(self, request):
         "Return the links response data."
+        get_url = request.application.get_url
         links = []
         if self.is_login_admin():
             links.append(dict(title='All tasks',
-                              href=application.get_url('tasks')))
+                              href=get_url('tasks')))
         links.append(dict(title='My tasks',
-                          href=application.get_url('tasks',
-                                                   self.login['name'])))
+                          href=get_url('tasks', self.login['name'])))
         if self.is_login_admin():
             links.append(dict(title='All accounts',
-                              href=application.get_url('accounts')))
+                              href=get_url('accounts')))
         links.append(dict(title='My account',
-                          href=application.get_url('account',
-                                                   self.login['name'])))
+                          href=get_url('account', self.login['name'])))
         for tools in configuration.TOOLS:
             for tool in tools[1:]:
                 links.append(dict(title="%(family)s: %(name)s" % tool,
-                                  href=application.get_url(tool['name'])))
+                                  href=get_url(tool['name'])))
         links.append(dict(title='Documentation: API',
-                          href=application.get_url('doc', 'API')))
+                          href=get_url('doc', 'API')))
         links.append(dict(title='Documentation: API tutorial',
-                          href=application.get_url('doc', 'API_tutorial')))
+                          href=get_url('doc', 'API_tutorial')))
         return links
 
 
@@ -123,7 +120,7 @@ class ToolMixin(object):
         self.task = Task(self.db)
         self.task.tool = self.tool
 
-    def check_quota(self, resource, request, application):
+    def check_quota(self, request):
         "Check that account has not reached its usage quota."
         quotas = configuration.get_account_quotas(self.login)
         if quotas['ntasks'] < 0: return            # Negative quota = no limit.

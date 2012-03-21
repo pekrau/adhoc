@@ -4,10 +4,9 @@ Apache WSGI interface using the 'wrapid' package.
 """
 
 import wrapid
-from wrapid.resource import Resource
 from wrapid.application import Application
 from wrapid.login import GET_Login
-from wrapid.static import GET_Static
+from wrapid.file import GET_File
 
 import adhoc
 from adhoc import configuration
@@ -17,7 +16,7 @@ from adhoc.task import *
 from adhoc.documentation import *
 
 # Package dependency
-assert wrapid.__version__ == '12.3'
+assert wrapid.__version__ == '12.4'
 
 
 application = Application(name='Adhoc',
@@ -25,59 +24,52 @@ application = Application(name='Adhoc',
                           host=configuration.HOST,
                           debug=configuration.DEBUG)
 
-
 # Home
-application.append(Resource('/',
-                            type='Home',
-                            GET=GET_Home))
+application.add_resource('/', name='Home',
+                         GET=GET_Home)
 
 # 'Static resources; accessed often, keep at beginning of the chain.
-application.append(Resource('/static/{filename}',
-                            type='File',
-                            GET=GET_Static(configuration.STATIC_DIR,
-                                           cache_control='max-age=300')))
+class GET_File_static(GET_File):
+    dirpath       = configuration.STATIC_DIR
+    cache_control = 'max-age=300'
+
+application.add_resource('/static/{filename}', name='File',
+                         GET=GET_File_static)
 
 # Task resources
-application.append(Resource('/tasks',
-                            type='Task list',
-                            GET=GET_Tasks))
-application.append(Resource('/tasks/{account}',
-                            type='Task list account',
-                            GET=GET_TasksAccount))
-application.append(Resource('/task/{iui:uuid}',
-                            type='Task',
-                            GET=GET_Task,
-                            DELETE=DELETE_Task))
-application.append(Resource('/task/{iui:uuid}/status',
-                            type='Task status',
-                            GET=GET_TaskStatus))
-application.append(Resource('/task/{iui:uuid}/query',
-                            type='Task query',
-                            GET=GET_TaskQuery))
-application.append(Resource('/task/{iui:uuid}/output',
-                            type='Task output',
-                            GET=GET_TaskOutput))
+application.add_resource('/tasks', name='Task list',
+                         GET=GET_Tasks)
+application.add_resource('/tasks/{account}', name='Task list account',
+                         GET=GET_TasksAccount)
+application.add_resource('/task/{iui:uuid}', name='Task',
+                         GET=GET_Task,
+                         DELETE=DELETE_Task)
+application.add_resource('/task/{iui:uuid}/status', name='Task status',
+                         GET=GET_TaskStatus)
+application.add_resource('/task/{iui:uuid}/query', name='Task query',
+                         GET=GET_TaskQuery)
+application.add_resource('/task/{iui:uuid}/output', name='Task output',
+                         GET=GET_TaskOutput)
 
 # Account resources
-application.append(Resource('/accounts',
-                            type='Account list',
-                            GET=GET_Accounts))
-application.append(Resource('/account/{account}',
-                            type='Account',
-                            GET=GET_Account))
+application.add_resource('/accounts', name='Account list',
+                         GET=GET_Accounts)
+application.add_resource('/account/{account}', name='Account',
+                         GET=GET_Account)
 
 # Documentation resources
-application.append(Resource('/doc/API',
-                            type='Documentation API',
-                            GET=GET_AdhocApiDocumentation))
-application.append(Resource('/doc/{filename}',
-                            type='Documentation file',
-                            GET=GET_AdhocDocumentation(configuration.DOCS_DIR)))
+application.add_resource('/doc/API', name='Documentation API',
+                         GET=GET_AdhocApiDocumentation)
+application.add_resource('/doc/{filename}', name='Documentation file',
+                         GET=GET_AdhocDocumentation)
 
-# Other resources
-application.append(Resource('/login',
-                            type='Login',
-                            GET=GET_Login(configuration.users.get_account)))
+# Login and account resources
+class GET_Login_account(GET_Login):
+    def get_account(self, name, password):
+        return configuration.users.get_account(name, password)
+
+application.add_resource('/login', name='Login',
+                         GET=GET_Login_account)
 
 # Tools: BLAST
 import adhoc.blast

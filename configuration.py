@@ -19,7 +19,7 @@ HOST = dict(title='SciLifeLab tools',
 DEFAULT_QUOTA_NTASKS = 200
 
 REFRESH_FACTOR = 2.0
-MAX_REFRESH = 65.0
+MAX_REFRESH    = 65.0
 
 # Path to Python executable
 PYTHON = '/usr/bin/python'
@@ -70,15 +70,15 @@ STATUSES         = set([CREATED, WAITING, EXECUTING, FINISHED, FAILED, KILLED])
 DYNAMIC_STATUSES = set([CREATED, WAITING, EXECUTING])
 STATIC_STATUSES  = set([FINISHED, FAILED, KILLED])
 
-SOURCE_DIR = os.path.dirname(__file__)
-STATIC_DIR = os.path.join(SOURCE_DIR, 'static')
-DOCS_DIR = os.path.join(SOURCE_DIR, 'docs')
+SOURCE_DIR     = os.path.dirname(__file__)
+STATIC_DIR     = os.path.join(SOURCE_DIR, 'static')
+DOCS_DIR       = os.path.join(SOURCE_DIR, 'docs')
 EXECUTE_SCRIPT = os.path.join(SOURCE_DIR, 'execute.py')
+README_FILE    = os.path.join(SOURCE_DIR, 'README.md')
 
-README_FILE = os.path.join(SOURCE_DIR, 'README.md')
 MASTER_DB_FILE = os.path.join(DATA_DIR, 'master.sql3')
-DB_DIR = os.path.join(DATA_DIR, 'db')
-TASK_DIR = os.path.join(DATA_DIR, 'task')
+DB_DIR         = os.path.join(DATA_DIR, 'db')
+TASK_DIR       = os.path.join(DATA_DIR, 'task')
 
 
 def get_account_quotas(account):

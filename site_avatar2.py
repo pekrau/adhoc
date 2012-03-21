@@ -6,7 +6,7 @@ Site setup for the 'avatar2' machine; development.
 DEBUG = True
 
 import whoyou
-assert whoyou.__version__ == '12.3'     # Check package dependency
+assert whoyou.__version__ == '12.4'     # Check package dependency
 from whoyou import interface as users
 
 ACCOUNT_BASE_URL_TEMPLATE = 'http://localhost/whoyou/account/%s/edit'

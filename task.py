@@ -41,14 +41,13 @@ class GET_Tasks(MethodMixin, GET):
         # XXX when filtered by access is implemented, then allow anyone
         return self.is_login_admin()
 
-    def get_data_resource(self, resource, request, application):
+    def get_data_resource(self, request):
         data = dict(title='Tasks',
                     resource='Task list',
                     tasks=[])
         # XXX need to be filtered by login access; see above
         for task in self.db.get_tasks():
-            data['tasks'].append(task.get_data(application=application,
-                                               full=False))
+            data['tasks'].append(task.get_data(request, full=False))
         return data
 
 
@@ -59,8 +58,8 @@ class GET_TasksAccount(MethodMixin, GET):
                 TextRepresentation,
                 TasksHtmlRepresentation]
 
-    def set_current(self, resource, request, application):
-        self.set_current_account(resource, request, application)
+    def set_current(self, request):
+        self.set_current_account(request)
 
     def is_accessible(self):
         if self.is_login_admin(): return True
@@ -68,13 +67,12 @@ class GET_TasksAccount(MethodMixin, GET):
         if self.account['name'] == 'anonymous': return True
         return False
 
-    def get_data_resource(self, resource, request, application):
+    def get_data_resource(self, request):
         data = dict(title="Tasks for %s" % self.account['name'],
                     resource='Task list account',
                     tasks=[])
         for task in self.db.get_tasks(self.account['name']):
-            data['tasks'].append(task.get_data(application=application,
-                                               full=False))
+            data['tasks'].append(task.get_data(request, full=False))
         return data
 
 
@@ -164,9 +162,9 @@ class TaskTextRepresentation(TextRepresentation):
 
 class TaskMixin(object):
 
-    def set_current(self, resource, request, application):
+    def set_current(self, request):
         try:
-            self.task = Task(self.db, iui=resource.variables['iui'])
+            self.task = Task(self.db, iui=request.variables['iui'])
         except KeyError:
             raise HTTP_NOT_FOUND
 
@@ -188,17 +186,17 @@ class GET_Task(TaskMixin, MethodMixin, GET):
                          ' refresh the HTML page after the'
                          ' specified number of seconds.'),)
 
-    def get_data_operations(self, resource, request, application):
+    def get_data_operations(self, request):
         "Return the operations response data."
         return [dict(title='Delete',
-                     href=resource.get_url(),
+                     href=request.get_url(),
                      method='DELETE')]
 
-    def get_data_resource(self, resource, request, application):
+    def get_data_resource(self, request):
         "Return the dictionary with the resource-specific response data."
         data = dict(resource='Task',
                     title=self.task.title or None,
-                    task=self.task.get_data(application=application))
+                    task=self.task.get_data(request))
         if self.task.status in configuration.DYNAMIC_STATUSES:
             inputs = self.parse_fields(request)
             refresh = inputs.get('refresh')
@@ -215,7 +213,7 @@ class GET_TaskStatus(TaskMixin, MethodMixin, GET):
 
     outreprs = [TextRepresentation]
 
-    def get_response(self, resource, request, application):
+    def get_response(self, request):
         response = HTTP_OK(content_type='text/plain')
         try:
             response.append(str(self.task.status))
@@ -234,7 +232,7 @@ class GET_TaskQuery(TaskMixin, MethodMixin, GET):
 
     outrepresentations = (AnyDummyRepresentation,)
 
-    def get_response(self, resource, request, application):
+    def get_response(self, request):
         mimetype = str(self.task.data.get('query_content_type', 'text/plain'))
         response = HTTP_OK(content_type=mimetype)
         try:
@@ -249,7 +247,7 @@ class GET_TaskOutput(TaskMixin, MethodMixin, GET):
 
     outrepresentations = (AnyDummyRepresentation,)
 
-    def get_response(self, resource, request, application):
+    def get_response(self, request):
         mimetype = str(self.task.data.get('output_content_type', 'text/plain'))
         response = HTTP_OK(content_type=mimetype)
         try:
@@ -262,6 +260,6 @@ class GET_TaskOutput(TaskMixin, MethodMixin, GET):
 class DELETE_Task(TaskMixin, MethodMixin, RedirectMixin, DELETE):
     "Delete the task."
 
-    def handle(self, resource, request, application):
-        self.redirect = application.get_url('tasks', self.task.account)
+    def handle(self, request):
+        self.redirect = request.application.get_url('tasks', self.task.account)
         self.task.delete()
