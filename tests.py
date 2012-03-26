@@ -36,9 +36,21 @@ class TestAccess(TestBase):
                      msg=headers['content-type'])
         self.get_json_data(response)
 
-    def test_GET_home_XYZ(self):
+    def test_GET_home_TXT(self):
+        "Fetch the home page, in TXT pprint format."
+        wr = self.get_wr('text/plain')
+        response = wr.GET('/')
+        self.assertEqual(response.status, httplib.OK,
+                         msg="HTTP status %s" % response.status)
+        headers = self.get_headers(response)
+        self.assert_(headers['content-type'].startswith('text/plain'),
+                     msg=headers['content-type'])
+        data = self.get_txt_data(response)
+        self.assert_(data is not None, msg='data has non-None content')
+
+    def test_GET_home_NOSUCH(self):
         "Try fetching the home page in an impossible format."
-        wr = self.get_wr('text/xyz')
+        wr = self.get_wr('text/nosuch')
         response = wr.GET('/')
         self.assertEqual(response.status, httplib.NOT_ACCEPTABLE,
                          msg="HTTP status %s" % response.status)
@@ -93,7 +105,7 @@ class TestBlastp(TestBase):
         self.get_json_data(response)
 
     def test_POST_blastp(self):
-        "Create, execute and delete a task based on data for the tool."
+        "Create, execute and delete a task based on data for the blastp tool."
         response = self.wr.GET('/blastp')
         data = self.get_json_data(response)
         form = data.get('form')
@@ -137,10 +149,68 @@ class TestBlastp(TestBase):
             self.fail('too long execution time')
             return
         self.assertEqual(status, 'finished')
-        # Cleanup
+        # Check result
         response = self.wr.GET(path)
         data = self.get_json_data(response)
+        # Cleanup
         response = self.wr.DELETE("/task/%s" % data['task']['iui'])
+        self.assertEqual(response.status, httplib.SEE_OTHER,
+                         msg="HTTP status %s" % response.status)
+
+class TestBlastn(TestBase):
+    "Test creating and executing a blastn task."
+
+    def test_POST_blastn(self):
+        """Create, execute and delete a task based on data for the blastn tool.
+        Try pure sequence input data, and specify XML output."""
+        response = self.wr.GET('/blastn')
+        data = self.get_json_data(response)
+        form = data.get('form')
+        self.assert_(form is not None)
+        self.assertEqual(form['tool'], 'blastn')
+        fields = form.get('fields')
+        self.assert_(fields is not None)
+        lookup = dict([(f['name'], f) for f in fields])
+        db = None
+        size = -1
+        db = lookup.get('db')
+        self.assert_(db is not None)
+        # Select the smallest database
+        smallest = db['options'][0]
+        for database in db['options'][1:]:
+            if database['size'] < smallest['size']:
+                smallest = database
+        self.assert_(smallest is not None)
+        data = dict(title='unittest',
+                    db=smallest['value'],
+                    task_type='blastn-short',
+                    query_content='CGATGCTAGCTAGCGCGCTAGATCGAGCTCTGATAGCTAGCTG',
+                    evalue=10.0,
+                    outfmt=5)
+        response = self.wr.POST('/blastn', data=data)
+        self.assertEqual(response.status, httplib.SEE_OTHER,
+                         msg="HTTP status %s" % response.status)
+        headers = self.get_headers(response)
+        url = headers['location']
+        self.assert_(url)
+        path = self.wr.get_rpath(url)
+        # Loop until task is finished
+        for waiting in range(0, 10):
+            time.sleep(1.0)
+            response = self.wr.GET(path + '/status')
+            self.assertEqual(response.status, httplib.OK,
+                             msg="HTTP status %s" % response.status)
+            status = response.read()
+            if status in ['finished', 'failed', 'stopped']: break
+        else:
+            self.fail('too long execution time')
+            return
+        self.assertEqual(status, 'finished')
+        # Check output
+        response = self.wr.GET(path + '/output')
+        data = self.get_xml_data(response)
+        # Cleanup
+        response = self.wr.DELETE(path)
         self.assertEqual(response.status, httplib.SEE_OTHER,
                          msg="HTTP status %s" % response.status)
 
@@ -150,4 +220,5 @@ if __name__ == '__main__':
     print 'Testing', ex.wr
     ex.test(TestAccess,
             TestAccount,
-            TestBlastp)
+            TestBlastp,
+            TestBlastn)

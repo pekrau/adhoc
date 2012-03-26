@@ -1,4 +1,4 @@
-# tut2: Get the Adhoc top page in JSON format.
+# tut2.py: Get the Adhoc top page in JSON format.
 
 import httplib
 import json

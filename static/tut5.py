@@ -1,4 +1,4 @@
-# tut5: Delete a task, whose URL must be known.
+# tut5.py: Delete a task, whose URL must be known.
 
 import httplib
 import base64

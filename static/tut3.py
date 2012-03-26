@@ -1,4 +1,4 @@
-# tut3: How to authenticate as a given account.
+# tut3.py: How to authenticate as a given account.
 
 import httplib
 import json

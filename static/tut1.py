@@ -1,4 +1,4 @@
-# tut1: Get the Adhoc top page.
+# tut1.py: Get the Adhoc top page.
 
 import httplib
 

@@ -1,4 +1,4 @@
-# tut4: Create a task using blastp, and wait until finished.
+# tut4.py: Create a task using blastp, and wait until finished.
 
 import httplib
 import base64

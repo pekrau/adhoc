@@ -16,10 +16,10 @@ Obtaining a document from the web service
 -----------------------------------------
 
 Let us obtain a document given a known URL.
-In this [Python code](../static/tut1.py) example, we simply
+In the Python script [tut1.py](../static/tut1.py), we simply
 get the top page for the Adhoc web site:
 
-    # tut1: Get the Adhoc top page.
+    # tut1.py: Get the Adhoc top page.
 
     import httplib
 
@@ -56,10 +56,10 @@ There are two ways of requesting a particular format of the representation:
 1. Specify the acceptable mimetype in the request using a HTTP header.
 2. Append the appropriate suffix (file type extension) to the URL.
 
-The first method is more general and HTTP-ish. As in this
-[Python code](../static/tut2.py):
+The first method is more general and HTTP-ish. As in the Python script
+[tut2.py](../static/tut2.py):
 
-    # tut2: Get the Adhoc top page in JSON format.
+    # tut2.py: Get the Adhoc top page in JSON format.
 
     import httplib
     import json
@@ -107,9 +107,9 @@ scheme, using HTTP over an encrypted connection).
 
 HTTP Basic Authentication works by packaging the user account name and
 the password together into a base64 message, and adding this as a header
-to the HTTP request, as in this [Python code](../static/tut3.py):
+to the HTTP request, as in the Python script [tut3.py](../static/tut3.py):
 
-    # tut3: How to authenticate as a given account.
+    # tut3.py: How to authenticate as a given account.
 
     import httplib
     import json
@@ -138,8 +138,8 @@ Try this with the wrong password, and you will get the response status 401
 Creating a task
 ---------------
 
-Now for some real work. We want to use BLAST to search a nucleotide query
-against a nucleotide database. The [blastp](../blastp) tool does that.
+Now for some real work. We want to use BLAST to search a protein query
+against a protein database. The [blastp](../blastp) tool does that.
 
 The basic idea with the Adhoc web service is that one does a HTTP POST to
 the chosen tool with all required input data in an appropriate representation.
@@ -164,7 +164,7 @@ accepts plain text without the proper FASTA header), the E-value cutoff
 and the output format. We encode the data into JSON and send this as
 the body of the request.
 
-In the [Python code](../static/tut4.py) below the task is created by
+In the Python script [tut4.py](../static/tut4.py) the task is created by
 the POST request. Its URL is defined by the UUID given to the task on creation.
 
 We then loop to check what the status of the task is, polling every second.
@@ -176,7 +176,7 @@ to the 'output' sub-resource of the task. We write this into
 the file [tut4_output.txt](../static/tut4_output.txt).
 
 
-    # tut4: Create a task using blastp, and wait until finished.
+    # tut4.py: Create a task using blastp, and wait until finished.
 
     import httplib
     import base64
@@ -234,10 +234,10 @@ Deleting a task
 ---------------
 
 A task is persistent. It remains on the server until it is explicitly deleted.
-This [Python code](../static/tut5.py) shows how a task can be deleted.
+The Python script [tut5.py](../static/tut5.py) shows how a task can be deleted.
 The URL of the task must be known in order to delete it.
 
-    # tut5: Delete a task, whose URL must be known.
+    # tut5.py: Delete a task, whose URL must be known.
 
     import httplib
     import base64
