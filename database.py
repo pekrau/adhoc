@@ -256,8 +256,12 @@ class Task(object):
                       account=self.account,
                       modified=self.modified)
         if self.status == configuration.EXECUTING and self.pid:
-            usage = Usage(pid=self.pid, include_children=True)
-            result['cpu_time'] = usage.cpu_time
+            # XXX the ValueError exception is intermittent??
+            try:
+                usage = Usage(pid=self.pid, include_children=True)
+                result['cpu_time'] = usage.cpu_time
+            except ValueError:
+                result['cpu_time'] = 0.0
         if request:
             href = request.application.get_url('task', self.iui)
             result['href'] = href

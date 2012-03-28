@@ -102,8 +102,8 @@ Due to the stateless nature of the HTTP protocol, the authentication
 data (user account and password) has to be included in every request.
 
 The Adhoc system currently uses only Basic Authentication. In cases where
-security is an important issue, TLS should therefore be used (i.e. the https
-scheme, using HTTP over an encrypted connection).
+security is an important issue, TLS should therefore be used
+(i.e. the 'https' scheme, which is HTTP over an encrypted connection).
 
 HTTP Basic Authentication works by packaging the user account name and
 the password together into a base64 message, and adding this as a header
