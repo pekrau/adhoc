@@ -13,6 +13,7 @@ from adhoc import configuration
 from adhoc.home import *
 from adhoc.account import *
 from adhoc.task import *
+from adhoc.about import *
 from adhoc.documentation import *
 
 # Package dependency
@@ -58,6 +59,9 @@ application.add_resource('/account/{account}', name='Account',
                          GET=GET_Account)
 
 # Documentation resources
+application.add_resource('/about',
+                         name='Documentation About',
+                         GET=GET_About)
 application.add_resource('/doc/API', name='Documentation API',
                          GET=GET_AdhocApiDocumentation)
 application.add_resource('/doc/{filename}', name='Documentation file',

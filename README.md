@@ -1,9 +1,9 @@
-## Adhoc: Simple web application for task execution
+## Adhoc: A simple web application for task execution
 
 This web application is an interface to various third-party software,
 which are made available as a set of tools for executing specific tasks.
 
-### Current tools
+### Available tools
 
 The set of **BLAST** programs for searching biomolecule
 sequence databases is available. The list of BLAST databases

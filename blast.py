@@ -297,7 +297,9 @@ class GET_BlastnCreate(GET_BlastCreate):
               DbMultiSelectField('db', title='Database',
                                  required=True, check=False,
                                  descr='Check the nucleotide database(s)'
-                                       ' to search.'),
+                                       ' to search. The list of available'
+                                       ' databases depends on the team your'
+                                       ' account is a member of.'),
               FileField('query_file', title='Query file',
                         descr='Upload file containing query nucleotide'
                               ' sequence(s) in FASTA format.'),
@@ -384,7 +386,9 @@ class GET_BlastpCreate(GET_BlastCreate):
               DbMultiSelectField('db', title='Database',
                                  required=True, check=False,
                                  descr='Check the protein database(s)'
-                                       ' to search.'),
+                                       ' to search. The list of available'
+                                       ' databases depends on the team your'
+                                       ' account is a member of.'),
               FileField('query_file', title='Query file',
                         descr='Upload file containing query protein'
                               ' sequence(s) in FASTA format.'),
@@ -464,7 +468,9 @@ class GET_BlastxCreate(GET_BlastCreate):
               DbMultiSelectField('db', title='Database',
                                  required=True, check=False,
                                  descr='Check the protein database(s)'
-                                       ' to search.'),
+                                       ' to search. The list of available'
+                                       ' databases depends on the team your'
+                                       ' account is a member of.'),
               FileField('query_file', title='Query file',
                         descr='Upload file containing query nucleotide'
                               ' sequence(s) in FASTA format.'),
@@ -540,7 +546,9 @@ class GET_TblastnCreate(GET_BlastCreate):
               DbMultiSelectField('db', title='Database',
                                  required=True, check=False,
                                  descr='Check the nucleotide database(s)'
-                                       ' to search.'),
+                                       ' to search. The list of available'
+                                       ' databases depends on the team your'
+                                       ' account is a member of.'),
               SelectField('db_gencode', title='Database genetic code',
                           options=GENETIC_CODES,
                           default='1',
@@ -617,7 +625,9 @@ class GET_TblastxCreate(GET_BlastCreate):
               DbMultiSelectField('db', title='Database',
                                  required=True, check=False,
                                  descr='Check the nucleotide database(s)'
-                                       ' to search.'),
+                                       ' to search. The list of available'
+                                       ' databases depends on the team your'
+                                       ' account is a member of.'),
               SelectField('db_gencode', title='Database genetic code',
                           options=GENETIC_CODES,
                           default='1',

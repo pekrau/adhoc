@@ -103,6 +103,8 @@ class MethodMixin(LoginMixin):
             for tool in tools[1:]:
                 links.append(dict(title="%(family)s: %(name)s" % tool,
                                   href=get_url(tool['name'])))
+        links.append(dict(title='Documentation: About',
+                          href=get_url('about')))
         links.append(dict(title='Documentation: API',
                           href=get_url('doc', 'API')))
         links.append(dict(title='Documentation: API tutorial',
