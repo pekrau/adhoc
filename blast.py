@@ -137,10 +137,12 @@ class GET_BlastCreate(ToolMixin, MethodMixin, GET):
             db.pop('teams', None)
             db['value'] = db.pop('filename')
             databases.append(db)
-        fields=self.get_data_fields(fill=dict(db=dict(options=databases)),
-                                    default=self.get_preferences())
+        override = dict(db=dict(options=databases))
+        for key, value in self.get_preferences().iteritems():
+            if value is None: continue
+            override.setdefault(key, dict())['default'] = value
         data['form'] = dict(tool=self.tool,
-                            fields=fields,
+                            fields=self.get_data_fields(override=override),
                             label='Create task and execute',
                             title='Enter query and select parameters',
                             href=request.url,
