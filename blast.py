@@ -155,7 +155,7 @@ class POST_TaskCreate(ToolMixin, MethodMixin, RedirectMixin, POST):
 
     fields = ()
 
-    def handle(self, request):
+    def process(self, request):
         self.check_quota(request)
         self.inputs = self.parse_fields(request)
         self.preferences = dict()
@@ -193,11 +193,15 @@ class POST_TaskCreate(ToolMixin, MethodMixin, RedirectMixin, POST):
             if line[0] == '>': continue # FASTA header line
             characters.update(line.upper())
         if query_type == 'protein':
-            if not characters.difference('ACTG'):
-                raise HTTP_BAD_REQUEST('query appears to be nucleotide')
+            ## if not characters.difference('ACTG'):
+            ##     raise HTTP_BAD_REQUEST('query appears to be nucleotidex;')
+            # Test relaxed; no check for this case
+            pass
         elif query_type == 'nucleotide':
-            if characters.difference('ACTGX'):
-                raise HTTP_BAD_REQUEST('query appears to be protein')
+            if characters.difference('ACTGXN'): # N appears in Genbank entries
+                raise HTTP_BAD_REQUEST('query appears to be protein;'
+                                       ' there are characters other than'
+                                       ' ACTGXN in your sequence')
         else:
             raise ValueError('invalid query_type')
         self.task.data['query'] = query

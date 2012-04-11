@@ -27,15 +27,15 @@ application = Application(name='Adhoc',
 
 # Home
 application.add_resource('/', name='Home',
-                         GET=GET_Home)
+                         GET=Home)
 
 # 'Static resources; accessed often, keep at beginning of the chain.
-class GET_File_static(GET_File):
+class FileStatic(GET_File):
     dirpath       = configuration.STATIC_DIR
     cache_control = 'max-age=300'
 
 application.add_resource('/static/{filename}', name='File',
-                         GET=GET_File_static)
+                         GET=FileStatic)
 
 # Task resources
 application.add_resource('/tasks', name='Task list',
@@ -68,12 +68,12 @@ application.add_resource('/doc/{filename}', name='Documentation file',
                          GET=GET_AdhocDocumentation)
 
 # Login and account resources
-class GET_Login_account(GET_Login):
+class LoginAccount(GET_Login):
     def get_account(self, name, password):
         return configuration.users.get_account(name, password)
 
 application.add_resource('/login', name='Login',
-                         GET=GET_Login_account)
+                         GET=LoginAccount)
 
 # Tools: BLAST
 import adhoc.blast

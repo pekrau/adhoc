@@ -39,8 +39,8 @@ button     {vertical-align: middle; }
 button img {vertical-align: middle;
             padding-right: 0.5em; }
 
-table tr th {vertical-align: top; }
-table tr td {vertical-align: top; }
+table th {vertical-align: top; }
+table td {vertical-align: top; }
 
 .body_left td {width: 120px; }
 
@@ -70,8 +70,8 @@ form .descr { font-style: italic; }
 		      margin: 0;
 		      list-style-type: none; }
 
-.info tr th {text-align: right;
-             vertical-align: middle; }
+.info th {text-align: right;
+          vertical-align: middle; }
 
 .metadata table {border-style: solid;
                  border-color: lightgray;
@@ -103,15 +103,15 @@ form .descr { font-style: italic; }
               font-weight: bold;
               margin: 0 0 0.25em 2em; }
 
-.doc tr th {text-align: left;
-            border-width: 2px;
-            border-top-style: solid;
-            border-bottom-style: solid;
-            padding-left: 0.5em; }
+.doc th {text-align: left;
+         border-width: 2px;
+         border-top-style: solid;
+         border-bottom-style: solid;
+         padding-left: 0.5em; }
 
-.doc tr td {border-width: 1px;
-            border-bottom-style: solid;
-            padding-left: 0.5em; }
+.doc td {border-width: 1px;
+         border-bottom-style: solid;
+         padding-left: 0.5em; }
 
 .doc table td table {padding: 0;
                      margin: 0;
@@ -124,40 +124,40 @@ form .descr { font-style: italic; }
                         margin: 0;
                         border-width: 0; }
 
-table.output tr th {vertical-align: top;
-                    text-align: right;
-                    white-space: nowrap; }
-table.output tr td {vertical-align: top;
-                    border-style: solid;
-                    border-width: 1px;
-		    padding: 2px 4px; }
+table.output th {vertical-align: top;
+                 text-align: right;
+                 white-space: nowrap; }
+table.output td {vertical-align: top;
+                 border-style: solid;
+                 border-width: 1px;
+                 padding: 2px 4px; }
 
 table.data {border-style: solid;
             border-width: 2px 0 0 2px; }
-table.data tr th {vertical-align: top;
-                  text-align: left;
-                  border-style: solid;
-                  border-width: 0 1px 1px 0; }
-table.data tr td {vertical-align: top;
-                  border-style: solid;
-                  border-width: 0 1px 1px 0; }
+table.data th {vertical-align: top;
+               text-align: left;
+               border-style: solid;
+               border-width: 0 1px 1px 0; }
+table.data td {vertical-align: top;
+               border-style: solid;
+               border-width: 0 1px 1px 0; }
 table.data pre { border-style: none;
 		 padding: 0;
 		 margin: 0; }
 
-table.list tr th {vertical-align: top;
-                  text-align: left;
-                  border-style: solid;
-                  border-width: 2px 0; }
-table.list tr td {vertical-align: top;
-                  border-style: solid;
-                  border-width: 0 0 1px 0; }
+table.list th {vertical-align: top;
+               text-align: left;
+               border-style: solid;
+               border-width: 2px 0; }
+table.list td {vertical-align: top;
+               border-style: solid;
+               border-width: 0 0 1px 0; }
 
-table.params tr th {vertical-align: top;
-                    text-align: right; }
-table.params tr td {vertical-align: top;
-                    text-align: left;
-                    padding-left: 1em; }
+table.params th {vertical-align: top;
+                 text-align: right; }
+table.params td {vertical-align: top;
+                 text-align: left;
+                 padding-left: 1em; }
 
 span.current { border-style: solid;
                border-color: black;

@@ -61,7 +61,8 @@ be written to access the system from other machines.
 
 ### Implementation
 
-The system is written in Python 2.6; 2.7 should also work.
+The system is written in Python 2.6. The following source code
+packages are needed:.
 
 - [https://github.com/pekrau/adhoc](https://github.com/pekrau/adhoc):
   Source code for the **Adhoc** system.

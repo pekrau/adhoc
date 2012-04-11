@@ -6,9 +6,7 @@ Mixin class for methods: database connection and authentication.
 import sqlite3
 import json
 
-from wrapid.fields import *
-from wrapid.responses import *
-from wrapid.methods import GET, POST, DELETE, RedirectMixin
+from wrapid.methods import *
 from wrapid.login import LoginMixin
 
 from . import configuration
@@ -47,10 +45,9 @@ class MethodMixin(LoginMixin):
         pass
 
     def set_current_account(self, request):
-        """Set the account to operate on; special case.
-        This handles the case where an account name contains a dot
-        and a short (<=4 chars) last name, which will otherwise
-        be confused for a FORMAT specification.
+        """Set the account to operate on; special case. Handles the case
+        where an account name contains a dot and a short (<=4 chars) last
+        name, which will otherwise be confused for a FORMAT specification.
         """
         try:
             self.account = self.get_account(request.variables['account'])

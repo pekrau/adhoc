@@ -33,24 +33,6 @@ class HtmlRepresentation(BaseHtmlRepresentation):
                              content="%s; url=%s" % (refresh, url)))
         return head
 
-    def get_login(self):
-        "Login as anonymous depends on whether present in database or not."
-        login = self.data.get('login')
-        if login:
-            result = DIV('Logged in as: ',
-                         A(login, href=self.get_url('account', login)))
-        else:
-            result = I('Not logged in')
-        if not login or login == 'anonymous':
-            url = self.data.get('href', self.get_url())
-            result = TABLE(TR(TD(result)),
-                           TR(TD(FORM(self.get_button('Login'),
-                                      INPUT(type='hidden',
-                                            name='href', value=url),
-                                      method='GET',
-                                      action=self.get_url('login')))))
-        return result
-
     def get_icon(self, name):
         return IMG(src=self.get_url('static', "%s.png" % name),
                    alt=name, title=name, width=16, height=16)

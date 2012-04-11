@@ -260,6 +260,6 @@ class GET_TaskOutput(TaskMixin, MethodMixin, GET):
 class DELETE_Task(TaskMixin, MethodMixin, RedirectMixin, DELETE):
     "Delete the task."
 
-    def handle(self, request):
+    def process(self, request):
         self.redirect = request.application.get_url('tasks', self.task.account)
         self.task.delete()

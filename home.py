@@ -7,7 +7,7 @@ from .method_mixin import *
 from .representation import *
 
 
-class GET_Home(MethodMixin, GET):
+class Home(MethodMixin, GET):
     "The Adhoc home page."
 
     outreprs = [JsonRepresentation,
@@ -29,5 +29,5 @@ databases are available.
 
 Contact the administrator to obtain your own account.
 
-For more information see the [about page](%s).
+For more information see the [About page](%s).
 """ % request.application.get_url('about'))
