@@ -108,10 +108,12 @@ form .descr { font-style: italic; }
          border-top-style: solid;
          border-bottom-style: solid;
          padding-left: 0.5em; }
-
 .doc td {border-width: 1px;
          border-bottom-style: solid;
          padding-left: 0.5em; }
+
+.doc table td p {padding: 0;
+                 margin: 0; }
 
 .doc table td table {padding: 0;
                      margin: 0;

@@ -10,7 +10,7 @@ from wrapid.methods import *
 from wrapid.login import LoginMixin
 
 from . import configuration
-from .database import Database, Task
+from . import database
 
 
 class MethodMixin(LoginMixin):
@@ -19,7 +19,7 @@ class MethodMixin(LoginMixin):
     def prepare(self, request):
         "Connect to the database, and set the data for the authenticated user."
         self.set_login(request)
-        self.db = Database()
+        self.db = database.Database()
         self.db.open()
         self.set_current(request)
         self.check_access(request.application.name)
@@ -116,7 +116,7 @@ class ToolMixin(object):
 
     def create_task(self):
         assert self.tool
-        self.task = Task(self.db)
+        self.task = database.Task(self.db)
         self.task.tool = self.tool
 
     def check_quota(self, request):

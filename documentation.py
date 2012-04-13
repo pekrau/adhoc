@@ -10,7 +10,7 @@ from .representation import *
 from .method_mixin import MethodMixin
 
 
-class GET_AdhocDocumentation(MethodMixin, GET_Documentation):
+class AdhocDocumentation(MethodMixin, GET_Documentation):
     "Return a static documentation page."
 
     dirpath       = configuration.DOCS_DIR
@@ -28,7 +28,7 @@ class ApiDocumentationHtmlRepresentation(ApiDocumentationHtmlMixin,
     stylesheets = ['static/standard.css']
 
 
-class GET_AdhocApiDocumentation(MethodMixin, GET_ApiDocumentation):
+class AdhocApiDocumentation(MethodMixin, GET_ApiDocumentation):
     "Produce the documentation for the web resource API by introspection."
 
     outreprs = [JsonRepresentation,

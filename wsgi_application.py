@@ -5,8 +5,8 @@ Apache WSGI interface using the 'wrapid' package.
 
 import wrapid
 from wrapid.application import Application
-from wrapid.login import GET_Login
-from wrapid.file import GET_File
+from wrapid.login import Login
+from wrapid.file import File
 
 import adhoc
 from adhoc import configuration
@@ -26,53 +26,68 @@ application = Application(name='Adhoc',
                           debug=configuration.DEBUG)
 
 # Home
-application.add_resource('/', name='Home',
+application.add_resource('/',
+                         name='Home',
                          GET=Home)
 
 # 'Static resources; accessed often, keep at beginning of the chain.
-class FileStatic(GET_File):
+class StaticFile(File):
+    "Return the specified file from a predefined server directory."
     dirpath       = configuration.STATIC_DIR
     cache_control = 'max-age=300'
 
-application.add_resource('/static/{filename}', name='File',
-                         GET=FileStatic)
+application.add_resource('/static/{filepath:path}',
+                         name='File',
+                         GET=StaticFile)
 
 # Task resources
-application.add_resource('/tasks', name='Task list',
-                         GET=GET_Tasks)
-application.add_resource('/tasks/{account}', name='Task list account',
-                         GET=GET_TasksAccount)
-application.add_resource('/task/{iui:uuid}', name='Task',
-                         GET=GET_Task,
-                         DELETE=DELETE_Task)
-application.add_resource('/task/{iui:uuid}/status', name='Task status',
-                         GET=GET_TaskStatus)
-application.add_resource('/task/{iui:uuid}/query', name='Task query',
-                         GET=GET_TaskQuery)
-application.add_resource('/task/{iui:uuid}/output', name='Task output',
-                         GET=GET_TaskOutput)
+application.add_resource('/tasks',
+                         name='Task list',
+                         GET=Tasks)
+application.add_resource('/tasks/{account}',
+                         name='Task list account',
+                         GET=TasksAccount)
+application.add_resource('/task/{iui:uuid}',
+                         name='Task',
+                         GET=Task,
+                         DELETE=DeleteTask)
+application.add_resource('/task/{iui:uuid}/status',
+                         name='Task status',
+                         GET=TaskStatus)
+application.add_resource('/task/{iui:uuid}/query',
+                         name='Task query',
+                         GET=TaskQuery)
+application.add_resource('/task/{iui:uuid}/output',
+                         name='Task output',
+                         GET=TaskOutput)
 
 # Account resources
-application.add_resource('/accounts', name='Account list',
-                         GET=GET_Accounts)
-application.add_resource('/account/{account}', name='Account',
-                         GET=GET_Account)
+application.add_resource('/accounts',
+                         name='Account list',
+                         GET=Accounts)
+application.add_resource('/account/{account}',
+                         name='Account',
+                         GET=Account)
 
 # Documentation resources
 application.add_resource('/about',
                          name='Documentation About',
-                         GET=GET_About)
-application.add_resource('/doc/API', name='Documentation API',
-                         GET=GET_AdhocApiDocumentation)
-application.add_resource('/doc/{filename}', name='Documentation file',
-                         GET=GET_AdhocDocumentation)
+                         GET=About)
+application.add_resource('/doc/API',
+                         name='Documentation API',
+                         GET=AdhocApiDocumentation)
+application.add_resource('/doc/{filename}',
+                         name='Documentation file',
+                         GET=AdhocDocumentation)
 
 # Login and account resources
-class LoginAccount(GET_Login):
+class LoginAccount(Login):
+    "Perform login to an account. Basic Authentication."
     def get_account(self, name, password):
         return configuration.users.get_account(name, password)
 
-application.add_resource('/login', name='Login',
+application.add_resource('/login',
+                         name='Login',
                          GET=LoginAccount)
 
 # Tools: BLAST

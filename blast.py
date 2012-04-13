@@ -114,8 +114,8 @@ class BlastHtmlRepresentation(FormHtmlRepresentation):
         return TABLE(klass='list', *rows)
 
 
-class GET_BlastCreate(ToolMixin, MethodMixin, GET):
-    "Display the BLAST tool form to create a task."
+class InputBlast(ToolMixin, MethodMixin, GET):
+    "Display the BLAST tool form to input data to create a task."
 
     database_type = None
 
@@ -150,7 +150,7 @@ class GET_BlastCreate(ToolMixin, MethodMixin, GET):
         return data
 
 
-class POST_TaskCreate(ToolMixin, MethodMixin, RedirectMixin, POST):
+class CreateTask(ToolMixin, MethodMixin, RedirectMixin, POST):
     "Create the BLAST task and start execution."
 
     fields = ()
@@ -292,7 +292,7 @@ class POST_TaskCreate(ToolMixin, MethodMixin, RedirectMixin, POST):
         process.wait()                  # Only waits for daemonize to finish
 
 
-class GET_BlastnCreate(GET_BlastCreate):
+class InputBlastn(InputBlast):
     "Blastn tool: nucleotide query against a nucleotide database."
 
     tool = 'blastn'
@@ -363,12 +363,12 @@ see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' \
     % configuration.BLAST_VERSION
 
 
-class POST_BlastnCreate(POST_TaskCreate):
+class CreateBlastn(CreateTask):
     "Create and start execution of a 'blastn' task."
 
     tool = 'blastn'
 
-    fields = GET_BlastnCreate.fields
+    fields = InputBlastn.fields
 
     def set_data(self):
         self.set_db()
@@ -381,7 +381,7 @@ class POST_BlastnCreate(POST_TaskCreate):
         self.set_num_alignments()
 
 
-class GET_BlastpCreate(GET_BlastCreate):
+class InputBlastp(InputBlast):
     "Blastp task: protein query against a protein database."
 
     tool = 'blastp'
@@ -445,12 +445,12 @@ see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' \
     % configuration.BLAST_VERSION
 
 
-class POST_BlastpCreate(POST_TaskCreate):
+class CreateBlastp(CreateTask):
     "Create and start execution of a 'blastp' task."
 
     tool = 'blastp'
 
-    fields = GET_BlastpCreate.fields
+    fields = InputBlastp.fields
 
     def set_data(self):
         self.set_db()
@@ -463,7 +463,7 @@ class POST_BlastpCreate(POST_TaskCreate):
         self.set_num_alignments()
 
 
-class GET_BlastxCreate(GET_BlastCreate):
+class InputBlastx(InputBlast):
     "Blastp task: translated nucleotide query against a protein database."
 
     tool = 'blastx'
@@ -523,12 +523,12 @@ see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' \
     % configuration.BLAST_VERSION
 
 
-class POST_BlastxCreate(POST_TaskCreate):
+class CreateBlastx(CreateTask):
     "Create and start execution of a 'blastx' task."
 
     tool = 'blastx'
 
-    fields = GET_BlastxCreate.fields
+    fields = InputBlastx.fields
 
     def set_data(self):
         self.set_db()
@@ -541,7 +541,7 @@ class POST_BlastxCreate(POST_TaskCreate):
         self.set_num_alignments()
 
 
-class GET_TblastnCreate(GET_BlastCreate):
+class InputTblastn(InputBlast):
     "Tblastn task: protein query against a translated nucleotide database."
 
     tool = 'tblastn'
@@ -601,12 +601,12 @@ see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' \
     % configuration.BLAST_VERSION
 
 
-class POST_TblastnCreate(POST_TaskCreate):
+class CreateTblastn(CreateTask):
     "Create and start execution of a 'tblastn' task."
 
     tool = 'tblastn'
 
-    fields = GET_TblastnCreate.fields
+    fields = InputTblastn.fields
 
     def set_data(self):
         self.set_db()
@@ -619,7 +619,7 @@ class POST_TblastnCreate(POST_TaskCreate):
         self.set_num_alignments()
 
 
-class GET_TblastxCreate(GET_BlastCreate):
+class InputTblastx(InputBlast):
     """Tblastx task: translated nucleotide query against
     a translated nucleotide database."""
 
@@ -685,12 +685,12 @@ see the [BLAST Help at NCBI](http://www.ncbi.nlm.nih.gov/books/NBK1762/).''' \
     % configuration.BLAST_VERSION
 
 
-class POST_TblastxCreate(POST_TaskCreate):
+class CreateTblastx(CreateTask):
     "Create and start execution of a 'tblastx' task."
 
     tool = 'tblastx'
 
-    fields = GET_TblastxCreate.fields
+    fields = InputTblastx.fields
 
     def set_data(self):
         self.set_db()
@@ -761,21 +761,21 @@ def setup(application):
     "Setup the web application interface."
     application.add_resource('/blastn',
                              name='Tool blastn',
-                             GET=GET_BlastnCreate,
-                             POST=POST_BlastnCreate)
+                             GET=InputBlastn,
+                             POST=CreateBlastn)
     application.add_resource('/blastp',
                              name='Tool blastp',
-                             GET=GET_BlastpCreate,
-                             POST=POST_BlastpCreate)
+                             GET=InputBlastp,
+                             POST=CreateBlastp)
     application.add_resource('/blastx',
                              name='Tool blastx',
-                             GET=GET_BlastxCreate,
-                             POST=POST_BlastxCreate)
+                             GET=InputBlastx,
+                             POST=CreateBlastx)
     application.add_resource('/tblastn',
                              name='Tool tblastn',
-                             GET=GET_TblastnCreate,
-                             POST=POST_TblastnCreate)
+                             GET=InputBlastn,
+                             POST=CreateTblastn)
     application.add_resource('/tblastx',
                              name='Tool tblastx',
-                             GET=GET_TblastxCreate,
-                             POST=POST_TblastxCreate)
+                             GET=InputTblastx,
+                             POST=CreateTblastx)

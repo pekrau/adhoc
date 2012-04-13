@@ -11,10 +11,10 @@ import socket
 
 DEBUG = False
 
-DATA_DIR = '/var/local/adhoc'
-
 HOST = dict(title='SciLifeLab tools',
             href='http://localhost/')
+
+DATA_DIR = '/var/local/adhoc'
 
 DEFAULT_QUOTA_NTASKS = 200
 

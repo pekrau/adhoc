@@ -7,7 +7,7 @@ from .method_mixin import *
 from .representation import *
 
 
-class GET_About(MethodMixin, GET):
+class About(MethodMixin, GET):
     "About page, describing the system software."
 
     outreprs = [JsonRepresentation,

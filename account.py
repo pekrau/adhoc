@@ -31,8 +31,8 @@ class AccountsHtmlRepresentation(HtmlRepresentation):
         return table
 
 
-class GET_Accounts(MethodMixin, GET):
-    "Return information on all accounts."
+class Accounts(MethodMixin, GET):
+    "Display information on all accounts."
 
     outreprs = [JsonRepresentation,
                 TextRepresentation,
@@ -80,7 +80,7 @@ class AccountHtmlRepresentation(HtmlRepresentation):
         return table
 
 
-class GET_Account(MethodMixin, GET):
+class Account(MethodMixin, GET):
     "Display account information."
 
     outreprs = [JsonRepresentation,

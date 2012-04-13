@@ -30,7 +30,7 @@ class TasksHtmlRepresentation(HtmlRepresentation):
         return TABLE(klass='list', *rows)
 
 
-class GET_Tasks(MethodMixin, GET):
+class Tasks(MethodMixin, GET):
     "Display list of tasks."
 
     outreprs = [JsonRepresentation,
@@ -51,7 +51,7 @@ class GET_Tasks(MethodMixin, GET):
         return data
 
 
-class GET_TasksAccount(MethodMixin, GET):
+class TasksAccount(MethodMixin, GET):
     "Display list of tasks for an account."
 
     outreprs = [JsonRepresentation,
@@ -164,7 +164,7 @@ class TaskMixin(object):
 
     def set_current(self, request):
         try:
-            self.task = Task(self.db, iui=request.variables['iui'])
+            self.task = database.Task(self.db, iui=request.variables['iui'])
         except KeyError:
             raise HTTP_NOT_FOUND
 
@@ -174,7 +174,7 @@ class TaskMixin(object):
         return False
 
 
-class GET_Task(TaskMixin, MethodMixin, GET):
+class Task(TaskMixin, MethodMixin, GET):
     "Display the task."
 
     outreprs = [TaskJsonRepresentation,
@@ -208,7 +208,7 @@ class GET_Task(TaskMixin, MethodMixin, GET):
         return data
                 
 
-class GET_TaskStatus(TaskMixin, MethodMixin, GET):
+class TaskStatus(TaskMixin, MethodMixin, GET):
     "Return the task status."
 
     outreprs = [TextRepresentation]
@@ -227,7 +227,7 @@ class AnyDummyRepresentation(Representation):
     mimetype = '*/*'
 
 
-class GET_TaskQuery(TaskMixin, MethodMixin, GET):
+class TaskQuery(TaskMixin, MethodMixin, GET):
     "Return the task query."
 
     outrepresentations = (AnyDummyRepresentation,)
@@ -242,7 +242,7 @@ class GET_TaskQuery(TaskMixin, MethodMixin, GET):
         return response
 
 
-class GET_TaskOutput(TaskMixin, MethodMixin, GET):
+class TaskOutput(TaskMixin, MethodMixin, GET):
     "Return the task output."
 
     outrepresentations = (AnyDummyRepresentation,)
@@ -257,7 +257,7 @@ class GET_TaskOutput(TaskMixin, MethodMixin, GET):
         return response
 
 
-class DELETE_Task(TaskMixin, MethodMixin, RedirectMixin, DELETE):
+class DeleteTask(TaskMixin, MethodMixin, RedirectMixin, DELETE):
     "Delete the task."
 
     def process(self, request):
