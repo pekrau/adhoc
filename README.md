@@ -68,8 +68,6 @@ packages are needed:.
   Source code for the **Adhoc** system.
 - [https://github.com/pekrau/wrapid](https://github.com/pekrau/wrapid):
   Package **wrapid** providing the web service framework.
-- [https://github.com/pekrau/hypertext](https://github.com/pekrau/hypertext):
-  Package **HyperText** for producing the HTML of the web service interface.
 - [http://pypi.python.org/pypi/Markdown](http://pypi.python.org/pypi/Markdown):
   Package **Markdown** for producing HTML from text using the simple markup
   language [Markdown](http://daringfireball.net/projects/markdown/).

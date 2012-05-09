@@ -3,8 +3,7 @@
 Task resources.
 """
 
-from .method_mixin import *
-from .representation import *
+from .base import *
 
 
 class TasksHtmlRepresentation(HtmlRepresentation):

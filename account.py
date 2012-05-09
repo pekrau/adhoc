@@ -3,8 +3,7 @@
 Account: display usage and link to account details.
 """
 
-from .method_mixin import *
-from .representation import *
+from .base import *
 
 
 class AccountsHtmlRepresentation(HtmlRepresentation):

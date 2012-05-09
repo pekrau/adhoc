@@ -3,8 +3,7 @@
 About page, describing the software of the system.
 """
 
-from .method_mixin import *
-from .representation import *
+from .base import *
 
 
 class About(MethodMixin, GET):

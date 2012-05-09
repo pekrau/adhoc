@@ -3,8 +3,7 @@
 Home page.
 """
 
-from .method_mixin import *
-from .representation import *
+from .base import *
 
 
 class Home(MethodMixin, GET):

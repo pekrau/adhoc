@@ -7,10 +7,7 @@ import os
 import json
 import subprocess
 
-from wrapid.utils import rstr
-
-from .method_mixin import *
-from .representation import *
+from .base import *
 
 
 BLASTDB = os.path.join(configuration.DB_DIR, 'blast')

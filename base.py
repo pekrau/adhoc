@@ -1,16 +1,20 @@
 """ Adhoc: Simple web application for task execution.
 
-Mixin class for methods: database connection and authentication.
+Base and mixin classes.
 """
 
 import sqlite3
 import json
 
 from wrapid.methods import *
+from wrapid.utils import rstr
 from wrapid.login import LoginMixin
+from wrapid.json_representation import JsonRepresentation
+from wrapid.text_representation import TextRepresentation
 
 from . import configuration
 from . import database
+from .html_representation import *
 
 
 class MethodMixin(LoginMixin):

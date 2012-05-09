@@ -5,9 +5,7 @@ Produce the documentation for the web resource API by introspection.
 
 from wrapid.documentation import *
 
-from . import configuration
-from .representation import *
-from .method_mixin import MethodMixin
+from .base import *
 
 
 class AdhocDocumentation(MethodMixin, GET_Documentation):

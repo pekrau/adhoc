@@ -1,11 +1,9 @@
 """ Adhoc: Simple web application for task execution.
 
-General representation classes.
+General HTML representation class.
 """
 
 from wrapid.html_representation import *
-from wrapid.json_representation import JsonRepresentation
-from wrapid.text_representation import TextRepresentation
 
 from . import configuration
 
