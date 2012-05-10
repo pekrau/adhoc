@@ -62,20 +62,21 @@ class AccountHtmlRepresentation(HtmlRepresentation):
         quotas = account['quotas']
         stats = TABLE()
         stats.append(TR(TH('Current # tasks:'),
-                        TD(A(statistics['count'],
-                             href=statistics['href']),
+                        TD(A(statistics['count'], href=statistics['href']),
                            klass='integer')))
         stats.append(TR(TH('Quota # tasks:'),
                         TD(quotas.get('ntasks'),
                            klass='integer')))
         table = TABLE(TR(TR(TH('Name'),
-                         TD(account['name'])),
-                      TR(TH('Email'),
-                         TD(account['email'] or '')),
-                      TR(TH('Description'),
-                         TD(self.to_html(account['description']))),
-                      TR(TH('Statistics'),
-                         TD(stats))))
+                            TD(account['name'])),
+                         TR(TH('Email'),
+                            TD(account['email'] or '')),
+                         TR(TH('Teams'),
+                            TD(', '.join(account['teams']))),
+                         TR(TH('Description'),
+                            TD(self.to_html(account['description']))),
+                         TR(TH('Statistics'),
+                            TD(stats))))
         return table
 
 
