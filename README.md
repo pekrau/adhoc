@@ -69,7 +69,7 @@ packages are needed:.
 - [https://github.com/pekrau/wrapid](https://github.com/pekrau/wrapid):
   Package **wrapid** providing the web service framework.
 - [http://pypi.python.org/pypi/Markdown](http://pypi.python.org/pypi/Markdown):
-  Package **Markdown** for producing HTML from text using the simple markup
+  Package for producing HTML from text using the simple markup
   language [Markdown](http://daringfireball.net/projects/markdown/).
 - [https://github.com/pekrau/whoyou](https://github.com/pekrau/whoyou):
   Package **WhoYou** providing basic authentication services.

@@ -4,6 +4,7 @@ Apache WSGI interface using the 'wrapid' package.
 """
 
 import wrapid
+assert wrapid.__version__ in ('12.5', '12.7')
 from wrapid.application import Application
 from wrapid.login import Login
 from wrapid.file import File
@@ -15,9 +16,6 @@ from adhoc.account import *
 from adhoc.task import *
 from adhoc.about import *
 from adhoc.documentation import *
-
-# Package dependency
-assert wrapid.__version__ == '12.5'
 
 
 application = Application(name='Adhoc',
