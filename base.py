@@ -87,7 +87,7 @@ class MethodMixin(LoginMixin):
         return False
 
     def get_data_links(self, request):
-        "Return the links response data."
+        "Return the navigation links data."
         get_url = request.application.get_url
         links = []
         if self.is_login_admin():
@@ -104,14 +104,17 @@ class MethodMixin(LoginMixin):
             for tool in tools[1:]:
                 links.append(dict(title="%(family)s: %(name)s" % tool,
                                   href=get_url(tool['name'])))
-        links.append(dict(title='Documentation: About',
-                          href=get_url('about')))
-        links.append(dict(title='Documentation: API',
-                          href=get_url('doc', 'API')))
-        links.append(dict(title='Documentation: API tutorial',
-                          href=get_url('doc', 'API_tutorial')))
         return links
 
+    def get_data_documentation(self, request):
+        "Return the documentation links data."
+        get_url = request.application.get_url
+        return [dict(title='About',
+                     href=get_url('about')),
+                dict(title='API',
+                     href=get_url('doc', 'API')),
+                dict(title='API tutorial',
+                     href=get_url('doc', 'API_tutorial'))]
 
 class ToolMixin(object):
     "Mixin class for tool HTTP methods."

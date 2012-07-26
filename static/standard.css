@@ -70,6 +70,16 @@ form .descr { font-style: italic; }
 		      margin: 0;
 		      list-style-type: none; }
 
+.documentation table {border-style: solid;
+                      border-color: lightgray;
+                      border-width: 2px 0 0 2px;
+                      margin-bottom: 4px; }
+
+.documentation table th {text-align: left;
+                         border-style: solid;
+                         border-color: lightgray;
+                         border-width: 0 0 1px 0; }
+
 .info th {text-align: right;
           vertical-align: middle; }
 
