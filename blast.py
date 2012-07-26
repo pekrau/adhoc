@@ -117,7 +117,6 @@ class InputBlast(ToolMixin, MethodMixin, GET):
     database_type = None
 
     outreprs = [JsonRepresentation,
-                TextRepresentation,
                 BlastHtmlRepresentation]
 
     fields = ()

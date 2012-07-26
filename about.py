@@ -10,7 +10,6 @@ class About(MethodMixin, GET):
     "About page, describing the system software."
 
     outreprs = [JsonRepresentation,
-                TextRepresentation,
                 HtmlRepresentation]
 
     def is_accessible(self):
@@ -18,5 +17,5 @@ class About(MethodMixin, GET):
         return True
 
     def get_data_resource(self, request):
-        return dict(title='About',
+        return dict(resource='About',
                     descr=open(configuration.README_FILE).read())

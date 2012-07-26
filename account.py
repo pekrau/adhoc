@@ -34,7 +34,6 @@ class Accounts(MethodMixin, GET):
     "Display information on all accounts."
 
     outreprs = [JsonRepresentation,
-                TextRepresentation,
                 AccountsHtmlRepresentation]
 
     def is_accessible(self):
@@ -84,7 +83,6 @@ class Account(MethodMixin, GET):
     "Display account information."
 
     outreprs = [JsonRepresentation,
-                TextRepresentation,
                 AccountHtmlRepresentation]
 
     def set_current(self, request):

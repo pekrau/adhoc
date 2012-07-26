@@ -36,18 +36,6 @@ class TestAccess(TestBase):
                      msg=headers['content-type'])
         self.get_json_data(response)
 
-    def test_GET_home_TXT(self):
-        "Fetch the home page, in TXT pprint format."
-        wr = self.get_wr('text/plain')
-        response = wr.GET('/')
-        self.assertEqual(response.status, httplib.OK,
-                         msg="HTTP status %s" % response.status)
-        headers = self.get_headers(response)
-        self.assert_(headers['content-type'].startswith('text/plain'),
-                     msg=headers['content-type'])
-        data = self.get_txt_data(response)
-        self.assert_(data is not None, msg='data has non-None content')
-
     def test_GET_home_NOSUCH(self):
         "Try fetching the home page in an impossible format."
         wr = self.get_wr('text/nosuch')

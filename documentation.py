@@ -15,7 +15,6 @@ class AdhocDocumentation(MethodMixin, GET_Documentation):
     cache_control = 'max-age=300'
 
     outreprs = [JsonRepresentation,
-                TextRepresentation,
                 HtmlRepresentation]
 
 
@@ -30,5 +29,4 @@ class AdhocApiDocumentation(MethodMixin, GET_ApiDocumentation):
     "Produce the documentation for the web resource API by introspection."
 
     outreprs = [JsonRepresentation,
-                TextRepresentation,
                 ApiDocumentationHtmlRepresentation]

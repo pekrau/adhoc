@@ -10,7 +10,6 @@ class Home(MethodMixin, GET):
     "The Adhoc home page."
 
     outreprs = [JsonRepresentation,
-                TextRepresentation,
                 HtmlRepresentation]
 
     def get_data_resource(self, request):
@@ -19,12 +18,15 @@ class Home(MethodMixin, GET):
                     descr="""The available tools are listed in the left-side panel.
 
 It is possible to try out this web application without logging in
-(i.e. using the anonymous account).
-For production work, a proper login is required. The available databases
-depend on which team your account is a member of. A few publicly accessible
+(i.e. using the anonymous account). A few publicly accessible
 databases are available.
 
-Contact the administrator to obtain your own account.
+A proper login account is required for production work.
+The databases available to your account depends on which team(s) the
+account is a member of.
+
+Contact the administrator to obtain your own account, and to set
+the teams it is a member of.
 
 For more information see the [About page](%s).
 """ % request.application.get_url('about'))

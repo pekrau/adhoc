@@ -33,7 +33,6 @@ class Tasks(MethodMixin, GET):
     "Display list of tasks."
 
     outreprs = [JsonRepresentation,
-                TextRepresentation,
                 TasksHtmlRepresentation]
 
     def is_accessible(self):
@@ -54,7 +53,6 @@ class TasksAccount(MethodMixin, GET):
     "Display list of tasks for an account."
 
     outreprs = [JsonRepresentation,
-                TextRepresentation,
                 TasksHtmlRepresentation]
 
     def set_current(self, request):
