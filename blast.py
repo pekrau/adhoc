@@ -769,7 +769,7 @@ def setup(application):
                              POST=CreateBlastx)
     application.add_resource('/tblastn',
                              name='Tool tblastn',
-                             GET=InputBlastn,
+                             GET=InputTblastn,
                              POST=CreateTblastn)
     application.add_resource('/tblastx',
                              name='Tool tblastx',

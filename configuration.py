@@ -40,7 +40,7 @@ ACCOUNT_BASE_URL_TEMPLATE = None
 #----------------------------------------------------------------------
 # The 'site_XXX' module must define paths to tool executables.
 # It may redefine any of the above global variables.
-HOSTNAME = socket.gethostname()
+HOSTNAME = socket.gethostname().split('.')[0]
 MODULENAME = "adhoc.site_%s" % HOSTNAME
 try:
     __import__(MODULENAME)
@@ -76,9 +76,9 @@ DOCS_DIR       = os.path.join(SOURCE_DIR, 'docs')
 EXECUTE_SCRIPT = os.path.join(SOURCE_DIR, 'execute.py')
 README_FILE    = os.path.join(SOURCE_DIR, 'README.md')
 
-MASTER_DB_FILE = os.path.join(DATA_DIR, 'master.sql3')
 DB_DIR         = os.path.join(DATA_DIR, 'db')
 TASK_DIR       = os.path.join(DATA_DIR, 'task')
+MASTER_DB_FILE = os.path.join(TASK_DIR, 'master.sql3')
 
 
 def get_account_quotas(account):
