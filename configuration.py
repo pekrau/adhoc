@@ -12,7 +12,7 @@ import socket
 DEBUG = False
 
 HOST = dict(title='SciLifeLab tools',
-            href='http://localhost/')
+            href='/')
 
 DATA_DIR = '/var/local/adhoc'
 

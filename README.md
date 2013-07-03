@@ -21,7 +21,8 @@ through the web interface. The access to the databases is
 controlled by the team memberships of a user account.
 
 Contact the administrator if you wish to make additional databases
-available, or if your memberships should be changed.
+available, or if your memberships should be changed. Instructions
+for the administrator are available below.
 
 ### Usage
 
@@ -52,6 +53,7 @@ It is possible to use the Adhoc system without logging in, in which case
 the built-in account 'anonymous' is used. All its tasks are publicly
 available, and only public databases are available to it.
 
+Accounts and teams are administered in the WhoYou system.
 Contact the administrator of the server to obtain your own account.
 
 ### RESTful interface
@@ -80,3 +82,27 @@ implementation. It is included in the standard Python distribution.
 
 An example installation can be viewed at
 [http://tools.scilifelab.se/adhoc](http://tools.scilifelab.se/adhoc).
+
+### How to include a new database
+
+The databases for the BLAST tool are located in /var/local/adhoc/db/blast
+
+The file log.txt in that directory contains a record of what has been
+added and how it was done.
+
+1) Move the FASTA file to the blast directory.
+2) Run the makeblastdb command on the FASTA file. See the log.txt file
+   for examples for the correct type of sequence database.
+3) Record the command and its output to the log.txt file.
+4) Add a record to the database configuration file "protein_databases.json"
+   or "nucleotide_database.json". Specify "size" as 1 for the time being.
+   The "number" parameter is the number of sequences, which is obtained from
+   the output of the makeblastdb command.
+5) Run a test using some common query sequence. The total number of letters
+   (bases or residues) should be entered (as an integer without commas) into
+   the database configuration file.
+6) Adjust ownership and protection of all files created.
+7) Make copies of the original database files to /var/local/db-backup/blast
+   directory, since only that directory is backed up.
+
+Note that the teams are defined in the WhoYou system.
